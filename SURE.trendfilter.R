@@ -1,24 +1,24 @@
 library(devtools)
 install_github("statsmaths/glmgen", subdir="R_pkg/glmgen")
 
-SURE.trendfilter <- function(x = NULL, y, wts = NULL, gamma = NULL, deg = 2){
+SURE.trendfilter <- function(x = NULL, y, wts = NULL, lambda = NULL, deg = 2){
   if ( is.null(x) ){
     x <- rep(1, length(y))
   }
   if ( is.null(wts) ){
     stop("Weights must be provided in order to compute SURE.")
   }
-  if ( is.null(gamma) ){
+  if ( is.null(lambda) ){
     stop("lambda must be specified.")
   }
-  out <- glmgen::trendfilter(x = x, y = y, weights = wts, k = deg, lambda = gamma)
-  if ( length(gamma) == 1 ){
+  out <- glmgen::trendfilter(x = x, y = y, weights = wts, k = deg, lambda = lambda)
+  if ( length(lambda) == 1 ){
     SURE.loss <- mean( (out$beta - y)^2 ) + (2 * mean(1/wts) / length(x)) * out$df
   }
-  if ( length(gamma) > 1 ){
+  if ( length(lambda) > 1 ){
     SURE.loss <- colMeans( (out$beta - y)^2 ) + (2 * mean(1/wts) / length(x)) * out$df
   }
-  return(list(gamma = gamma, SURE.loss = as.numeric(SURE.loss)))
+  return(list(lambda = lambda, SURE.loss = as.numeric(SURE.loss)))
 }
 
 # Quasar spectrum example
@@ -38,13 +38,13 @@ log.wavelength.scaled <- log.wavelength.scaled[inds]
 flux <- flux[inds]
 wts <- wts[inds]
 
-# Compute SURE loss curve and optimal gamma
-gamma.grid <- exp(seq(-14,4,length=150))
-SURE.out <- SURE.trendfilter(log.wavelength.scaled, flux, wts, gamma.grid)
-gamma.opt <- SURE.out$gamma[which.min(SURE.out$SURE.loss)]
+# Compute SURE loss curve and optimal lambda
+lambda.grid <- exp(seq(-14,4,length=150))
+SURE.out <- SURE.trendfilter(log.wavelength.scaled, flux, wts, lambda.grid)
+lambda.opt <- SURE.out$lambda[which.min(SURE.out$SURE.loss)]
 
 # Fit optimized model
-fit <- glmgen::trendfilter(log.wavelength.scaled, flux, wts, k = 2, lambda = gamma.opt)
+fit <- glmgen::trendfilter(log.wavelength.scaled, flux, wts, k = 2, lambda = lambda.opt)
 
 # Plot results
 wavelength <- 10 ^ (log.wavelength.scaled / 1000)
