@@ -1,16 +1,17 @@
 library(devtools)
 install_github("statsmaths/glmgen", subdir="R_pkg/glmgen")
 
-SURE.trendfilter <- function(x = NULL, y, wts = NULL, lambda = NULL, deg = 2){
+SURE.trendfilter <- function(x = NULL, y, sigma = NULL, lambda = NULL, deg = 2){
   if ( is.null(x) ){
     x <- rep(1, length(y))
   }
-  if ( is.null(wts) ){
-    stop("Weights must be provided in order to compute SURE.")
+  if ( is.null(sigma) ){
+    stop("sigma must be provided in order to compute SURE.")
   }
   if ( is.null(lambda) ){
     stop("lambda must be specified.")
   }
+  wts <- 1/sigma^2
   out <- glmgen::trendfilter(x = x, y = y, weights = wts, k = deg, lambda = lambda)
   if ( length(lambda) == 1 ){
     SURE.loss <- mean( (out$beta - y)^2 ) + (2 * mean(1/wts) / length(x)) * out$df
