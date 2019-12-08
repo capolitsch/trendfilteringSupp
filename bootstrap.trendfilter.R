@@ -22,7 +22,7 @@ install.packages("dplyr")
 #
 # if return.full.ensemble = TRUE, the full bootstrap ensemble will also be returned as a matrix
 
-nonpar.resampler <- function(data){
+nonparametric.resampler <- function(data){
   resampled.data <- dplyr::sample_n(data, size = nrow(data))
   return(resampled.data)
 }
@@ -54,7 +54,7 @@ bootstrap.trendfilter <- function(x, y, lambda.opt, sigma = NULL, B = 1000, x.ev
   }
   
   if ( bootstrap.method == "nonparametric" ){
-    tf.boot.ensemble <- matrix(unlist(replicate(B,tf.estimator(nonpar.resampler(data), lambda.opt, k, x.eval.grid))), ncol = B)
+    tf.boot.ensemble <- matrix(unlist(replicate(B,tf.estimator(nonparametric.resampler(data), lambda.opt, k, x.eval.grid))), ncol = B)
   }
   
   if ( bootstrap.method == "parametric" ){
