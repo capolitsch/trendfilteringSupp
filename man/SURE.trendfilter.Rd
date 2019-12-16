@@ -26,7 +26,7 @@ Maintainer: Collin Politsch <collinpolitsch@gmail.com>
 
 }
 \seealso{
-  \code{\link{bootstrap.trenfilter}}
+  \code{\link{bootstrap.trendfilter}}
 }
 \examples{
 # Quasar spectrum example
