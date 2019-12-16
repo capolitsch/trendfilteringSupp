@@ -1,6 +1,10 @@
 # Trend filtering
 Supplementary tools for data analysis with trend filtering (wrapper of glmgen)
 
+```
+devtools::install_github(repo = "capolitsch/trendfilteringSupp", force = F)
+```
+
 References:
 
 C. A. Politsch et al. Trend Filtering: A Modern Statistical Tool for Time-Domain Astronomy 
