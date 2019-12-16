@@ -2,7 +2,7 @@
 \alias{SURE.trendfilter}
 \title{SURE.trendfilter}
 \usage{
-SURE.trendfilter(x = NULL, y, sigma = NULL, lambda = NULL, k = 2)
+SURE.trendfilter(x = NULL, y, sigma = NULL, lambda = NULL, k = 2, max_iter = 250)
 }
 \arguments{
 \item{x}{The observed inputs.}
@@ -10,6 +10,7 @@ SURE.trendfilter(x = NULL, y, sigma = NULL, lambda = NULL, k = 2)
 \item{sigma}{A vector of measurement standard errors of the observed y's.}
 \item{lambda}{A vector of trend filtering hyperparameter values to be tested.}
 \item{k}{The degree of the trend filtering estimator. Defaults to \code{k=2} (quadratic trend filtering).}
+\item{max_iter}{Maximum iterations for ADMM optimization. Consider increasing if estimate does not appear to have fully converged.}
 }
 
 \value{
