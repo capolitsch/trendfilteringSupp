@@ -1,9 +1,9 @@
 bootstrap.trendfilter <- function(x, y, lambda.opt, sigma = NULL, B = 1000, x.eval.grid = x, k = 2, 
                                   bootstrap.method = "nonparametric", alpha = 0.05, return.full.ensemble = F){
   if ( is.null(sigma) ){
-    data <- data.frame(x=x,y=y,wts=1/sigma^2)
-  }else{
     data <- data.frame(x=x,y=y,wts=1)
+  }else{
+    data <- data.frame(x=x,y=y,wts=1/sigma^2)
   }
   
   if ( bootstrap.method == "nonparametric" ){
