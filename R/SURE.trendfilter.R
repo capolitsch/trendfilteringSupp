@@ -13,7 +13,7 @@ SURE.trendfilter <- function(x = NULL, y, sigma = NULL, lambda = NULL, k = 2, ma
   }
   wts <- 1/sigma^2
   out <- glmgen::trendfilter(x = x, y = y, weights = wts, k = k, lambda = lambda,
-                             control = trendfilter.control.list(max_iter = max_iter))
+                             control = glmgen::trendfilter.control.list(max_iter = max_iter))
   if ( length(lambda) == 1 ){
     SURE.loss <- mean( (out$beta - y)^2 ) + (2 * mean(1/wts) / length(x)) * out$df
   }
