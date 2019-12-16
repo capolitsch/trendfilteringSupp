@@ -21,9 +21,7 @@ A list with the following elements:
 SURE.trendfilter computes the Stein's unbiased risk estimate of fixed-input mean-squared prediction error on a grid of hyperparameter values.
 }
 \author{
-Collin Politsch
-Maintainer: Collin Politsch <collinpolitsch@gmail.com>
-
+Collin Politsch <collinpolitsch@gmail.com>
 }
 \seealso{
   \code{\link{bootstrap.trendfilter}}
