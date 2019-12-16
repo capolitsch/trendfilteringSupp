@@ -7,16 +7,16 @@ bootstrap.trendfilter <- function(x, y, lambda.opt, sigma = NULL, B = 1000, x.ev
   }
   
   if ( bootstrap.method == "nonparametric" ){
-    tf.boot.ensemble <- matrix(unlist(replicate(B,tf.estimator(nonparametric.resampler(data), lambda.opt, k, x.eval.grid,
-                                                              control = glmgen::trendfilter.control.list(max_iter = max_iter)))),
+    tf.boot.ensemble <- matrix(unlist(replicate(B,tf.estimator(nonparametric.resampler(data), lambda.opt, k,
+                                                               x.eval.grid,max_iter = max_iter))),
                                ncol = B)
   }
   
   if ( bootstrap.method == "parametric" ){
     tf.estimate <- tf.estimator(data, lambda.opt, k, x.eval.grid)
     data$tf.estimate <- tf.estimate
-    tf.boot.ensemble <- matrix(unlist(replicate(B,tf.estimator(parametric.sampler(data), lambda.opt, k, x.eval.grid,
-                                                              control = glmgen::trendfilter.control.list(max_iter = max_iter)))),
+    tf.boot.ensemble <- matrix(unlist(replicate(B,tf.estimator(parametric.sampler(data), lambda.opt, k,
+                                                               x.eval.grid, max_iter = max_iter))),
                                ncol = B)
   }
   
@@ -25,8 +25,8 @@ bootstrap.trendfilter <- function(x, y, lambda.opt, sigma = NULL, B = 1000, x.ev
     tf.residuals <- data$y - tf.estimate
     data$tf.estimate <- tf.estimate
     data$tf.residuals <- tf.residuals
-    tf.boot.ensemble <- matrix(unlist(replicate(B,tf.estimator(wild.sampler(data), lambda.opt, k, x.eval.grid,
-                                                              control = glmgen::trendfilter.control.list(max_iter = max_iter)))),
+    tf.boot.ensemble <- matrix(unlist(replicate(B,tf.estimator(wild.sampler(data), lambda.opt, k,
+                                                               x.eval.grid, max_iter = max_iter))),
                                ncol = B)
   }
   
