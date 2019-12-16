@@ -5,6 +5,9 @@ SURE.trendfilter <- function(x = NULL, y, sigma = NULL, lambda = NULL, k = 2){
   if ( is.null(sigma) ){
     stop("sigma must be provided in order to compute SURE.")
   }
+  if ( length(sigma) == 1 ){
+    sigma <- rep(sigma, length(y))
+  }
   if ( is.null(lambda) ){
     stop("lambda must be specified.")
   }
