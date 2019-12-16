@@ -41,8 +41,7 @@ S2. The inputs are regularly sampled and the noise distribution is known --> boo
 S3. The inputs are regularly sampled and the noise distribution is unknown --> bootstrap.method = "wild".
 }
 \author{
-Collin Politsch
-Maintainer: Collin Politsch <collinpolitsch@gmail.com>
+Collin Politsch <collinpolitsch@gmail.com>
 }
 \seealso{
   \code{\link{SURE.trendfilter}}
