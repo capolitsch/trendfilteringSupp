@@ -20,6 +20,14 @@ A list with the following elements:
 \description{
 SURE.trendfilter computes the Stein's unbiased risk estimate of fixed-input mean-squared prediction error on a grid of hyperparameter values.
 }
+\author{
+Collin Politsch
+Maintainer: Collin Politsch <collinpolitsch@gmail.com>
+
+}
+\seealso{
+  \code{\link{bootstrap.trenfilter}}
+}
 \examples{
 # Quasar spectrum example
 install.packages("FITSio")
