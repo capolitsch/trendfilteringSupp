@@ -1,0 +1,20 @@
+SURE.trendfilter <- function(x = NULL, y, sigma = NULL, lambda = NULL, k = 2){
+  if ( is.null(x) ){
+    x <- rep(1, length(y))
+  }
+  if ( is.null(sigma) ){
+    stop("sigma must be provided in order to compute SURE.")
+  }
+  if ( is.null(lambda) ){
+    stop("lambda must be specified.")
+  }
+  wts <- 1/sigma^2
+  out <- glmgen::trendfilter(x = x, y = y, weights = wts, k = k, lambda = lambda)
+  if ( length(lambda) == 1 ){
+    SURE.loss <- mean( (out$beta - y)^2 ) + (2 * mean(1/wts) / length(x)) * out$df
+  }
+  if ( length(lambda) > 1 ){
+    SURE.loss <- colMeans( (out$beta - y)^2 ) + (2 * mean(1/wts) / length(x)) * out$df
+  }
+  return(list(lambda = lambda, SURE.loss = as.numeric(SURE.loss)))
+}
