@@ -12,7 +12,8 @@ bootstrap.trendfilter(
   k = 2,
   bootstrap.method = "nonparametric",
   alpha = 0.05,
-  return.full.ensemble = F
+  return.full.ensemble = F,
+  max_iter = 250
 )
 }
 \arguments{
@@ -26,6 +27,7 @@ bootstrap.trendfilter(
 \item{bootstrap.method}{Bootstrap method to be implemented. See description for suggested use. Defaults to "nonparametric".}
 \item{alpha}{Specifies the width of the \code{1-alpha} pointwise confidence bands.}
 \item{return.full.ensemble}{Return the full bootstrap ensemble as an (n x B) matrix. Defaults to FALSE.}
+\item{max_iter}{Maximum iterations for ADMM optimization. Consider increasing if estimate does not appear to have fully converged.}
 }
 
 \value{
