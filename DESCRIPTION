@@ -11,6 +11,6 @@ Description: (1) Selecting the trend filtering hyperparameter by minimizing Stei
 License: MIT
 Encoding: UTF-8
 LazyData: true
+Maintainer: Collin Politsch <collinpolitsch@gmail.com>
 RoxygenNote: 7.0.2
-Suggests: 
-    testthat (>= 2.1.0)
+Imports: glmgen (>= 0.0.3), dplyr (>= 0.8.3)
