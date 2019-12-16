@@ -9,7 +9,7 @@ SURE.trendfilter(x = NULL, y, sigma = NULL, lambda = NULL, k = 2)
 \item{y}{The observed outputs.}
 \item{sigma}{A vector of measurement standard errors of the observed y's.}
 \item{lambda}{A vector of trend filtering hyperparameter values to be tested.}
-\item{k}{The degree of the trend filtering estimator. Defaults to k=2 (quadratic trend filtering).}
+\item{k}{The degree of the trend filtering estimator. Defaults to \code{k=2} (quadratic trend filtering).}
 }
 
 \value{
@@ -18,7 +18,7 @@ A list with the following elements:
 \item{SURE.loss}{Vector of estimated SURE errors for each hyperparameter value.}
 }
 \description{
-SURE.trendfilter computes the Stein's unbiased risk estimate of fixed-input mean-squared prediction error on a grid of hyperparameter values.
+\code{SURE.trendfilter} computes the Stein's unbiased risk estimate of fixed-input mean-squared prediction error on a grid of hyperparameter values.
 }
 \author{
 Collin Politsch <collinpolitsch@gmail.com>
