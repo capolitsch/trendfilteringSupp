@@ -40,6 +40,13 @@ S1. The inputs are irregularly sampled --> bootstrap.method = "nonparametric";
 S2. The inputs are regularly sampled and the noise distribution is known --> bootstrap.method = "parametric";
 S3. The inputs are regularly sampled and the noise distribution is unknown --> bootstrap.method = "wild".
 }
+\author{
+Collin Politsch
+Maintainer: Collin Politsch <collinpolitsch@gmail.com>
+}
+\seealso{
+  \code{\link{SURE.trendfilter}}
+} 
 \examples{
 install.packages("devtools")
 devtools::install_github("statsmaths/glmgen", subdir="R_pkg/glmgen")
