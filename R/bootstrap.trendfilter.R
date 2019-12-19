@@ -9,7 +9,7 @@ bootstrap.trendfilter <- function(x, y, lambda.opt, sigma = NULL, B = 1000, x.ev
   
   if ( bootstrap.method == "nonparametric" ){
     tf.boot.ensemble <- matrix(unlist(replicate(B,tf.estimator(nonparametric.resampler(data), lambda.opt, k,
-                                                               x.eval.grid,max_iter = max_iter))),
+                                                               x.eval.grid, max_iter = max_iter))),
                                ncol = B)
   }
   
