@@ -22,10 +22,8 @@ bootstrap.trendfilter <- function(x, y, lambda.opt, sigma = NULL, B = 1000, x.ev
   }
   
   if ( bootstrap.method == "wild" ){
-    tf.estimate <- tf.estimator(data, lambda.opt, k, x.eval.grid)
-    tf.residuals <- data$y - tf.estimate
-    data$tf.estimate <- tf.estimate
-    data$tf.residuals <- tf.residuals
+    data$tf.estimate <- tf.estimator(data, lambda.opt, k, x.eval.grid)
+    data$tf.residuals <- data$y - tf.estimate
     tf.boot.ensemble <- matrix(unlist(replicate(B,tf.estimator(wild.sampler(data), lambda.opt, k,
                                                                x.eval.grid, max_iter = max_iter))),
                                ncol = B)
