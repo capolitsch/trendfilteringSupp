@@ -12,7 +12,7 @@ bootstrap.trendfilter(
   k = 2,
   bootstrap.method = "nonparametric",
   alpha = 0.05,
-  return.full.ensemble = F,
+  full.ensemble = F,
   max_iter = 250,
   obj_tol = 1e-06,
   mc.cores = 1
@@ -28,7 +28,7 @@ bootstrap.trendfilter(
 \item{k}{The degree of the trend filtering estimator. Defaults to \code{k=2} (quadratic trend filtering).}
 \item{bootstrap.method}{Bootstrap method to be implemented. See description for suggested use. Defaults to "nonparametric".}
 \item{alpha}{Specifies the width of the \code{1-alpha} pointwise confidence bands.}
-\item{return.full.ensemble}{Return the full bootstrap ensemble as an (n x B) matrix. Defaults to FALSE.}
+\item{full.ensemble}{Return the full bootstrap ensemble as an (n x B) matrix. Defaults to FALSE.}
 \item{max_iter}{Maximum iterations for ADMM optimization. Consider increasing if estimate does not appear to have fully converged.}
 \item{obj_tol}{The tolerance used in the stopping criterion; when the relative change in objective values is less than this value, the algorithm terminates.}
 \item{mc.cores}{The number of cores to use.}
