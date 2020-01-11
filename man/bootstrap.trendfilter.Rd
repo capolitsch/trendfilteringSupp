@@ -54,6 +54,7 @@ Collin Politsch <collinpolitsch@gmail.com>
 } 
 \examples{
 # Quasar spectrum example
+# See "data" folder for quasar fits file 
 install.packages("FITSio")
 install.packages("devtools")
 library(FITSio)
