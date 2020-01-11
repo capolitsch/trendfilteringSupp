@@ -14,7 +14,8 @@ bootstrap.trendfilter(
   alpha = 0.05,
   return.full.ensemble = F,
   max_iter = 250,
-  obj_tol = 1e-06
+  obj_tol = 1e-06,
+  mc.cores = 1
 )
 }
 \arguments{
@@ -30,6 +31,7 @@ bootstrap.trendfilter(
 \item{return.full.ensemble}{Return the full bootstrap ensemble as an (n x B) matrix. Defaults to FALSE.}
 \item{max_iter}{Maximum iterations for ADMM optimization. Consider increasing if estimate does not appear to have fully converged.}
 \item{obj_tol}{the tolerance used in the stopping criterion; when the relative change in objective values is less than this value, the algorithm terminates.}
+\item{mc.cores}{The number of cores to use.}
 }
 
 \value{
