@@ -1,5 +1,5 @@
 bootstrap.trendfilter <- function(x, y, lambda.opt, sigma = NULL, B = 1000, x.eval.grid = x, k = 2, 
-                                  bootstrap.method = "nonparametric", alpha = 0.05, return.full.ensemble = F,
+                                  bootstrap.method = "nonparametric", alpha = 0.05, full.ensemble = F,
                                   max_iter = 250, obj_tol = 1e-06, mc.cores = 1){
   if ( is.null(sigma) ){
     data <- data.frame(x=x,y=y,wts=1)
@@ -60,7 +60,7 @@ bootstrap.trendfilter <- function(x, y, lambda.opt, sigma = NULL, B = 1000, x.ev
   bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble,1,quantile,probs = alpha/2)
   bootstrap.upper.perc.intervals <- apply(tf.boot.ensemble,1,quantile,probs = 1-alpha/2)
   
-  if ( !return.full.ensemble ){
+  if ( !full.ensemble ){
     return(list(bootstrap.lower.perc.intervals=bootstrap.lower.perc.intervals,
                 bootstrap.upper.perc.intervals=bootstrap.upper.perc.intervals))
   }else{
