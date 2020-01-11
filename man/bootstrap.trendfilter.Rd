@@ -87,7 +87,8 @@ wavelength <- 10 ^ (log.wavelength.scaled / 1000)
 plot(wavelength, flux, type = "l")
 lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
 
-boot.out <- bootstrap.trendfilter(log.wavelength.scaled, flux, lambda.opt, sigma = sqrt(1/wts))
+boot.out <- bootstrap.trendfilter(log.wavelength.scaled, flux, lambda.opt, sigma = sqrt(1/wts),
+                                  bootstrap.method = "parametric")
 lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lty = 2, lwd = 2)
 lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty = 2, lwd = 2)
 }
