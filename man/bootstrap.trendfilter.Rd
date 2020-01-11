@@ -53,7 +53,40 @@ Collin Politsch <collinpolitsch@gmail.com>
   \code{\link{SURE.trendfilter}}
 } 
 \examples{
+# Quasar spectrum example
+install.packages("FITSio")
 install.packages("devtools")
-devtools::install_github("statsmaths/glmgen", subdir="R_pkg/glmgen")
-install.packages("dplyr")
+library(FITSio)
+library(devtools)
+install_github("statsmaths/glmgen", subdir="R_pkg/glmgen")
+quasar.spec <- readFITS("spec-4055-55359-0010.fits", hdu = 1)
+
+# SDSS spectra are equally spaced in log10 wavelength space with a separation of 10e-4
+# Reading in a spectrum file and retrieving the piece of the spectrum in the Lyman-alpha
+# forest region
+log.wavelength.scaled <- quasar.spec$col[[2]] * 1000
+flux <- quasar.spec$col[[1]]
+wts <- quasar.spec$col[[3]]
+lya.rest.wavelength <- 1215.67
+inds <- which(( 10 ^ (log.wavelength.scaled / 1000) ) / (2.953 + 1) < lya.rest.wavelength + 40)
+log.wavelength.scaled <- log.wavelength.scaled[inds]
+flux <- flux[inds]
+wts <- wts[inds]
+
+# Compute SURE loss curve and optimal lambda
+lambda.grid <- exp(seq(-14,4,length=150))
+SURE.out <- SURE.trendfilter(log.wavelength.scaled, flux, wts, lambda.grid)
+lambda.opt <- SURE.out$lambda[which.min(SURE.out$SURE.loss)]
+
+# Fit optimized model
+fit <- glmgen::trendfilter(log.wavelength.scaled, flux, wts, k = 2, lambda = lambda.opt)
+
+# Plot results
+wavelength <- 10 ^ (log.wavelength.scaled / 1000)
+plot(wavelength, flux, type = "l")
+lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
+
+boot.out <- bootstrap.trendfilter(log.wavelength.scaled, flux, lambda.opt, sigma = sqrt(1/wts))
+lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lty = 2, lwd = 2)
+lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty = 2, lwd = 2)
 }
