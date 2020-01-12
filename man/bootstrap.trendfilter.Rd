@@ -88,5 +88,6 @@ boot.out <- bootstrap.trendfilter(log.wavelength.scaled, flux, lambda.opt, sigma
                                   bootstrap.method = "parametric")
 lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lty = 2, lwd = 2)
 lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty = 2, lwd = 2)
-legend(x = "topleft", lty = c(1,2), col = "orange", lwd = 2, legend = c("Trend filtering estimate", "95% variability band"))
+legend(x = "topleft", lty = c(1,2), col = "orange", lwd = 2, 
+       legend = c("Trend filtering estimate", "95 percent variability band"))
 }
