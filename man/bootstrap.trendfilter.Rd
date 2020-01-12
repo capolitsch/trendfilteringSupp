@@ -58,7 +58,7 @@ devtools::install_github("statsmaths/glmgen", subdir="R_pkg/glmgen")
 
 # Quasar spectrum example
 data(quasar)
-
+  
 # SDSS spectra are equally spaced in log10 wavelength space with a separation of 10e-4
 # Reading in a spectrum file and retrieving the piece of the spectrum in the Lyman-alpha
 # forest region
@@ -72,7 +72,7 @@ flux <- flux[inds]
 wts <- wts[inds]
 
 # Compute SURE loss curve and optimal lambda
-plot(log(lambda.grid), SURE.out$SURE.loss)
+lambda.grid <- exp(seq(-10,7,length=250))
 SURE.out <- SURE.trendfilter(log.wavelength.scaled, flux, wts, lambda.grid)
 lambda.opt <- SURE.out$lambda[which.min(SURE.out$SURE.loss)]
 
