@@ -29,11 +29,12 @@ Collin Politsch <collinpolitsch@gmail.com>
   \code{\link{bootstrap.trendfilter}}
 }
 \examples{
-# Quasar spectrum example
-data(quasar)
 install.packages("devtools")
 devtools::install_github("statsmaths/glmgen", subdir="R_pkg/glmgen")
-
+  
+# Quasar spectrum example
+data(quasar)
+  
 # SDSS spectra are equally spaced in log10 wavelength space with a separation of 10e-4
 # Reading in a spectrum file and retrieving the piece of the spectrum in the Lyman-alpha
 # forest region
@@ -56,7 +57,7 @@ fit <- glmgen::trendfilter(log.wavelength.scaled, flux, wts, k = 2, lambda = lam
 
 # Plot results
 par(mfrow=c(2,1))
-plot(log(lambda.grid), SURE.out$SURE.loss)
+plot(log(lambda.grid), SURE.out$SURE.loss, xlab = "log(lambda)", ylab = "SURE")
 abline(v = log(lambda.opt))
 wavelength <- 10 ^ (log.wavelength.scaled / 1000)
 plot(wavelength, flux, type = "l")
