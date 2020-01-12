@@ -47,7 +47,7 @@ flux <- flux[inds]
 wts <- wts[inds]
 
 # Compute SURE loss curve and optimal lambda
-lambda.grid <- exp(seq(-14,4,length=150))
+lambda.grid <- exp(seq(-10,7,length=250))
 SURE.out <- SURE.trendfilter(log.wavelength.scaled, flux, wts, lambda.grid)
 lambda.opt <- SURE.out$lambda[which.min(SURE.out$SURE.loss)]
 
@@ -55,6 +55,9 @@ lambda.opt <- SURE.out$lambda[which.min(SURE.out$SURE.loss)]
 fit <- glmgen::trendfilter(log.wavelength.scaled, flux, wts, k = 2, lambda = lambda.opt)
 
 # Plot results
+par(mfrow=c(2,1))
+plot(log(lambda.grid), SURE.out$SURE.loss)
+abline(v = log(lambda.opt))
 wavelength <- 10 ^ (log.wavelength.scaled / 1000)
 plot(wavelength, flux, type = "l")
 lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
