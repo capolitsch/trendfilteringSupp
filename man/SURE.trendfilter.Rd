@@ -30,13 +30,9 @@ Collin Politsch <collinpolitsch@gmail.com>
 }
 \examples{
 # Quasar spectrum example
-# See "data" folder for quasar fits file 
-install.packages("FITSio")
+data(quasar)
 install.packages("devtools")
-library(FITSio)
-library(devtools)
-install_github("statsmaths/glmgen", subdir="R_pkg/glmgen")
-quasar.spec <- readFITS("spec-4055-55359-0010.fits", hdu = 1)
+devtools::install_github("statsmaths/glmgen", subdir="R_pkg/glmgen")
 
 # SDSS spectra are equally spaced in log10 wavelength space with a separation of 10e-4
 # Reading in a spectrum file and retrieving the piece of the spectrum in the Lyman-alpha
