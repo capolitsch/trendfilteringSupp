@@ -17,7 +17,7 @@ References:
 C. A. Politsch et al. Trend Filtering - I. A Modern Statistical Tool for Time-Domain Astronomy 
 and Astronomical Spectroscopy. To appear in Monthly Notices of the Royal Astronomical Society. https://arxiv.org/abs/1908.07151
 
-C. A. Politsch et al. Trend Filtering - II. Denoising Astronomical Signals with Varying Degrees of Smoothness. To appear in Monthly Notices of the Royal Astronomical Society.
+C. A. Politsch et al. Trend Filtering - II. Denoising Astronomical Signals with Varying Degrees of Smoothness. To appear in Monthly Notices of the Royal Astronomical Society. https://arxiv.org/abs/2001.03552
 
 Tibshirani, R. J. Adaptive piecewise polynomial estimation via trend filtering. 
 The Annals of Statistics. 42 (2014), no. 1, 285--323. doi:10.1214/13-AOS1189. 
