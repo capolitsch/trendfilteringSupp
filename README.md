@@ -18,7 +18,7 @@ https://academic.oup.com/mnras/article/492/3/4005/5704413
 C. A. Politsch et al. Trend Filtering - II. Denoising Astronomical Signals with Varying Degrees of Smoothness. Monthly Notices of the Royal Astronomical Society, 492(3), p. 4019-4032, 2020. 
 https://academic.oup.com/mnras/article/492/3/4019/5704414
 
-Tibshirani, R. J. Adaptive piecewise polynomial estimation via trend filtering. 
+R. J. Tibshirani. Adaptive piecewise polynomial estimation via trend filtering. 
 The Annals of Statistics. 42 (2014), no. 1, 285--323. doi:10.1214/13-AOS1189. 
 https://projecteuclid.org/euclid.aos/1395234979
 
