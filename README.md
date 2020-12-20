@@ -3,11 +3,9 @@ Supplementary tools for data analysis with trend filtering (wrapper of glmgen)
 
 ```
 library(devtools)
-install_github("statsmaths/glmgen", subdir="R_pkg/glmgen")
 install_github("capolitsch/trendfilteringSupp")
-
-library(glmgen)
 library(trendfilteringSupp)
+
 ?SURE.trendfilter
 ?bootstrap.trendfilter
 ```
