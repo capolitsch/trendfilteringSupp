@@ -4,6 +4,14 @@
 \name{trendfilteringSupp-package}
 \alias{trendfilteringSupp-package}
 \title{Supplementary tools for data analysis with trend filtering}
+\description{
+Some supplementary statistical tools for conducting data 
+analysis with trend filtering (wrapper of \code{glmgen})
+\enumerate{
+\item Selecting the trend filtering hyperparameter by minimizing Stein’s unbiased risk estimate
+\item Various bootstrap methods for trend filtering uncertainty quantification.
+}
+}
 \seealso{
 Refer to:
 \enumerate{

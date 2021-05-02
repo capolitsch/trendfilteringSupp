@@ -3,3 +3,6 @@
 export(SURE.trendfilter)
 export(bootstrap.trendfilter)
 import(glmgen)
+importFrom(dplyr,slice_sample)
+importFrom(stats,quantile)
+importFrom(stats,rnorm)

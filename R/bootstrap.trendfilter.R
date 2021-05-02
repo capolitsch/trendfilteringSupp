@@ -23,8 +23,8 @@
 #' matrix. Defaults to \code{FALSE}.
 #' @param max_iter Maximum iterations allowed for the trend filtering 
 #' convex optimization 
-#' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & 
-#' Tibshirani (2015)}]. 
+#' \href{https://stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{
+#' Ramdas & Tibshirani (2015)}. 
 #' Consider increasing this if the bootstrap estimates do not appear to 
 #' have fully converged to a reasonable estimate of the signal.
 #' @param obj_tol The tolerance used in the convex optimization stopping 
@@ -61,18 +61,14 @@
 #' Politsch et al. (2020). Trend filtering – II. Denoising astronomical signals 
 #' with varying degrees of smoothness} \cr
 #' 
-#' \item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7
-#' /issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/
-#' 1176344552.full}{
+#' \item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full}{
 #' Efron (1979). Bootstrap Methods: Another Look at the Jackknife} \cr
 #' 
 #' \item \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
 #' Efron and Tibshirani (1986). Bootstrap Methods for Standard Errors, 
 #' Confidence Intervals, and Other Measures of Statistical Accuracy} \cr
 #' 
-#' \item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-
-#' 14/issue-4/Jackknife-Bootstrap-and-Other-Resampling-Methods-in-Regression-
-#' Analysis/10.1214/aos/1176350142.full}{
+#' \item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-14/issue-4/Jackknife-Bootstrap-and-Other-Resampling-Methods-in-Regression-Analysis/10.1214/aos/1176350142.full}{
 #' Wu (1986). Jackknife, Bootstrap and Other Resampling Methods in Regression 
 #' Analysis} \cr
 #' }
@@ -127,13 +123,14 @@
 #' plot(wavelength, flux, type = "l")
 #' lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
 #' 
-#' boot.out <- bootstrap.trendfilter(log.wavelength.scaled, flux, lambda.opt, sigma = sqrt(1/wts),
+#' boot.out <- bootstrap.trendfilter(log.wavelength.scaled, flux, lambda.min, sigma = sqrt(1/wts),
 #'                                   bootstrap.method = "parametric")
 #' lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lty = 2, lwd = 2)
 #' lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty = 2, lwd = 2)
 #' legend(x = "topleft", lty = c(1,2), col = "orange", lwd = 2, 
 #'        legend = c("Trend filtering estimate", "95 percent variability band"))
 
+#' @importFrom stats quantile
 bootstrap.trendfilter <- function(x, 
                                   y, 
                                   sigma = NULL,
@@ -164,7 +161,7 @@ bootstrap.trendfilter <- function(x,
     if ( mc.cores == 1 ){
       tf.boot.ensemble <- matrix(unlist(replicate(B,
                                                   tf.estimator(nonparametric.resampler(data), 
-                                                               lambda.opt, 
+                                                               lambda.min, 
                                                                k,
                                                                x.eval.grid, 
                                                                max_iter = max_iter, 
@@ -177,7 +174,7 @@ bootstrap.trendfilter <- function(x,
     }else{
       par.func <- function(b){
         boot.tf.estimate <- tf.estimator(nonparametric.resampler(data), 
-                                         lambda.opt, 
+                                         lambda.min, 
                                          k, 
                                          x.eval.grid, 
                                          max_iter = max_iter, 
@@ -190,12 +187,12 @@ bootstrap.trendfilter <- function(x,
   }
   
   if ( bootstrap.method == "parametric" ){
-    tf.estimate <- tf.estimator(data, lambda.opt, k, x.eval.grid)
+    tf.estimate <- tf.estimator(data, lambda.min, k, x.eval.grid)
     data$tf.estimate <- tf.estimate
     if ( mc.cores == 1 ){
       tf.boot.ensemble <- matrix(unlist(replicate(B,
                                                   tf.estimator(parametric.sampler(data), 
-                                                               lambda.opt, 
+                                                               lambda.min, 
                                                                k,
                                                                x.eval.grid, 
                                                                max_iter = max_iter, 
@@ -207,7 +204,7 @@ bootstrap.trendfilter <- function(x,
                                  )
     }else{
       par.func <- function(b){
-        boot.tf.estimate <- tf.estimator(parametric.sampler(data), lambda.opt, k, x.eval.grid, 
+        boot.tf.estimate <- tf.estimator(parametric.sampler(data), lambda.min, k, x.eval.grid, 
                                          max_iter = max_iter, obj_tol = obj_tol)
         return(boot.tf.estimate)
       }
@@ -216,13 +213,13 @@ bootstrap.trendfilter <- function(x,
   }
   
   if ( bootstrap.method == "wild" ){
-    data$tf.estimate <- tf.estimator(data, lambda.opt, k, x.eval.grid)
+    data$tf.estimate <- tf.estimator(data, lambda.min, k, x.eval.grid)
     data$tf.residuals <- data$y - data$tf.estimate
     
     if ( mc.cores == 1 ){
       tf.boot.ensemble <- matrix(unlist(replicate(B,
                                                   tf.estimator(wild.sampler(data), 
-                                                               lambda.opt, 
+                                                               lambda.min, 
                                                                k,
                                                                x.eval.grid, 
                                                                max_iter = max_iter, 
@@ -234,7 +231,7 @@ bootstrap.trendfilter <- function(x,
                                )
     }else{
       par.func <- function(b){
-        boot.tf.estimate <- tf.estimator(wild.sampler(data), lambda.opt, k, x.eval.grid, 
+        boot.tf.estimate <- tf.estimator(wild.sampler(data), lambda.min, k, x.eval.grid, 
                                          max_iter = max_iter, obj_tol = obj_tol)
         return(boot.tf.estimate)
       }
@@ -256,7 +253,6 @@ bootstrap.trendfilter <- function(x,
 }
 
 
-#' @keywords internal
 tf.estimator <- function(data, lambda, k, edf, x.eval.grid, max_iter = 250, obj_tol = 1e-06){
   tf.fit <- glmgen::trendfilter(data$x, 
                                 data$y, 
@@ -272,21 +268,20 @@ tf.estimator <- function(data, lambda, k, edf, x.eval.grid, max_iter = 250, obj_
 }
 
 
-#' @keywords internal
+#' @importFrom dplyr slice_sample
 nonparametric.resampler <- function(data){
-  resampled.data <- dplyr::sample_n(data, size = nrow(data), replace = TRUE)
+  resampled.data <- slice_sample(data, size = nrow(data), replace = TRUE)
   return(resampled.data)
 }
 
 
-#' @keywords internal
+#' @importFrom stats rnorm
 parametric.sampler <- function(data){
   boot.sample <- data$tf.estimate + rnorm(nrow(data), sd = 1 / sqrt(data$wts))
   return(data.frame(x=data$x,y=boot.sample,wts=data$wts))
 }
 
 
-#' @keywords internal
 wild.sampler <- function(data){
   wild.boot.resids <- data$tf.residuals * sample(x = c((1+sqrt(5))/2, 1-sqrt(5)/2), size = nrow(data), replace = T, 
                                                  prob = c((1+sqrt(5))/(2*sqrt(5)),(sqrt(5)-1)/(2*sqrt(5))))

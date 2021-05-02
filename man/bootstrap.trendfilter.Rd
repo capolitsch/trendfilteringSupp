@@ -51,8 +51,8 @@ matrix. Defaults to \code{FALSE}.}
 
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
-[\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & 
-Tibshirani (2015)}]. 
+\href{https://stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{
+Ramdas & Tibshirani (2015)}. 
 Consider increasing this if the bootstrap estimates do not appear to 
 have fully converged to a reasonable estimate of the signal.}
 
@@ -140,7 +140,7 @@ wavelength <- 10 ^ (log.wavelength.scaled / 1000)
 plot(wavelength, flux, type = "l")
 lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
 
-boot.out <- bootstrap.trendfilter(log.wavelength.scaled, flux, lambda.opt, sigma = sqrt(1/wts),
+boot.out <- bootstrap.trendfilter(log.wavelength.scaled, flux, lambda.min, sigma = sqrt(1/wts),
                                   bootstrap.method = "parametric")
 lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lty = 2, lwd = 2)
 lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty = 2, lwd = 2)
@@ -157,18 +157,14 @@ time-domain astronomy and astronomical spectroscopy} \cr
 Politsch et al. (2020). Trend filtering – II. Denoising astronomical signals 
 with varying degrees of smoothness} \cr
 
-\item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7
-/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/
-1176344552.full}{
+\item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full}{
 Efron (1979). Bootstrap Methods: Another Look at the Jackknife} \cr
 
 \item \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
 Efron and Tibshirani (1986). Bootstrap Methods for Standard Errors, 
 Confidence Intervals, and Other Measures of Statistical Accuracy} \cr
 
-\item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-
-14/issue-4/Jackknife-Bootstrap-and-Other-Resampling-Methods-in-Regression-
-Analysis/10.1214/aos/1176350142.full}{
+\item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-14/issue-4/Jackknife-Bootstrap-and-Other-Resampling-Methods-in-Regression-Analysis/10.1214/aos/1176350142.full}{
 Wu (1986). Jackknife, Bootstrap and Other Resampling Methods in Regression 
 Analysis} \cr
 }

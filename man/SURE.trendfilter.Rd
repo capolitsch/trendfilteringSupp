@@ -112,8 +112,7 @@ and Wasserman (Course notes). Stein’s Unbiased Risk Estimate} \cr
 \item \href{https://www.tandfonline.com/doi/abs/10.1198/016214504000000692}{Efron 
 (2004). The Estimation of Prediction Error: Covariance Penalties and Cross-Validation} \cr
 
-\item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-9/issue-6/Estimation-
-of-the-Mean-of-a-Multivariate-Normal-Distribution/10.1214/aos/1176345632.full}{Stein (1981).
+\item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-9/issue-6/Estimation-of-the-Mean-of-a-Multivariate-Normal-Distribution/10.1214/aos/1176345632.full}{Stein (1981).
 Estimation of the Mean of a Multivariate Normal Distribution}
 }
 }

@@ -45,8 +45,7 @@
 #' \item \href{https://www.tandfonline.com/doi/abs/10.1198/016214504000000692}{Efron 
 #' (2004). The Estimation of Prediction Error: Covariance Penalties and Cross-Validation} \cr
 #' 
-#' \item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-9/issue-6/Estimation-
-#' of-the-Mean-of-a-Multivariate-Normal-Distribution/10.1214/aos/1176345632.full}{Stein (1981).
+#' \item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-9/issue-6/Estimation-of-the-Mean-of-a-Multivariate-Normal-Distribution/10.1214/aos/1176345632.full}{Stein (1981).
 #' Estimation of the Mean of a Multivariate Normal Distribution}
 #' }
 #' @examples 
@@ -112,8 +111,7 @@ SURE.trendfilter <- function(x,
   
   if ( is.null(x) ) stop("x must be specified.")
   if ( is.null(y) ) stop("y must be specified.")
-  if ( is.null(sigma) ) stop("sigma is needed in order to compute SURE. If estimates are not available,
-                             use cross validation.")
+  if ( is.null(sigma) ) stop("sigma is needed in order to compute SURE. If estimates are not available, use cross validation.")
   if ( is.null(lambda) ) stop("lambda must be specified.")
   if ( !(length(sigma) %in% c(1,length(y))) ) stop("sigma must either be scalar or same length as y.")
   
