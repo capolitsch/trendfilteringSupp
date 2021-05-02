@@ -52,15 +52,19 @@
 #' # Compute the SURE error curve and the optimal hyperparameter value
 #' 
 #' lambda.grid <- exp(seq(-10, 7, length = 250))
-#' SURE.out <- SURE.trendfilter(log.wavelength.scaled, flux, wts, lambda.grid)
+#' SURE.out <- SURE.trendfilter(x = log.wavelength.scaled, 
+#'                              y = flux, 
+#'                              sigma = 1 / sqrt(wts), 
+#'                              lambda = lambda.grid
+#'                              )
 #' lambda.min <- SURE.out$lambda.min
 #' 
 #' 
 #' # Fit the optimized trend filtering estimate
 #' 
-#' fit <- glmgen::trendfilter(log.wavelength.scaled, 
-#'                            flux, 
-#'                            wts, 
+#' fit <- glmgen::trendfilter(x = log.wavelength.scaled, 
+#'                            y = flux, 
+#'                            weights = wts, 
 #'                            k = 2, 
 #'                            lambda = lambda.min
 #'                            )
@@ -87,7 +91,6 @@ SURE.trendfilter <- function(x = NULL,
   if ( is.null(y) ) stop("y must be specified.")
   if ( is.null(sigma) ) stop("sigma must be provided in order to compute SURE.")
   if ( is.null(lambda) ) stop("lambda must be specified.")
-  if ( !is.null(x) & (length(x) != length(y)) ) stop("x and y must have same length.")
   if ( !(length(sigma) %in% c(1,length(y))) ) stop("sigma must either be scalar or same length as y.")
   
   x <- ifelse(is.null(x), rep(1, length(y)), x)

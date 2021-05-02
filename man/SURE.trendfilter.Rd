@@ -75,15 +75,19 @@ wts <- wts[inds]
 # Compute the SURE error curve and the optimal hyperparameter value
 
 lambda.grid <- exp(seq(-10, 7, length = 250))
-SURE.out <- SURE.trendfilter(log.wavelength.scaled, flux, wts, lambda.grid)
+SURE.out <- SURE.trendfilter(x = log.wavelength.scaled, 
+                             y = flux, 
+                             sigma = 1 / sqrt(wts), 
+                             lambda = lambda.grid
+                             )
 lambda.min <- SURE.out$lambda.min
 
 
 # Fit the optimized trend filtering estimate
 
-fit <- glmgen::trendfilter(log.wavelength.scaled, 
-                           flux, 
-                           wts, 
+fit <- glmgen::trendfilter(x = log.wavelength.scaled, 
+                           y = flux, 
+                           weights = wts, 
                            k = 2, 
                            lambda = lambda.min
                            )
