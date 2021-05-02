@@ -1,7 +1,7 @@
 Package: trendfilteringSupp
 Title: Supplementary tools for data analysis with trend filtering
 Version: 1.1.0
-Authors@R: 
+Author: 
     person(given = "Collin",
            family = "Politsch",
            role = c("aut", "cre"),
@@ -15,3 +15,4 @@ RoxygenNote: 7.1.1
 Depends: R (>= 3.5.0)
 Imports: glmgen
 Remotes: statsmaths/glmgen/R_pkg/glmgen@master
+Maintainer: Collin A. Politsch <capolitsch@cmu.edu>

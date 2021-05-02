@@ -5,45 +5,39 @@
 \title{Optimize the trend filtering hyperparameter (with respect to Stein's unbiased 
 risk estimate)}
 \usage{
-SURE.trendfilter(
-  x = NULL,
-  y,
-  sigma,
-  lambda,
-  k = 2,
-  max_iter = 250,
-  obj_tol = 1e-06
-)
+SURE.trendfilter(x, y, sigma, lambda, k = 2, max_iter = 250, obj_tol = 1e-06)
 }
 \arguments{
-\item{x}{A vector of the observed inputs. If \code{NULL}, then we assume
-unit spacing.}
+\item{x}{A vector of the observed inputs.}
 
 \item{y}{A vector of the observed outputs.}
 
 \item{sigma}{A vector of measurement standard errors for the observed outputs.}
 
 \item{lambda}{A vector of trend filtering hyperparameter values to run the 
-grid search over.}
+grid search over. Usually, let them be equally-spaced in log-space (see 
+Examples).}
 
 \item{k}{The degree of the trend filtering estimator. Defaults to \code{k=2}
 (quadratic trend filtering).}
 
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
-ADMM optimization 
+convex optimization 
 [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
 Consider increasing this if the trend filtering estimate does not appear to 
 have fully converged to a reasonable estimate of the signal.}
 
-\item{obj_tol}{The tolerance used in the ADMM optimization stopping criterion; 
+\item{obj_tol}{The tolerance used in the convex optimization stopping criterion; 
 when the relative change in the objective function is less than this value, 
-the algorithm terminates.}
+the algorithm terminates. Consider decreasing this if the trend filtering 
+estimate does not appear to have fully converged to a reasonable estimate of 
+the signal.}
 }
 \value{
 A list with the following elements:
 \item{lambda}{Vector of hyperparameter values tested.}
-\item{SURE.loss}{Vector of estimated SURE errors for hyperparameter values.}
-\item{lambda.min}{Hyperparameter value that minimizes the SURE curve.}
+\item{SURE.error}{Vector of estimated SURE errors for hyperparameter values.}
+\item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
 }
 \description{
 \code{SURE.trendfilter} computes the Stein's unbiased risk 
@@ -96,11 +90,32 @@ fit <- glmgen::trendfilter(x = log.wavelength.scaled,
 # Plot the results
 
 par(mfrow=c(2,1))
-plot(log(lambda.grid), SURE.out$SURE.loss, xlab = "log(lambda)", ylab = "SURE")
+plot(log(lambda.grid), SURE.out$SURE.error, xlab = "log(lambda)", ylab = "SURE")
 abline(v = log(lambda.min), col = "red")
 wavelength <- 10 ^ (log.wavelength.scaled / 1000)
 plot(wavelength, flux, type = "l")
 lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
+}
+\references{
+\enumerate{
+\item \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
+Politsch et al. (2020). Trend filtering – I. A modern statistical tool for 
+time-domain astronomy and astronomical spectroscopy} \cr
+
+\item \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
+Politsch et al. (2020). Trend filtering – II. Denoising astronomical signals 
+with varying degrees of smoothness} \cr
+
+\item \href{http://www.stat.cmu.edu/~larry/=sml/stein.pdf}{Tibshirani 
+and Wasserman (Course notes). Stein’s Unbiased Risk Estimate} \cr
+
+\item \href{https://www.tandfonline.com/doi/abs/10.1198/016214504000000692}{Efron 
+(2004). The Estimation of Prediction Error: Covariance Penalties and Cross-Validation} \cr
+
+\item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-9/issue-6/Estimation-
+of-the-Mean-of-a-Multivariate-Normal-Distribution/10.1214/aos/1176345632.full}{Stein (1981).
+Estimation of the Mean of a Multivariate Normal Distribution}
+}
 }
 \seealso{
 \link{bootstrap.trendfilter}

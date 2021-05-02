@@ -2,8 +2,8 @@
 % Please edit documentation in R/bootstrap.trendfilter.R
 \name{bootstrap.trendfilter}
 \alias{bootstrap.trendfilter}
-\title{Optimize the trend filtering hyperparameter with respect to Stein's unbiased 
-risk estimate}
+\title{Bootstrap the optimized trend filtering estimator to obtain pointwise 
+variability bands}
 \usage{
 bootstrap.trendfilter(
   x,
@@ -22,54 +22,65 @@ bootstrap.trendfilter(
 )
 }
 \arguments{
-\item{x}{A vector of the observed inputs. If \code{NULL}, then we assume
-unit spacing.}
+\item{x}{A vector of the observed inputs.}
 
 \item{y}{A vector of the observed outputs.}
 
 \item{sigma}{A vector of measurement standard errors for the observed outputs.}
 
 \item{lambda.min}{The optimally-tuned trend filtering hyperparameter, e.g. by 
-minimizing SURE (see SURE.trendfilter) or cross validation.}
+minimizing SURE (see \code{\link{SURE.trendfilter}}) or cross validation.}
 
 \item{k}{The degree of the trend filtering estimator. Defaults to \code{k=2}
 (quadratic trend filtering).}
 
-\item{x.eval.grid}{Input evaluation grid. Defaults to the observed inputs.}
+\item{x.eval.grid}{Grid of inputs to evaluate the variability bands on. 
+Defaults to the observed inputs.}
 
-\item{bootstrap.method}{Bootstrap method to be implemented. See description 
-for suggested use. Defaults to "nonparametric".}
+\item{bootstrap.method}{Bootstrap method to be used. See Details section
+below for suggested use. Defaults to "nonparametric".}
 
-\item{alpha}{Specifies the width of the 1-alpha pointwise confidence bands.}
+\item{alpha}{Specifies the width of the \code{1-alpha} pointwise variability 
+bands.}
 
-\item{B}{The number of boostrap samples used to compute the confidence bands.}
+\item{B}{The number of bootstrap samples used to compute the variability 
+bands.}
 
-\item{full.ensemble}{Return the full bootstrap ensemble as an (n x B) matrix.
-Defaults to \code{FALSE}.}
+\item{full.ensemble}{Return the full bootstrap ensemble as an \code{n x B} 
+matrix. Defaults to \code{FALSE}.}
 
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
-ADMM optimization 
-[\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
-Consider increasing this if the trend filtering estimate does not appear to 
+convex optimization 
+[\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & 
+Tibshirani (2015)}]. 
+Consider increasing this if the bootstrap estimates do not appear to 
 have fully converged to a reasonable estimate of the signal.}
 
-\item{obj_tol}{The tolerance used in the ADMM optimization stopping criterion; 
-when the relative change in the objective function is less than this value, 
-the algorithm terminates.}
+\item{obj_tol}{The tolerance used in the convex optimization stopping 
+criterion; when the relative change in the objective function is less than 
+this value, the algorithm terminates. Consider decreasing this if the 
+bootstrap estimates do not appear to have fully converged to a reasonable 
+estimate of the signal.}
 
-\item{mc.cores}{Multi-core computing (for speedups): The number of cores to use.
-Defaults to the number detected on the machine minus 2.}
+\item{mc.cores}{Multi-core computing (for speedups): The number of cores to
+utilize. Defaults to the number detected on the machine minus 2.}
 }
 \value{
 A list with the following elements:
-\item{bootstrap.lower.perc.intervals}{Vector of lower bounds for the 1-alpha pointwise confidence band.}
-\item{bootstrap.upper.perc.intervals}{Vector of upper bounds for the 1-alpha pointwise confidence band.}
-\item{tf.boot.ensemble}{(Optional) The full bootstrap ensemble as an (n x B) matrix.}
+\item{bootstrap.lower.perc.intervals}{Vector of lower bounds for the 1-alpha 
+pointwise variability band.}
+\item{bootstrap.upper.perc.intervals}{Vector of upper bounds for the 1-alpha 
+pointwise variability band.}
+\item{tf.boot.ensemble}{(Optional) The full bootstrap ensemble as an 
+\code{n x B} matrix.}
 }
 \description{
-\code{bootstrap.trendfilter} implements one of three bootstrap 
-algorithms to obtain variability bands to accompany an optimized trend
-filtering point estimate. The bootstrap method should generally be chosen 
+\code{bootstrap.trendfilter} implements any of three possible 
+bootstrap algorithms to obtain pointwise variability bands to accompany the 
+optimized trend filtering estimate of a signal.
+}
+\details{
+The bootstrap method should generally be chosen 
 according to the following criteria: \cr \cr
 S1. The inputs are irregularly 
 sampled –> \code{bootstrap.method = "nonparametric"} \cr \cr
@@ -79,33 +90,52 @@ S3. The inputs are regularly sampled and the noise distribution is unknown –>
 \code{bootstrap.method = "wild"} \cr
 }
 \examples{
-install.packages("devtools")
-devtools::install_github("statsmaths/glmgen", subdir="R_pkg/glmgen")
-
 # Quasar spectrum example
+# SDSS spectra are equally spaced in log base 10 wavelength space with a 
+# separation of 10e-4 logarithmic Angstroms. 
+
 data(quasar)
 
-# SDSS spectra are equally spaced in log10 wavelength space with a separation of 10e-4
-# Reading in a spectrum file and retrieving the piece of the spectrum in the Lyman-alpha
-# forest region
+
+# Read in a spectrum of a quasar at redshift z = 2.953 and extract the
+# Lyman-alpha forest.
+
 log.wavelength.scaled <- quasar.spec$col[[2]] * 1000
 flux <- quasar.spec$col[[1]]
 wts <- quasar.spec$col[[3]]
 lya.rest.wavelength <- 1215.67
-inds <- which(( 10 ^ (log.wavelength.scaled / 1000) ) / (2.953 + 1) < lya.rest.wavelength + 40)
+inds <- which((10^(log.wavelength.scaled/1000))/(2.953 + 1) < lya.rest.wavelength + 40)
 log.wavelength.scaled <- log.wavelength.scaled[inds]
 flux <- flux[inds]
 wts <- wts[inds]
 
-# Compute SURE loss curve and optimal lambda
-lambda.grid <- exp(seq(-10,7,length=250))
-SURE.out <- SURE.trendfilter(log.wavelength.scaled, flux, wts, lambda.grid)
-lambda.opt <- SURE.out$lambda[which.min(SURE.out$SURE.loss)]
 
-# Fit optimized model
-fit <- glmgen::trendfilter(log.wavelength.scaled, flux, wts, k = 2, lambda = lambda.opt)
+# Compute the SURE error curve and the optimal hyperparameter value
 
-# Plot results
+lambda.grid <- exp(seq(-10, 7, length = 250))
+SURE.out <- SURE.trendfilter(x = log.wavelength.scaled, 
+                             y = flux, 
+                             sigma = 1 / sqrt(wts), 
+                             lambda = lambda.grid
+                             )
+lambda.min <- SURE.out$lambda.min
+
+
+# Fit the optimized trend filtering estimate
+
+fit <- glmgen::trendfilter(x = log.wavelength.scaled, 
+                           y = flux, 
+                           weights = wts, 
+                           k = 2, 
+                           lambda = lambda.min
+                           )
+
+
+# Plot the results
+
+par(mfrow=c(2,1))
+plot(log(lambda.grid), SURE.out$SURE.error, xlab = "log(lambda)", ylab = "SURE")
+abline(v = log(lambda.min), col = "red")
 wavelength <- 10 ^ (log.wavelength.scaled / 1000)
 plot(wavelength, flux, type = "l")
 lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
@@ -117,8 +147,34 @@ lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty =
 legend(x = "topleft", lty = c(1,2), col = "orange", lwd = 2, 
        legend = c("Trend filtering estimate", "95 percent variability band"))
 }
+\references{
+\enumerate{
+\item \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
+Politsch et al. (2020). Trend filtering – I. A modern statistical tool for 
+time-domain astronomy and astronomical spectroscopy} \cr
+
+\item \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
+Politsch et al. (2020). Trend filtering – II. Denoising astronomical signals 
+with varying degrees of smoothness} \cr
+
+\item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7
+/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/
+1176344552.full}{
+Efron (1979). Bootstrap Methods: Another Look at the Jackknife} \cr
+
+\item \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
+Efron and Tibshirani (1986). Bootstrap Methods for Standard Errors, 
+Confidence Intervals, and Other Measures of Statistical Accuracy} \cr
+
+\item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-
+14/issue-4/Jackknife-Bootstrap-and-Other-Resampling-Methods-in-Regression-
+Analysis/10.1214/aos/1176350142.full}{
+Wu (1986). Jackknife, Bootstrap and Other Resampling Methods in Regression 
+Analysis} \cr
+}
+}
 \seealso{
-\code{\link{bootstrap.trendfilter}}
+\code{\link{SURE.trendfilter}}
 }
 \author{
 Collin A. Politsch, \email{collinpolitsch@gmail.com}
