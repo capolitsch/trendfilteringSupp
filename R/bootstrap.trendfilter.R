@@ -96,6 +96,7 @@ bootstrap.trendfilter <- function(x,
                                   obj_tol = 1e-07, 
                                   mc.cores = parallel::detectCores() - 2){
   
+  if ( is.null(x) ) stop("x must be specified.")
   if ( is.null(y) ) stop("y must be specified.")
   if ( is.null(lambda.min) ) stop("lambda.min must be specified.")
   if ( !is.null(x) & (length(x) != length(y)) ) stop("x and y must have same length.")
@@ -200,4 +201,43 @@ bootstrap.trendfilter <- function(x,
                 bootstrap.upper.perc.intervals=bootstrap.upper.perc.intervals,
                 tf.boot.ensemble = tf.boot.ensemble))
   }
+}
+
+
+#' @keywords internal
+tf.estimator <- function(data, lambda, k, edf, x.eval.grid, max_iter = 250, obj_tol = 1e-06){
+  tf.fit <- glmgen::trendfilter(data$x, 
+                                data$y, 
+                                data$wts, 
+                                k = 2, 
+                                lambda = lambda, 
+                                control = glmgen::trendfilter.control.list(max_iter = max_iter, 
+                                                                           obj_tol = obj_tol
+                                )
+  )
+  tf.estimate <- as.numeric(suppressWarnings(glmgen:::predict.trendfilter(tf.fit, x.new = x.eval.grid, lambda = lambda)))
+  return(tf.estimate)
+}
+
+
+#' @keywords internal
+nonparametric.resampler <- function(data){
+  resampled.data <- dplyr::sample_n(data, size = nrow(data), replace = TRUE)
+  return(resampled.data)
+}
+
+
+#' @keywords internal
+parametric.sampler <- function(data){
+  boot.sample <- data$tf.estimate + rnorm(nrow(data), sd = 1 / sqrt(data$wts))
+  return(data.frame(x=data$x,y=boot.sample,wts=data$wts))
+}
+
+
+#' @keywords internal
+wild.sampler <- function(data){
+  wild.boot.resids <- data$tf.residuals * sample(x = c((1+sqrt(5))/2, 1-sqrt(5)/2), size = nrow(data), replace = T, 
+                                                 prob = c((1+sqrt(5))/(2*sqrt(5)),(sqrt(5)-1)/(2*sqrt(5))))
+  wild.boot.sample <- data$tf.estimate + wild.boot.resids
+  return(data.frame(x=data$x,y=wild.boot.sample,wts=data$wts))
 }

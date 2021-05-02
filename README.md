@@ -1,5 +1,5 @@
 # Trend filtering
-Supplementary tools for data analysis with trend filtering (wrapper of glmgen)
+Supplementary tools for data analysis with trend filtering
 
 ```
 devtools::install_github("capolitsch/trendfilteringSupp")

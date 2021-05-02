@@ -79,7 +79,7 @@
 #' plot(wavelength, flux, type = "l")
 #' lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
 
-SURE.trendfilter <- function(x = NULL, 
+SURE.trendfilter <- function(x, 
                              y, 
                              sigma, 
                              lambda, 
@@ -88,12 +88,12 @@ SURE.trendfilter <- function(x = NULL,
                              obj_tol = 1e-06
                              ){
   
+  if ( is.null(x) ) stop("x must be specified.")
   if ( is.null(y) ) stop("y must be specified.")
   if ( is.null(sigma) ) stop("sigma must be provided in order to compute SURE.")
   if ( is.null(lambda) ) stop("lambda must be specified.")
   if ( !(length(sigma) %in% c(1,length(y))) ) stop("sigma must either be scalar or same length as y.")
   
-  x <- ifelse(is.null(x), rep(1, length(y)), x)
   sigma <- ifelse(length(sigma) == 1, rep(sigma, length(y)), sigma)
   wts <- 1/sigma^2
   out <- glmgen::trendfilter(x = x, 
@@ -112,7 +112,8 @@ SURE.trendfilter <- function(x = NULL,
   }
   return(list(lambda = lambda, 
               SURE.loss = SURE.loss, 
-              lambda.min = lambda[which.min(SURE.loss)]
+              lambda.min = lambda[which.min(SURE.loss)],
+              df.min = 
               )
          )
 }
