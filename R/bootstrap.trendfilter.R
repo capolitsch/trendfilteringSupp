@@ -74,9 +74,12 @@
 #' Analysis} \cr
 #' }
 #' @examples 
-#' # Quasar spectrum example
-#' ## SDSS spectra are equally spaced in log base 10 wavelength space with a 
-#' ## separation of 10e-4 logarithmic Angstroms. 
+#' #############################################################################
+#' ########################## Quasar spectrum example ##########################
+#' #############################################################################
+#' 
+#' # SDSS spectra are equally spaced in log base 10 wavelength space with a 
+#' # separation of 10e-4 logarithmic Angstroms. 
 #' 
 #' data(quasar_spec)
 #' 
@@ -118,7 +121,7 @@
 #' 
 #' # Plot the results
 #' 
-#' par(mfrow=c(2,1))
+#' par(mfrow = c(2,1))
 #' plot(log(lambda.grid), SURE.out$SURE.error, xlab = "log(lambda)", ylab = "SURE")
 #' abline(v = log(lambda.min), col = "red")
 #' wavelength <- 10 ^ (log.wavelength.scaled / 1000)
