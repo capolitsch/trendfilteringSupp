@@ -5,9 +5,9 @@ Author:
     person(given = "Collin",
            family = "Politsch",
            role = c("aut", "cre"),
-           email = "collinpolitsch@gmail.com")
-Description: (1) Optimizing the trend filtering hyperparameter by minimizing Stein’s unbiased risk estimate; 
-             (2) Various bootstrap methods for trend filtering uncertainty quantification.
+           email = "collinpolitsch@@gmail.com")
+Description: (1) Optimizing the trend filtering hyperparameter by minimizing Stein’s unbiased risk estimate
+             (2) Various bootstrap methods for trend filtering uncertainty quantification
 License: MIT
 Encoding: UTF-8
 LazyData: true
@@ -15,4 +15,4 @@ RoxygenNote: 7.1.1
 Depends: R (>= 3.5.0)
 Imports: glmgen, dplyr
 Remotes: statsmaths/glmgen/R_pkg/glmgen@master
-Maintainer: Collin A. Politsch <capolitsch@cmu.edu>
+Maintainer: Collin A. Politsch <capolitsch@@cmu.edu>
