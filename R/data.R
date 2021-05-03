@@ -16,4 +16,4 @@
 #'   \item{header}{}
 #' }
 #' @source \url{http://sdss3.org/}
-"quasar.spec"
+"quasar_spec"

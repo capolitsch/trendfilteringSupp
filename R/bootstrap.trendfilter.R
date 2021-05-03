@@ -77,15 +77,15 @@
 #' # SDSS spectra are equally spaced in log base 10 wavelength space with a 
 #' # separation of 10e-4 logarithmic Angstroms. 
 #' 
-#' data(quasar)
+#' data(quasar_spec)
 #' 
 #' 
 #' # Read in a spectrum of a quasar at redshift z = 2.953 and extract the
 #' # Lyman-alpha forest.
 #' 
-#' log.wavelength.scaled <- quasar.spec$col[[2]] * 1000
-#' flux <- quasar.spec$col[[1]]
-#' wts <- quasar.spec$col[[3]]
+#' log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
+#' flux <- quasar_spec$col[[1]]
+#' wts <- quasar_spec$col[[3]]
 #' lya.rest.wavelength <- 1215.67
 #' inds <- which((10^(log.wavelength.scaled/1000))/(2.953 + 1) < lya.rest.wavelength + 40)
 #' log.wavelength.scaled <- log.wavelength.scaled[inds]
