@@ -134,7 +134,7 @@
 #' @importFrom stats quantile
 bootstrap.trendfilter <- function(x, 
                                   y, 
-                                  sigma = NULL,
+                                  sigma,
                                   lambda.min,  
                                   k = 2, 
                                   x.eval.grid = x, 
@@ -254,7 +254,7 @@ bootstrap.trendfilter <- function(x,
 }
 
 
-tf.estimator <- function(data, lambda, k, edf, x.eval.grid, max_iter = 250, obj_tol = 1e-06){
+tf.estimator <- function(data, lambda, k, edf = NULL, x.eval.grid, max_iter = 250, obj_tol = 1e-06){
   tf.fit <- glmgen::trendfilter(data$x, 
                                 data$y, 
                                 data$wts, 
