@@ -182,7 +182,7 @@ bootstrap.trendfilter <- function(x,
         boot.tf.estimate <- tf.estimator(nonparametric.resampler(data), 
                                          lambda.min, 
                                          k, 
-                                         edf = NULL
+                                         edf = NULL,
                                          x.eval.grid, 
                                          max_iter = max_iter, 
                                          obj_tol = obj_tol
