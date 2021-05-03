@@ -8,7 +8,7 @@ variability bands}
 bootstrap.trendfilter(
   x,
   y,
-  sigma = NULL,
+  sigma,
   lambda.min,
   k = 2,
   x.eval.grid = x,
@@ -91,14 +91,13 @@ S3. The inputs are regularly sampled and the noise distribution is unknown –>
 }
 \examples{
 # Quasar spectrum example
-# SDSS spectra are equally spaced in log base 10 wavelength space with a 
-# separation of 10e-4 logarithmic Angstroms. 
+## SDSS spectra are equally spaced in log base 10 wavelength space with a 
+## separation of 10e-4 logarithmic Angstroms. 
 
 data(quasar_spec)
 
 
-# Read in a spectrum of a quasar at redshift z = 2.953 and extract the
-# Lyman-alpha forest.
+# Read in a spectrum of a quasar at redshift z = 2.953 and extract the Lyman-alpha forest.
 
 log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
 flux <- quasar_spec$col[[1]]
@@ -141,8 +140,13 @@ wavelength <- 10 ^ (log.wavelength.scaled / 1000)
 plot(wavelength, flux, type = "l")
 lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
 
-boot.out <- bootstrap.trendfilter(log.wavelength.scaled, flux, lambda.min, sigma = sqrt(1/wts),
-                                  bootstrap.method = "parametric")
+boot.out <- bootstrap.trendfilter(x = log.wavelength.scaled, 
+                                  y = flux, 
+                                  sigma = sqrt(1/wts),
+                                  lambda.min = lambda.min, 
+                                  bootstrap.method = "parametric"
+                                  )
+                                  
 lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lty = 2, lwd = 2)
 lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty = 2, lwd = 2)
 legend(x = "topleft", lty = c(1,2), col = "orange", lwd = 2, 

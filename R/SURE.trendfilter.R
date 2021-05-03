@@ -50,14 +50,13 @@
 #' }
 #' @examples 
 #' # Quasar spectrum example
-#' # SDSS spectra are equally spaced in log base 10 wavelength space with a 
-#' # separation of 10e-4 logarithmic Angstroms. 
+#' ## SDSS spectra are equally spaced in log base 10 wavelength space with a 
+#' ## separation of 10e-4 logarithmic Angstroms. 
 #' 
 #' data(quasar_spec)
 #' 
 #' 
-#' # Read in a spectrum of a quasar at redshift z = 2.953 and extract the
-#' # Lyman-alpha forest.
+#' # Read in a spectrum of a quasar at redshift z = 2.953 and extract the Lyman-alpha forest.
 #' 
 #' log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
 #' flux <- quasar_spec$col[[1]]
