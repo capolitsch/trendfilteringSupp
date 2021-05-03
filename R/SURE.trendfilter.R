@@ -129,10 +129,10 @@ SURE.trendfilter <- function(x,
     SURE.error <- mean( (out$beta - y)^2 ) + (2 * mean(1/wts) / length(x)) * out$df
   }
   if ( length(lambda) > 1 ){
-    SURE.error <- as.numeric(colMeans( (out$beta - y)^2 )) + (2 * mean(1/wts) / length(x)) * out$df
+    SURE.error <- colMeans( (out$beta - y)^2 ) + (2 * mean(1/wts) / length(x)) * out$df
   }
   return(list(lambda = lambda, 
-              SURE.error = SURE.error, 
+              SURE.error = as.numeric(SURE.error), 
               lambda.min = lambda[which.min(SURE.error)],
               df.min = NULL
               )
