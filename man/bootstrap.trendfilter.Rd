@@ -158,7 +158,7 @@ res <- paste("#",apply(apply(rgb,2,num2hex),2,paste,collapse=""),sep="")
 return(res)
 }
 
-par(mfrow = c(2,1))
+par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
 plot(log(lambda.grid), SURE.out$SURE.error, xlab = "log(lambda)", ylab = "SURE",
      main = "SURE error curve")
 abline(v = log(lambda.min), col = "blue3", lty = 2)
