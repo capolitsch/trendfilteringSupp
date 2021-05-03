@@ -104,7 +104,8 @@ log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
 flux <- quasar_spec$col[[1]]
 wts <- quasar_spec$col[[3]]
 lya.rest.wavelength <- 1215.67
-inds <- which((10^(log.wavelength.scaled/1000))/(2.953 + 1) < lya.rest.wavelength + 40)
+quasar.redshift <- 2.953
+inds <- which((10^(log.wavelength.scaled/1000))/(quasar.redshift + 1) < lya.rest.wavelength + 40)
 log.wavelength.scaled <- log.wavelength.scaled[inds]
 flux <- flux[inds]
 wts <- wts[inds]

@@ -63,7 +63,8 @@
 #' flux <- quasar_spec$col[[1]]
 #' wts <- quasar_spec$col[[3]]
 #' lya.rest.wavelength <- 1215.67
-#' inds <- which((10^(log.wavelength.scaled/1000))/(2.953 + 1) < lya.rest.wavelength + 40)
+#' quasar.redshift <- 2.953
+#' inds <- which((10^(log.wavelength.scaled/1000))/(quasar.redshift + 1) < lya.rest.wavelength + 40)
 #' log.wavelength.scaled <- log.wavelength.scaled[inds]
 #' flux <- flux[inds]
 #' wts <- wts[inds]
@@ -112,10 +113,10 @@ SURE.trendfilter <- function(x,
   if ( is.null(x) ) stop("x must be specified.")
   if ( is.null(y) ) stop("y must be specified.")
   if ( is.null(sigma) ) stop("sigma is needed in order to compute SURE. If estimates are not available, use cross validation.")
-  if ( is.null(lambda) ) stop("lambda must be specified.")
   if ( !(length(sigma) %in% c(1,length(y))) ) stop("sigma must either be scalar or same length as y.")
+  if ( is.null(lambda) ) stop("lambda must be specified.")
+  if ( length(sigma) == 1 ) sigma <- rep(sigma, times = length(y))
   
-  sigma <- ifelse(length(sigma) == 1, rep(sigma, length(y)), sigma)
   wts <- 1/sigma^2
   out <- glmgen::trendfilter(x = x, 
                              y = y,
@@ -133,7 +134,7 @@ SURE.trendfilter <- function(x,
   }
   return(list(lambda = lambda, 
               SURE.error = as.numeric(SURE.error), 
-              lambda.min = lambda[which.min(SURE.error)],
+              lambda.min = lambda[which.min(as.numeric(SURE.error))],
               df.min = NULL
               )
          )
