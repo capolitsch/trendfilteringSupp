@@ -168,6 +168,7 @@ bootstrap.trendfilter <- function(x,
                                                   tf.estimator(nonparametric.resampler(data), 
                                                                lambda.min, 
                                                                k,
+                                                               edf = NULL,
                                                                x.eval.grid, 
                                                                max_iter = max_iter, 
                                                                obj_tol = obj_tol
@@ -181,6 +182,7 @@ bootstrap.trendfilter <- function(x,
         boot.tf.estimate <- tf.estimator(nonparametric.resampler(data), 
                                          lambda.min, 
                                          k, 
+                                         edf = NULL
                                          x.eval.grid, 
                                          max_iter = max_iter, 
                                          obj_tol = obj_tol
@@ -192,13 +194,14 @@ bootstrap.trendfilter <- function(x,
   }
   
   if ( bootstrap.method == "parametric" ){
-    tf.estimate <- tf.estimator(data, lambda.min, k, x.eval.grid)
+    tf.estimate <- tf.estimator(data, lambda.min, k, edf = NULL, x.eval.grid)
     data$tf.estimate <- tf.estimate
     if ( mc.cores == 1 ){
       tf.boot.ensemble <- matrix(unlist(replicate(B,
                                                   tf.estimator(parametric.sampler(data), 
                                                                lambda.min, 
                                                                k,
+                                                               edf = NULL,
                                                                x.eval.grid, 
                                                                max_iter = max_iter, 
                                                                obj_tol = obj_tol
@@ -209,8 +212,8 @@ bootstrap.trendfilter <- function(x,
                                  )
     }else{
       par.func <- function(b){
-        boot.tf.estimate <- tf.estimator(parametric.sampler(data), lambda.min, k, x.eval.grid, 
-                                         max_iter = max_iter, obj_tol = obj_tol)
+        boot.tf.estimate <- tf.estimator(parametric.sampler(data), lambda.min, k, edf = NULL, 
+                                         x.eval.grid, max_iter = max_iter, obj_tol = obj_tol)
         return(boot.tf.estimate)
       }
       tf.boot.ensemble <- matrix(unlist(parallel::mclapply(1:B, par.func, mc.cores = mc.cores)), ncol = B)
@@ -218,7 +221,7 @@ bootstrap.trendfilter <- function(x,
   }
   
   if ( bootstrap.method == "wild" ){
-    data$tf.estimate <- tf.estimator(data, lambda.min, k, x.eval.grid)
+    data$tf.estimate <- tf.estimator(data, lambda.min, k, edf = NULL, x.eval.grid)
     data$tf.residuals <- data$y - data$tf.estimate
     
     if ( mc.cores == 1 ){
@@ -226,6 +229,7 @@ bootstrap.trendfilter <- function(x,
                                                   tf.estimator(wild.sampler(data), 
                                                                lambda.min, 
                                                                k,
+                                                               edf = NULL,
                                                                x.eval.grid, 
                                                                max_iter = max_iter, 
                                                                obj_tol = obj_tol
@@ -236,8 +240,8 @@ bootstrap.trendfilter <- function(x,
                                )
     }else{
       par.func <- function(b){
-        boot.tf.estimate <- tf.estimator(wild.sampler(data), lambda.min, k, x.eval.grid, 
-                                         max_iter = max_iter, obj_tol = obj_tol)
+        boot.tf.estimate <- tf.estimator(wild.sampler(data), lambda.min, k, edf = NULL,
+                                         x.eval.grid, max_iter = max_iter, obj_tol = obj_tol)
         return(boot.tf.estimate)
       }
       tf.boot.ensemble <- matrix(unlist(parallel::mclapply(1:B, par.func, mc.cores = mc.cores)), ncol = B)
