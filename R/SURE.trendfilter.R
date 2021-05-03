@@ -18,11 +18,11 @@
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
 #' Consider increasing this if the trend filtering estimate does not appear to 
 #' have fully converged to a reasonable estimate of the signal.
-#' @param obj_tol The tolerance used in the convex optimization stopping criterion; 
-#' when the relative change in the objective function is less than this value, 
-#' the algorithm terminates. Consider decreasing this if the trend filtering 
-#' estimate does not appear to have fully converged to a reasonable estimate of 
-#' the signal.
+#' @param obj_tol The tolerance used in the convex optimization stopping 
+#' criterion; when the relative change in the objective function is less than 
+#' this value, the algorithm terminates. Consider decreasing this if the trend 
+#' filtering estimate does not appear to have fully converged to a reasonable 
+#' estimate of the signal.
 #' @return A list with the following elements:
 #' \item{lambda}{Vector of hyperparameter values tested.}
 #' \item{SURE.error}{Vector of estimated SURE errors for hyperparameter values.}
@@ -56,7 +56,8 @@
 #' data(quasar_spec)
 #' 
 #' 
-#' # Read in a spectrum of a quasar at redshift z = 2.953 and extract the Lyman-alpha forest.
+#' # Read in a spectrum of a quasar at redshift z = 2.953 and extract the 
+#' # Lyman-alpha forest.
 #' 
 #' log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
 #' flux <- quasar_spec$col[[1]]

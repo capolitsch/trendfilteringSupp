@@ -85,7 +85,8 @@ according to the following criteria: \cr \cr
 S1. The inputs are irregularly 
 sampled –> \code{bootstrap.method = "nonparametric"} \cr \cr
 S2. The inputs are regularly 
-sampled and the noise distribution is known –> \code{bootstrap.method = "parametric"} \cr \cr
+sampled and the noise distribution is known –> 
+\code{bootstrap.method = "parametric"} \cr \cr
 S3. The inputs are regularly sampled and the noise distribution is unknown –> 
 \code{bootstrap.method = "wild"} \cr
 }
@@ -97,7 +98,8 @@ S3. The inputs are regularly sampled and the noise distribution is unknown –>
 data(quasar_spec)
 
 
-# Read in a spectrum of a quasar at redshift z = 2.953 and extract the Lyman-alpha forest.
+# Read in a spectrum of a quasar at redshift z = 2.953 and extract the 
+# Lyman-alpha forest.
 
 log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
 flux <- quasar_spec$col[[1]]
@@ -147,9 +149,9 @@ boot.out <- bootstrap.trendfilter(x = log.wavelength.scaled,
                                   bootstrap.method = "parametric"
                                   )
                                   
-lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lty = 2, lwd = 2)
-lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty = 2, lwd = 2)
-legend(x = "topleft", lty = c(1,2), col = "orange", lwd = 2, 
+lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lty = 2, lwd = 1)
+lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty = 2, lwd = 1)
+legend(x = "topleft", lty = c(1,2), col = "orange", lwd = c(2,1), 
        legend = c("Trend filtering estimate", "95 percent variability band"))
 }
 \references{

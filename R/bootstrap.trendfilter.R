@@ -47,7 +47,8 @@
 #' S1. The inputs are irregularly 
 #' sampled –> \code{bootstrap.method = "nonparametric"} \cr \cr
 #' S2. The inputs are regularly 
-#' sampled and the noise distribution is known –> \code{bootstrap.method = "parametric"} \cr \cr
+#' sampled and the noise distribution is known –> 
+#' \code{bootstrap.method = "parametric"} \cr \cr
 #' S3. The inputs are regularly sampled and the noise distribution is unknown –> 
 #' \code{bootstrap.method = "wild"} \cr
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
@@ -80,7 +81,8 @@
 #' data(quasar_spec)
 #' 
 #' 
-#' # Read in a spectrum of a quasar at redshift z = 2.953 and extract the Lyman-alpha forest.
+#' # Read in a spectrum of a quasar at redshift z = 2.953 and extract the 
+#' # Lyman-alpha forest.
 #' 
 #' log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
 #' flux <- quasar_spec$col[[1]]
@@ -130,12 +132,13 @@
 #'                                   bootstrap.method = "parametric"
 #'                                   )
 #'                                   
-#' lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lty = 2, lwd = 2)
-#' lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty = 2, lwd = 2)
-#' legend(x = "topleft", lty = c(1,2), col = "orange", lwd = 2, 
+#' lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lty = 2, lwd = 1)
+#' lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty = 2, lwd = 1)
+#' legend(x = "topleft", lty = c(1,2), col = "orange", lwd = c(2,1), 
 #'        legend = c("Trend filtering estimate", "95 percent variability band"))
 
 #' @importFrom stats quantile
+#' @importFrom dplyr case_when
 bootstrap.trendfilter <- function(x, 
                                   y, 
                                   sigma,
@@ -148,116 +151,69 @@ bootstrap.trendfilter <- function(x,
                                   full.ensemble = FALSE,
                                   max_iter = 250, 
                                   obj_tol = 1e-07, 
-                                  mc.cores = parallel::detectCores() - 2){
+                                  mc.cores = parallel::detectCores() - 2)
+{
   
   if ( is.null(x) ) stop("x must be specified.")
   if ( is.null(y) ) stop("y must be specified.")
   if ( is.null(lambda.min) ) stop("lambda.min must be specified.")
   if ( !is.null(x) & (length(x) != length(y)) ) stop("x and y must have same length.")
-  if ( !(length(sigma) %in% c(1,length(y),NULL)) ) stop("sigma must either be NULL, a scalar, or the same length as y.")
+  if ( !(length(sigma) %in% c(1, length(y), NULL)) ) stop("sigma must either be NULL, a scalar, or the same length as y.")
   
   if ( is.null(sigma) ){
-    data <- data.frame(x=x,y=y,wts=1)
+    data <- data.frame(x = x, y = y, wts = 1)
   }else{
-    data <- data.frame(x=x,y=y,wts=1/sigma^2)
+    data <- data.frame(x = x, y = y, wts = 1 / sigma ^ 2)
   }
   
-  if ( bootstrap.method == "nonparametric" ){
-    if ( mc.cores == 1 ){
-      tf.boot.ensemble <- matrix(unlist(replicate(B,
-                                                  tf.estimator(nonparametric.resampler(data), 
-                                                               lambda.min, 
-                                                               k,
-                                                               edf = NULL,
-                                                               x.eval.grid, 
-                                                               max_iter = max_iter, 
-                                                               obj_tol = obj_tol
-                                                               )
-                                                  )
-                                        ),
-                               ncol = B
-                               )
-    }else{
-      par.func <- function(b){
-        boot.tf.estimate <- tf.estimator(nonparametric.resampler(data), 
-                                         lambda.min, 
-                                         k, 
-                                         edf = NULL,
-                                         x.eval.grid, 
-                                         max_iter = max_iter, 
-                                         obj_tol = obj_tol
-                                         )
-        return(boot.tf.estimate)
-      }
-      tf.boot.ensemble <- matrix(unlist(parallel::mclapply(1:B, par.func, mc.cores = mc.cores)), ncol = B)
-    }
-  }
+  sampler <- case_when(
+    bootstrap.method == "nonparametric" ~ list(nonparametric.resampler),
+    bootstrap.method == "parametric" ~ list(parametric.sampler),
+    bootstrap.method == "wild" ~ list(wild.sampler)
+  )[[1]]
   
-  if ( bootstrap.method == "parametric" ){
-    tf.estimate <- tf.estimator(data, lambda.min, k, edf = NULL, x.eval.grid)
-    data$tf.estimate <- tf.estimate
-    if ( mc.cores == 1 ){
-      tf.boot.ensemble <- matrix(unlist(replicate(B,
-                                                  tf.estimator(parametric.sampler(data), 
-                                                               lambda.min, 
-                                                               k,
-                                                               edf = NULL,
-                                                               x.eval.grid, 
-                                                               max_iter = max_iter, 
-                                                               obj_tol = obj_tol
-                                                               )
-                                                  )
-                                        ),
-                                 ncol = B
-                                 )
-    }else{
-      par.func <- function(b){
-        boot.tf.estimate <- tf.estimator(parametric.sampler(data), lambda.min, k, edf = NULL, 
-                                         x.eval.grid, max_iter = max_iter, obj_tol = obj_tol)
-        return(boot.tf.estimate)
-      }
-      tf.boot.ensemble <- matrix(unlist(parallel::mclapply(1:B, par.func, mc.cores = mc.cores)), ncol = B)
-    }
-  }
-  
-  if ( bootstrap.method == "wild" ){
-    data$tf.estimate <- tf.estimator(data, lambda.min, k, edf = NULL, x.eval.grid)
-    data$tf.residuals <- data$y - data$tf.estimate
-    
-    if ( mc.cores == 1 ){
-      tf.boot.ensemble <- matrix(unlist(replicate(B,
-                                                  tf.estimator(wild.sampler(data), 
-                                                               lambda.min, 
-                                                               k,
-                                                               edf = NULL,
-                                                               x.eval.grid, 
-                                                               max_iter = max_iter, 
-                                                               obj_tol = obj_tol
-                                                               )
-                                                  )
-                                        ),
-                               ncol = B
-                               )
-    }else{
-      par.func <- function(b){
-        boot.tf.estimate <- tf.estimator(wild.sampler(data), lambda.min, k, edf = NULL,
-                                         x.eval.grid, max_iter = max_iter, obj_tol = obj_tol)
-        return(boot.tf.estimate)
-      }
-      tf.boot.ensemble <- matrix(unlist(parallel::mclapply(1:B, par.func, mc.cores = mc.cores)), ncol = B)
-    }
-  }
-  
-  bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble,1,quantile,probs = alpha/2)
-  bootstrap.upper.perc.intervals <- apply(tf.boot.ensemble,1,quantile,probs = 1-alpha/2)
-  
-  if ( !full.ensemble ){
-    return(list(bootstrap.lower.perc.intervals=bootstrap.lower.perc.intervals,
-                bootstrap.upper.perc.intervals=bootstrap.upper.perc.intervals))
+  mc.cores <- max(c(mc.cores, 1))
+
+  if ( mc.cores == 1 ){
+    tf.boot.ensemble <- matrix(unlist(replicate(B,
+                                                tf.estimator(sampler(data), 
+                                                             lambda.min, 
+                                                             k,
+                                                             edf = NULL,
+                                                             x.eval.grid, 
+                                                             max_iter = max_iter, 
+                                                             obj_tol = obj_tol
+                                                             )
+                                                )
+                                      ),
+                             ncol = B
+                             )
   }else{
-    return(list(bootstrap.lower.perc.intervals=bootstrap.lower.perc.intervals,
-                bootstrap.upper.perc.intervals=bootstrap.upper.perc.intervals,
+    par.func <- function(b){
+      boot.tf.estimate <- tf.estimator(sampler(data), 
+                                       lambda.min, 
+                                       k, 
+                                       edf = NULL,
+                                       x.eval.grid, 
+                                       max_iter = max_iter, 
+                                       obj_tol = obj_tol
+                                       )
+      return(boot.tf.estimate)
+    }
+    tf.boot.ensemble <- matrix(unlist(parallel::mclapply(1:B, par.func, mc.cores = mc.cores)), 
+                               ncol = B)
+  }
+  
+  bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, probs = alpha/2)
+  bootstrap.upper.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, probs = 1-alpha/2)
+  
+  if ( full.ensemble ){
+    return(list(bootstrap.lower.perc.intervals = bootstrap.lower.perc.intervals,
+                bootstrap.upper.perc.intervals = bootstrap.upper.perc.intervals,
                 tf.boot.ensemble = tf.boot.ensemble))
+  }else{
+    return(list(bootstrap.lower.perc.intervals = bootstrap.lower.perc.intervals,
+                bootstrap.upper.perc.intervals = bootstrap.upper.perc.intervals))
   }
 }
 
@@ -279,7 +235,7 @@ tf.estimator <- function(data, lambda, k, edf = NULL, x.eval.grid, max_iter = 25
 
 #' @importFrom dplyr slice_sample
 nonparametric.resampler <- function(data){
-  resampled.data <- slice_sample(data, size = nrow(data), replace = TRUE)
+  resampled.data <- slice_sample(data, n = nrow(data), replace = TRUE)
   return(resampled.data)
 }
 
@@ -287,13 +243,16 @@ nonparametric.resampler <- function(data){
 #' @importFrom stats rnorm
 parametric.sampler <- function(data){
   boot.sample <- data$tf.estimate + rnorm(nrow(data), sd = 1 / sqrt(data$wts))
-  return(data.frame(x=data$x,y=boot.sample,wts=data$wts))
+  return(data.frame(x = data$x, y = boot.sample, wts = data$wts))
 }
 
 
 wild.sampler <- function(data){
-  wild.boot.resids <- data$tf.residuals * sample(x = c((1+sqrt(5))/2, 1-sqrt(5)/2), size = nrow(data), replace = T, 
-                                                 prob = c((1+sqrt(5))/(2*sqrt(5)),(sqrt(5)-1)/(2*sqrt(5))))
+  wild.boot.resids <- data$tf.residuals * sample(x = c((1+sqrt(5))/2, 1-sqrt(5)/2), 
+                                                 size = nrow(data), 
+                                                 replace = TRUE, 
+                                                 prob = c((1+sqrt(5))/(2*sqrt(5)), (sqrt(5)-1)/(2*sqrt(5)))
+                                                 )
   wild.boot.sample <- data$tf.estimate + wild.boot.resids
-  return(data.frame(x=data$x,y=wild.boot.sample,wts=data$wts))
+  return(data.frame(x = data$x, y = wild.boot.sample, wts = data$wts))
 }
