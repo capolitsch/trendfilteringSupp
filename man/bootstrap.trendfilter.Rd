@@ -18,7 +18,7 @@ bootstrap.trendfilter(
   full.ensemble = FALSE,
   max_iter = 250,
   obj_tol = 1e-07,
-  mc.cores = parallel::detectCores() - 2
+  mc.cores = max(c(parallel::detectCores() - 2), 1)
 )
 }
 \arguments{

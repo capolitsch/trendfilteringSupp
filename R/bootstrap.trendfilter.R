@@ -154,7 +154,7 @@ bootstrap.trendfilter <- function(x,
                                   full.ensemble = FALSE,
                                   max_iter = 250, 
                                   obj_tol = 1e-07, 
-                                  mc.cores = parallel::detectCores() - 2)
+                                  mc.cores = max(c(parallel::detectCores() - 2), 1))
 {
   
   if ( is.null(x) ) stop("x must be specified.")
@@ -169,14 +169,15 @@ bootstrap.trendfilter <- function(x,
     data <- data.frame(x = x, y = y, wts = 1 / sigma ^ 2)
   }
   
+  data$tf.estimate <- tf.estimator(data, lambda.min, k, edf = NULL, x.eval.grid)
+  data$tf.residuals <- data$y - data$tf.estimate
+  
   sampler <- case_when(
     bootstrap.method == "nonparametric" ~ list(nonparametric.resampler),
     bootstrap.method == "parametric" ~ list(parametric.sampler),
     bootstrap.method == "wild" ~ list(wild.sampler)
   )[[1]]
   
-  mc.cores <- max(c(mc.cores, 1))
-
   if ( mc.cores == 1 ){
     tf.boot.ensemble <- matrix(unlist(replicate(B,
                                                 tf.estimator(sampler(data), 
