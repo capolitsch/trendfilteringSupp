@@ -97,11 +97,15 @@
 #' 
 #' # Plot the results
 #' 
-#' par(mfrow = c(2,1))
-#' plot(log(lambda.grid), SURE.out$SURE.error, xlab = "log(lambda)", ylab = "SURE")
-#' abline(v = log(lambda.min), col = "red")
+#' par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
+#' plot(log(lambda.grid), SURE.out$SURE.error, xlab = "log(lambda)", ylab = "SURE",
+#'      main = "SURE error curve")
+#' abline(v = log(lambda.min), col = "blue3", lty = 2)
+#' text(x = log(lambda.min), y = par("usr")[4], pos = 1, col = "blue3", 
+#'      labels = c("optimal hyperparameter"))
 #' wavelength <- 10 ^ (log.wavelength.scaled / 1000)
-#' plot(wavelength, flux, type = "l")
+#' plot(wavelength, flux, type = "l", main = "Quasar Lyman-alpha forest", 
+#'      xlab = "Observed wavelength (angstroms)")
 #' lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
 
 SURE.trendfilter <- function(x, 
