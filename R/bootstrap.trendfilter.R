@@ -82,6 +82,7 @@
 #' # separation of 10e-4 logarithmic Angstroms. 
 #' 
 #' data(quasar_spec)
+#' set.seed(1)
 #' 
 #' 
 #' # Read in a spectrum of a quasar at redshift z = 2.953 and extract the 
@@ -121,11 +122,34 @@
 #' 
 #' # Plot the results
 #' 
-#' par(mfrow = c(2,1))
-#' plot(log(lambda.grid), SURE.out$SURE.error, xlab = "log(lambda)", ylab = "SURE")
-#' abline(v = log(lambda.min), col = "red")
+#' # addTrans() adds transparancy to a color. Define transparancy with an 
+#' # integer between 0 and 255, 0 being fully transparant and 255 being fully 
+#' # visable. Works with either color and trans a vector of equal length, or one
+#' # of the two of length 1.
+#' addTrans <- function(color,trans){
+#' if (length(color)!=length(trans)&!any(c(length(color),length(trans))==1)) stop("Vector lengths not correct")
+#' if (length(color)==1 & length(trans)>1) color <- rep(color,length(trans))
+#' if (length(trans)==1 & length(color)>1) trans <- rep(trans,length(color))
+#' 
+#' num2hex <- function(x)
+#' {
+#'   hex <- unlist(strsplit("0123456789ABCDEF",split=""))
+#'   return(paste(hex[(x-x%%16)/16+1],hex[x%%16+1],sep=""))
+#' }
+#' rgb <- rbind(col2rgb(color),trans)
+#' res <- paste("#",apply(apply(rgb,2,num2hex),2,paste,collapse=""),sep="")
+#' return(res)
+#' }
+#' 
+#' par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
+#' plot(log(lambda.grid), SURE.out$SURE.error, xlab = "log(lambda)", ylab = "SURE",
+#'      main = "SURE error curve")
+#' abline(v = log(lambda.min), col = "blue3", lty = 2)
+#' text(x = log(lambda.min), y = par("usr")[4], pos = 1, col = "blue3", 
+#'      labels = c("optimal hyperparameter"))
 #' wavelength <- 10 ^ (log.wavelength.scaled / 1000)
-#' plot(wavelength, flux, type = "l")
+#' plot(wavelength, flux, type = "l", main = "Quasar Lyman-alpha forest", 
+#'      xlab = "Observed wavelength (angstroms)")
 #' lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
 #' 
 #' boot.out <- bootstrap.trendfilter(x = log.wavelength.scaled, 
@@ -135,10 +159,13 @@
 #'                                   bootstrap.method = "parametric"
 #'                                   )
 #'                                   
-#' lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lty = 2, lwd = 1)
-#' lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lty = 2, lwd = 1)
-#' legend(x = "topleft", lty = c(1,2), col = "orange", lwd = c(2,1), 
-#'        legend = c("Trend filtering estimate", "95 percent variability band"))
+#' polygon(c(wavelength, rev(wavelength)), 
+#'         c(boot.out$bootstrap.lower.perc.intervals, rev(boot.out$bootstrap.upper.perc.intervals)),
+#'         col = addTrans("orange", 90), border=NA)
+#' lines(wavelength, boot.out$bootstrap.lower.perc.intervals, col = "orange", lwd = 0.5)
+#' lines(wavelength, boot.out$bootstrap.upper.perc.intervals, col = "orange", lwd = 0.5)
+#' legend(x = "topleft", lty = 1, col = c("orange", addTrans("orange", 90)), 
+#'        lwd = c(2,8), legend = c("Trend filtering estimate", "95 percent variability band"))
 
 #' @importFrom stats quantile
 #' @importFrom dplyr case_when

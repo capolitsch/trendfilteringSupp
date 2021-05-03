@@ -57,6 +57,7 @@
 #' # separation of 10e-4 logarithmic Angstroms. 
 #' 
 #' data(quasar_spec)
+#' set.seed(1)
 #' 
 #' 
 #' # Read in a spectrum of a quasar at redshift z = 2.953 and extract the 
