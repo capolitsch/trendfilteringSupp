@@ -72,7 +72,7 @@ SURE.obj <- SURE.trendfilter(x = x,
 lambda.min <- SURE.obj$lambda.min
 
 
-# Fit the optimized trend filtering model and get the estimates on an fine equally-spaced input grid
+# Fit the optimized trend filtering model and get the estimates on an fine equally-spaced grid
 
 model <- trendfilter(x = x,
                     y = y, 
