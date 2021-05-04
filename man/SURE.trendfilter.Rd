@@ -132,8 +132,8 @@ model <- trendfilter(x = x,
                      lambda = lambda.min
                      )
                      
-x.eval.grid <- seq(min(x), max(x), length = 1500)
-tf.estimate <- predict(model, x.new = x.eval.grid)
+x.eval <- seq(min(x), max(x), length = 1500)
+tf.estimate <- predict(model, x.new = x.eval)
 
 
 # Plot the results
@@ -150,12 +150,12 @@ text(x = log(lambda.min), y = par("usr")[4],
      
 # Transform back to wavelength space
 wavelength <- 10 ^ (x / 1000)
-wavelength.eval.grid <- 10 ^ (x.eval.grid / 1000)
+wavelength.eval <- 10 ^ (x.eval / 1000)
 
 plot(wavelength, y, type = "l", 
      main = "Quasar Lyman-alpha forest", 
      xlab = "Observed wavelength (angstroms)", ylab = "flux")
-lines(wavelength.eval.grid, tf.estimate, col = "orange", lwd = 2.5)
+lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 }
 \references{
 \enumerate{

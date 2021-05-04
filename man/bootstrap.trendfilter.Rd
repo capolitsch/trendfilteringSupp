@@ -7,9 +7,9 @@
 bootstrap.trendfilter(
   obj,
   bootstrap.method = "nonparametric",
-  x.eval.grid = NULL,
+  x.eval = NULL,
   alpha = 0.05,
-  B = 1000L,
+  B = 250L,
   full.ensemble = FALSE,
   mc.cores = max(c(parallel::detectCores() - 2), 1)
 )
@@ -22,14 +22,14 @@ bootstrap.trendfilter(
 See Details section below for suggested use. Defaults to 
 \code{bootstrap.method = "nonparametric"}.}
 
-\item{x.eval.grid}{Grid of inputs to evaluate the variability bands on. 
+\item{x.eval}{Grid of inputs to evaluate the variability bands on. 
 Defaults to the observed inputs.}
 
 \item{alpha}{Specifies the width of the \code{1-alpha} pointwise variability 
 bands. Defaults to \code{alpha = 0.05}.}
 
 \item{B}{The number of bootstrap samples used to estimate the pointwise
-variability bands. Defaults to \code{B = 1000}.}
+variability bands. Defaults to \code{B = 250}.}
 
 \item{full.ensemble}{Return the full bootstrap ensemble as an \code{n x B} 
 matrix. Defaults to \code{full.ensemble = FALSE}.}
@@ -39,13 +39,51 @@ utilize. If 4 or more cores are detected, then the default is to utilize
 \code{n.cores - 2}. Else, \code{mc.cores = 1}.}
 }
 \value{
-A list with the following elements:
+An object of class 'bootstrap.trendfilter'. This is a list with the 
+following elements:
+\item{x.eval}{}
+\item{tf.estimate}{}
 \item{bootstrap.lower.perc.intervals}{Vector of lower bounds for the 1-alpha 
 pointwise variability band.}
 \item{bootstrap.upper.perc.intervals}{Vector of upper bounds for the 1-alpha 
 pointwise variability band.}
+\item{bootstrap.method}{}
+\item{alpha}{}
+\item{B}{The number of bootstrap samples used to estimate the pointwise
+variability bands.}
 \item{tf.boot.ensemble}{(Optional) The full bootstrap ensemble as an 
-\code{n x B} matrix.}
+\code{n x B} matrix. If \code{full.ensemble = FALSE}, then this will return 
+\code{NULL}.}
+\item{x}{A vector of the observed inputs.}
+\item{y}{A vector of the observed outputs.}
+\item{weights}{A vector of weights for the observed outputs. These are
+defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
+standard errors of the uncertainty in the measured outputs. \code{weights}
+should either have length equal to 1 (i.e. equiweighted/homoskedastic outputs) 
+or length equal to \code{length(y)} (i.e. heteroskedastic outputs).}
+\item{fitted.values}{}
+\item{residuals}{}
+\item{k}{(Integer) The degree of the trend filtering estimator.}
+\item{lambda}{Vector of hyperparameter values tested.}
+\item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
+\item{df}{Vector of effective degrees of freedom for all trend filtering
+estimators with hyperparameters \code{lambda}.}
+\item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
+filtering estimator.}
+\item{i.min}{The index of \code{lambda} that minimizes the SURE error.}
+\item{validation.method}{Either "SURE" or "cv"}
+\item{error}{Vector of hyperparameter validation errors, inherited from
+\code{obj} (either class \code{SURE.trendfilter} or \code{cv.trendfilter})}
+\item{max_iter}{Maximum iterations allowed for the trend filtering 
+convex optimization 
+[\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
+Consider increasing this if the trend filtering estimate does not appear to 
+have fully converged to a reasonable estimate of the signal.}
+\item{obj_tol}{The tolerance used in the convex optimization stopping 
+criterion; when the relative change in the objective function is less than 
+this value, the algorithm terminates. Consider decreasing this if the trend 
+filtering estimate does not appear to have fully converged to a reasonable 
+estimate of the signal.}
 }
 \description{
 \code{bootstrap.trendfilter} implements any of three possible 
@@ -114,8 +152,8 @@ model <- trendfilter(x = x,
                      lambda = lambda.min
                      )
                      
-x.eval.grid <- seq(min(x), max(x), length = 1500)
-tf.estimate <- predict(model, x.new = x.eval.grid)
+x.eval <- seq(min(x), max(x), length = 1500)
+tf.estimate <- predict(model, x.new = x.eval)
 
 
 # Plot the results
@@ -132,16 +170,16 @@ text(x = log(lambda.min), y = par("usr")[4],
      
 # Transform back to wavelength space
 wavelength <- 10 ^ (x / 1000)
-wavelength.eval.grid <- 10 ^ (x.eval.grid / 1000)
+wavelength.eval <- 10 ^ (x.eval / 1000)
 
 plot(wavelength, y, type = "l", 
      main = "Quasar Lyman-alpha forest", 
      xlab = "Observed wavelength (angstroms)", ylab = "flux")
-lines(wavelength.eval.grid, tf.estimate, col = "orange", lwd = 2.5)
+lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 
 boot.out <- bootstrap.trendfilter(obj = SURE.obj,
                                   bootstrap.method = "parametric",
-                                  x.eval.grid = x.eval.grid
+                                  x.eval = x.eval
                                   )
                                   
                                   
@@ -164,13 +202,13 @@ transparency <- function(color, trans){
     return(res)
 }
                                   
-polygon(c(wavelength.eval.grid, rev(wavelength.eval.grid)), 
+polygon(c(wavelength.eval, rev(wavelength.eval)), 
         c(boot.out$bootstrap.lower.perc.intervals, 
         rev(boot.out$bootstrap.upper.perc.intervals)),
         col = transparency("orange", 90), border=NA)
-lines(wavelength.eval.grid, boot.out$bootstrap.lower.perc.intervals, 
+lines(wavelength.eval, boot.out$bootstrap.lower.perc.intervals, 
       col = "orange", lwd = 0.5)
-lines(wavelength.eval.grid, boot.out$bootstrap.upper.perc.intervals, 
+lines(wavelength.eval, boot.out$bootstrap.upper.perc.intervals, 
       col = "orange", lwd = 0.5)
 legend(x = "topleft", lwd = c(2,8), lty = 1, 
        col = c("orange", transparency("orange", 90)), 
