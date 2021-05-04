@@ -1,7 +1,7 @@
 # Statistical analysis with trend filtering
 This package serves as a supplement to [Politsch et al. (2020a)](https://academic.oup.com/mnras/article/492/3/4005/5704413) 
 and [Politsch et al. (2020b)](https://academic.oup.com/mnras/article/492/3/4019/5704414).
-The package builds on [*glmgen*](https://github.com/glmgen) by providing 
+The package builds on [*glmgen*](https://github.com/glmgen/glmgen) by providing 
 additional useful statistical tools for carrying out data analysis with trend 
 filtering [Tibshirani (2014)](https://projecteuclid.org/euclid.aos/1395234979). 
 It contains functionality for easily optimizing a trend filtering estimator by 
