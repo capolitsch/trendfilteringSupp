@@ -26,12 +26,12 @@ C. A. Politsch et al. *Trend Filtering - II. Denoising astronomical signals with
 Monthly Notices of the Royal Astronomical Society, 492(3), p. 4019-4032, 2020. [[Link](https://academic.oup.com/mnras/article/492/3/4019/5704414)]
 
 R. J. Tibshirani. *Adaptive piecewise polynomial estimation via trend filtering*. 
-The Annals of Statistics. 42 (2014), no. 1, 285--323. [[Link](https://projecteuclid.org/euclid.aos/1395234979)]
+The Annals of Statistics. 42 (2014), no. 1, 285-323. [[Link](https://projecteuclid.org/euclid.aos/1395234979)]
 
 A. Ramdas & R. J. Tibshirani. *Fast and Flexible ADMM Algorithms for Trend Filtering*.
 Journal of Computational and Graphical Statistics, 25:3 (2016), 839-858. [[Link](https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0)]
 
-T. B. Arnold, V. Sadhanala, and R. J. Tibshirani. *Fast algorithms for generalized lasso problems*.
+T. B. Arnold, V. Sadhanala, and R. J. Tibshirani. *Fast algorithms for generalized lasso problems*. R package: *glmgen*.
 Version 0.0.3 (2014). [[Link](https://github.com/glmgen/glmgen)]
 
 
