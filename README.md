@@ -1,5 +1,5 @@
 # Statistical analysis with trend filtering
-This package serves as a supplement to \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{Politsch et al. (2020a)} 
+This package serves as a supplement to ([Politsch et al. (2020a)](https://academic.oup.com/mnras/article/492/3/4005/5704413) 
 and \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{Politsch et al. (2020b)}.
 The package builds on \href{https://github.com/glmgen}{glmgen} by providing 
 additional useful statistical tools for carrying out data analysis with trend 
