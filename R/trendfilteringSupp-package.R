@@ -11,7 +11,8 @@
 #' @docType package
 #' @author Collin A. Politsch \cr \cr 
 #' \strong{Maintainer}: Collin A. Politsch <collinpolitsch@@gmail.com>
-#' @import glmgen, dplyr
+#' @import glmgen
+#' @import dplyr
 #' @keywords package
 #' @seealso Refer to:
 #' \enumerate{

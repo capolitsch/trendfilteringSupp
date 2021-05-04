@@ -2,7 +2,6 @@
 
 export(SURE.trendfilter)
 export(bootstrap.trendfilter)
-import("glmgen,")
 import(dplyr)
 import(glmgen)
 importFrom(dplyr,case_when)

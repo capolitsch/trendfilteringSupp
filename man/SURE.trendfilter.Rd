@@ -84,63 +84,79 @@ hyperparameter values.
 library(glmgen)
 
 #############################################################################
-########################## Quasar spectrum example ##########################
+##################### Quasar Lyman-alpha forest example #####################
 #############################################################################
 
-# SDSS spectra are equally spaced in log base 10 wavelength space with a 
-# separation of 10e-4 logarithmic Angstroms. 
+# SDSS spectra are equally spaced in log base-10 wavelength space with a 
+# separation of 10e-4 log-Angstroms. Given the default trend filtering 
+# optimization parameters, it is safer to scale up the inputs in such a 
+# scenario. Here, we scale to unit spacing.
+
+# Read in an SDSS spectrum of a quasar at redshift z = 2.953 and extract the 
+# Lyman-alpha forest.
 
 data(quasar_spec)
-set.seed(1)
-
-
-# Read in a spectrum of a quasar at redshift z = 2.953 and extract the 
-# Lyman-alpha forest.
+lya.rest <- 1215.67
+quasar.redshift <- 2.953
 
 log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
 flux <- quasar_spec$col[[1]]
 weights <- quasar_spec$col[[3]]
-lya.rest.wavelength <- 1215.67
-quasar.redshift <- 2.953
-inds <- which((10^(log.wavelength.scaled/1000))/(quasar.redshift + 1) < lya.rest.wavelength + 40)
-log.wavelength.scaled <- log.wavelength.scaled[inds]
-flux <- flux[inds]
+
+inds <- which((10^(quasar_spec$col[[2]]))/(quasar.redshift + 1) < lya.rest)
+x <- log.wavelength.scaled[inds]
+y <- flux[inds]
 weights <- weights[inds]
 
 
-# Compute the SURE error curve and the optimal hyperparameter value
+# Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
+# k = 2 (recommended)
 
+set.seed(1)
 lambda.grid <- exp(seq(-10, 7, length = 250))
-SURE.out <- SURE.trendfilter(x = log.wavelength.scaled, 
-                             y = flux, 
+SURE.obj <- SURE.trendfilter(x = x, 
+                             y = y, 
                              weights = weights, 
+                             k = 2,
                              lambda = lambda.grid
                              )
-lambda.min <- SURE.out$lambda.min
+lambda.min <- SURE.obj$lambda.min
 
 
-# Fit the optimized trend filtering estimate
+# Fit the optimized trend filtering model and get the estimates on an fine
+# equally-spaced input grid
 
-fit <- glmgen::trendfilter(x = log.wavelength.scaled, 
-                           y = flux, 
-                           weights = weights, 
-                           k = 2, 
-                           lambda = lambda.min
-                           )
+model <- trendfilter(x = x,
+                     y = y, 
+                     weights = weights,
+                     k = 2, 
+                     lambda = lambda.min
+                     )
+                     
+x.eval.grid <- seq(min(x), max(x), length = 1500)
+tf.estimate <- predict(model, x.new = x.eval.grid)
 
 
 # Plot the results
 
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-plot(log(lambda.grid), SURE.out$error, xlab = "log(lambda)", ylab = "SURE",
-     main = "SURE error curve")
+
+plot(log(lambda.grid), SURE.obj$error,
+     main = "SURE error curve", 
+     xlab = "log(lambda)", ylab = "SURE error")
 abline(v = log(lambda.min), col = "blue3", lty = 2)
-text(x = log(lambda.min), y = par("usr")[4], pos = 1, col = "blue3", 
-     labels = c("optimal hyperparameter"))
-wavelength <- 10 ^ (log.wavelength.scaled / 1000)
-plot(wavelength, flux, type = "l", main = "Quasar Lyman-alpha forest", 
-     xlab = "Observed wavelength (angstroms)")
-lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
+text(x = log(lambda.min), y = par("usr")[4], 
+     labels = "optimal hyperparameter", pos = 1, col = "blue3")
+     
+     
+# Transform back to wavelength space
+wavelength <- 10 ^ (x / 1000)
+wavelength.eval.grid <- 10 ^ (x.eval.grid / 1000)
+
+plot(wavelength, y, type = "l", 
+     main = "Quasar Lyman-alpha forest", 
+     xlab = "Observed wavelength (angstroms)", ylab = "flux")
+lines(wavelength.eval.grid, tf.estimate, col = "orange", lwd = 2.5)
 }
 \references{
 \enumerate{
