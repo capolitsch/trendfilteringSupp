@@ -11,7 +11,7 @@ SURE.trendfilter(
   weights,
   k = 2L,
   lambda,
-  max_iter = 250L,
+  max_iter = 150L,
   obj_tol = 1e-06
 )
 }
@@ -27,7 +27,7 @@ should either have length equal to 1 (i.e. equiweighted/homoskedastic outputs)
 or length equal to \code{length(y)} (i.e. heteroskedastic outputs).}
 
 \item{k}{(Integer) The degree of the trend filtering estimator. Defaults to 
-\code{k=2} (quadratic trend filtering).}
+\code{k = 2} (quadratic trend filtering).}
 
 \item{lambda}{A vector of trend filtering hyperparameter values to run the 
 grid search over. Usually, let them be equally-spaced in log-space (see 
@@ -36,8 +36,9 @@ Examples).}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
 [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
-Consider increasing this if the trend filtering estimate does not appear to 
-have fully converged to a reasonable estimate of the signal.}
+Defaults to \code{max_iter = 150}. Consider increasing this if the trend 
+filtering estimate does not appear to have fully converged to a reasonable 
+estimate of the signal.}
 
 \item{obj_tol}{The tolerance used in the convex optimization stopping 
 criterion; when the relative change in the objective function is less than 
@@ -81,8 +82,6 @@ estimate of fixed-input mean-squared prediction error (MSPE) on a grid of
 hyperparameter values.
 }
 \examples{
-library(glmgen)
-
 #############################################################################
 ##################### Quasar Lyman-alpha forest example #####################
 #############################################################################

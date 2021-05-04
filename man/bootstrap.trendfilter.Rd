@@ -64,8 +64,6 @@ following criteria: \itemize{
 unknown –> \code{bootstrap.method = "wild"}}
 }
 \examples{
-library(glmgen)
-
 #############################################################################
 ##################### Quasar Lyman-alpha forest example #####################
 #############################################################################
