@@ -14,11 +14,12 @@
 #' @param alpha Specifies the width of the \code{1-alpha} pointwise variability 
 #' bands. Defaults to \code{alpha = 0.05}.
 #' @param B The number of bootstrap samples used to estimate the pointwise
-#' variability bands. Defaults to \code{B=1000}.
+#' variability bands. Defaults to \code{B = 1000}.
 #' @param full.ensemble Return the full bootstrap ensemble as an \code{n x B} 
 #' matrix. Defaults to \code{full.ensemble = FALSE}.
 #' @param mc.cores Multi-core computing (for speedups): The number of cores to
-#' utilize. Defaults to the number detected on the machine minus 2.
+#' utilize. If 4 or more cores are detected, then the default is to utilize
+#' \code{n.cores - 2}. Else, \code{mc.cores = 1}.
 #' @return A list with the following elements:
 #' \item{bootstrap.lower.perc.intervals}{Vector of lower bounds for the 1-alpha 
 #' pointwise variability band.}

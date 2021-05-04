@@ -29,13 +29,14 @@ Defaults to the observed inputs.}
 bands. Defaults to \code{alpha = 0.05}.}
 
 \item{B}{The number of bootstrap samples used to estimate the pointwise
-variability bands. Defaults to \code{B=1000}.}
+variability bands. Defaults to \code{B = 1000}.}
 
 \item{full.ensemble}{Return the full bootstrap ensemble as an \code{n x B} 
 matrix. Defaults to \code{full.ensemble = FALSE}.}
 
 \item{mc.cores}{Multi-core computing (for speedups): The number of cores to
-utilize. Defaults to the number detected on the machine minus 2.}
+utilize. If 4 or more cores are detected, then the default is to utilize
+\code{n.cores - 2}. Else, \code{mc.cores = 1}.}
 }
 \value{
 A list with the following elements:
