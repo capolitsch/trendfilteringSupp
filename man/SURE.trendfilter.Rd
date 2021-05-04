@@ -81,6 +81,8 @@ estimate of fixed-input mean-squared prediction error (MSPE) on a grid of
 hyperparameter values.
 }
 \examples{
+library(glmgen)
+
 #############################################################################
 ########################## Quasar spectrum example ##########################
 #############################################################################
