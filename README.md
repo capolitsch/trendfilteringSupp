@@ -1,9 +1,9 @@
 # Statistical analysis with trend filtering
 This package serves as a supplement to [Politsch et al. (2020a)](https://academic.oup.com/mnras/article/492/3/4005/5704413) 
 and [Politsch et al. (2020b)](https://academic.oup.com/mnras/article/492/3/4019/5704414).
-The package builds on [*glmgen*](https://github.com/glmgen/glmgen) by providing 
-additional useful statistical tools for carrying out data analysis with trend 
-filtering [Tibshirani (2014)](https://projecteuclid.org/euclid.aos/1395234979). 
+The package builds on the [*glmgen*](https://github.com/glmgen/glmgen) package
+by providing additional useful statistical tools for carrying out data analysis 
+with trend filtering [Tibshirani (2014)](https://projecteuclid.org/euclid.aos/1395234979). 
 It contains functionality for easily optimizing a trend filtering estimator by 
 cross validation or minimizing Stein's unbiased risk estimate and various 
 bootstrap algorithms for producing variability bands to quantify the uncertainty 
@@ -17,7 +17,7 @@ library(trendfilteringSupp)
 ?bootstrap.trendfilter
 ```
 
-# Quasar Lyman-alpha forest example 
+## Quasar Lyman-alpha forest example 
 
 SDSS spectra are equally spaced in log base-10 wavelength space with a 
 separation of 10e-4 log-Angstroms. Given the default trend filtering 
