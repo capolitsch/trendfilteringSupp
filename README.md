@@ -7,16 +7,16 @@ library(trendfilteringSupp)
 
 ?SURE.trendfilter
 ?bootstrap.trendfilter
+```
 
-#############################################################################
-##################### Quasar Lyman-alpha forest example #####################
-#############################################################################
+# Quasar Lyman-alpha forest example 
 
-# SDSS spectra are equally spaced in log base-10 wavelength space with a 
-# separation of 10e-4 log-Angstroms. Given the default trend filtering 
-# optimization parameters, it is safer to scale up the inputs in such a 
-# scenario. For example, here we scale to unit spacing.
+SDSS spectra are equally spaced in log base-10 wavelength space with a 
+separation of 10e-4 log-Angstroms. Given the default trend filtering 
+optimization parameters, it is safer to scale up the inputs in such a 
+scenario. For example, here we scale to unit spacing.
 
+```
 # Read in an SDSS spectrum of a quasar at redshift z = 2.953 and extract the 
 # Lyman-alpha forest.
 
