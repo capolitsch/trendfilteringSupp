@@ -19,7 +19,7 @@
 #' @param max_iter Maximum iterations allowed for the trend filtering 
 #' convex optimization 
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
-#' Defaults to \code{max_iter = 150}. Consider increasing this if the trend 
+#' Defaults to \code{max_iter = 200}. Consider increasing this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.
 #' @param obj_tol The tolerance used in the convex optimization stopping 
@@ -107,7 +107,7 @@
 #' # k = 2 (recommended)
 #' 
 #' set.seed(1)
-#' lambda.grid <- exp(seq(-10, 7, length = 250))
+#' lambda.grid <- exp(seq(-10, 7, length = 100))
 #' SURE.obj <- SURE.trendfilter(x = x, 
 #'                              y = y, 
 #'                              weights = weights, 
@@ -157,7 +157,7 @@ SURE.trendfilter <- function(x,
                              weights, 
                              k = 2L, 
                              lambda, 
-                             max_iter = 150L, 
+                             max_iter = 200L, 
                              obj_tol = 1e-06
                              )
   {

@@ -94,7 +94,7 @@ weights <- weights[inds]
 # k = 2 (recommended)
 
 set.seed(1)
-lambda.grid <- exp(seq(-10, 7, length = 250))
+lambda.grid <- exp(seq(-10, 5, length = 200))
 SURE.obj <- SURE.trendfilter(x = x, 
                              y = y, 
                              weights = weights, 

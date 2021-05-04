@@ -89,7 +89,7 @@
 #' # k = 2 (recommended)
 #' 
 #' set.seed(1)
-#' lambda.grid <- exp(seq(-10, 7, length = 250))
+#' lambda.grid <- exp(seq(-10, 5, length = 200))
 #' SURE.obj <- SURE.trendfilter(x = x, 
 #'                              y = y, 
 #'                              weights = weights, 
@@ -222,7 +222,7 @@ bootstrap.trendfilter <- function(obj,
                                                              )
                                                 )
                                       ),
-                             ncol = B
+                             nrow = length(obj$x.eval.grid)
                              )
   }else{
     par.func <- function(b){
@@ -233,13 +233,12 @@ bootstrap.trendfilter <- function(obj,
       return(boot.tf.estimate)
     }
     tf.boot.ensemble <- matrix(unlist(parallel::mclapply(1:B, par.func, mc.cores = mc.cores)), 
-                               ncol = B)
+                               nrow = length(obj$x.eval.grid))
   }
   
   obj$bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, probs = alpha/2)
   obj$bootstrap.upper.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, probs = 1-alpha/2)
-  obj <- c(obj, list(bootstrap.method = bootstrap.method, 
-                     x.eval.grid = x.eval.grid, 
+  obj <- c(obj, list(bootstrap.method = bootstrap.method,
                      alpha = alpha, 
                      B = B
                      )
@@ -263,6 +262,10 @@ tf.estimator <- function(data,
                          x.eval.grid = NULL)
   {
   
+  if ( is.null(x.eval.grid) ){
+    x.eval.grid <- obj$x.eval.grid
+  }
+  
   if ( mode == "df" ){
     tf.fit <- trendfilter(data$x, 
                           data$y, 
@@ -275,16 +278,11 @@ tf.estimator <- function(data,
                           )
     
     i.min <- which.min( abs(tf.fit$df - obj$df.min) )
+    lambda.min <- obj$lambda[i.min]
     
-    tf.fit <- trendfilter(data$x, 
-                          data$y, 
-                          data$weights, 
-                          k = obj$k,
-                          lambda = obj$lambda[i.min], 
-                          control = trendfilter.control.list(max_iter = obj$max_iter,
-                                                             obj_tol = obj$obj_tol
-                          )
-    )
+    if ( obj$df.min[i.min] == 0 ){
+      return(NULL)
+    }
     
   }else{
     tf.fit <- trendfilter(data$x, 
@@ -296,13 +294,11 @@ tf.estimator <- function(data,
                                                                      obj_tol = obj$obj_tol
                                                                      )
                           )
+    
+    lambda.min <- obj$lambda.min
   }
-  
-  if ( !is.null(x.eval.grid) ){
-    tf.estimate <- as.numeric(predict(tf.fit, x.new = x.eval.grid))
-  }else{
-    tf.estimate <- as.numeric(predict(tf.fit, x.new = obj$x.eval.grid))
-  }
+
+  tf.estimate <- as.numeric(predict(tf.fit, x.new = x.eval.grid, lambda = lambda.min))
   
   return(tf.estimate)
 }
