@@ -19,32 +19,23 @@ bootstrap.trendfilter(
 \code{cv.trendfilter}.}
 
 \item{bootstrap.method}{A string specifying the bootstrap method to be used. 
-See Details section below for suggested use. Defaults to "nonparametric".}
+See Details section below for suggested use. Defaults to 
+\code{bootstrap.method = "nonparametric"}.}
 
 \item{x.eval.grid}{Grid of inputs to evaluate the variability bands on. 
 Defaults to the observed inputs.}
 
 \item{alpha}{Specifies the width of the \code{1-alpha} pointwise variability 
-bands.}
+bands. Defaults to \code{alpha = 0.05}.}
+
+\item{B}{The number of bootstrap samples used to estimate the pointwise
+variability bands. Defaults to \code{B=1000}.}
 
 \item{full.ensemble}{Return the full bootstrap ensemble as an \code{n x B} 
-matrix. Defaults to \code{FALSE}.}
+matrix. Defaults to \code{full.ensemble = FALSE}.}
 
 \item{mc.cores}{Multi-core computing (for speedups): The number of cores to
 utilize. Defaults to the number detected on the machine minus 2.}
-
-\item{max_iter}{Maximum iterations allowed for the trend filtering 
-convex optimization 
-\href{https://stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{
-Ramdas & Tibshirani (2015)}. 
-Consider increasing this if the bootstrap estimates do not appear to 
-have fully converged to a reasonable estimate of the signal.}
-
-\item{obj_tol}{The tolerance used in the convex optimization stopping 
-criterion; when the relative change in the objective function is less than 
-this value, the algorithm terminates. Consider decreasing this if the 
-bootstrap estimates do not appear to have fully converged to a reasonable 
-estimate of the signal.}
 }
 \value{
 A list with the following elements:

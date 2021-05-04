@@ -6,8 +6,13 @@ Author:
            family = "Politsch",
            role = c("aut", "cre"),
            email = "collinpolitsch@gmail.com")
-Description: (1) Optimizing the trend filtering hyperparameter by minimizing Stein’s unbiased risk estimate
-             (2) Various bootstrap methods for trend filtering uncertainty quantification
+Description: This package builds on glmgen by providing additional useful 
+             statistical tools for carrying out data analysis with trend 
+             filtering [Tibshirani (2014)]. It contains functionality for easily
+             optimizing a trend filtering estimator by cross validation or 
+             minimizing Stein's unbiased risk estimate and various bootstrap 
+             algorithms for producing variability bands to quantify the 
+             uncertainty in the estimator.
 License: MIT
 Encoding: UTF-8
 LazyData: true

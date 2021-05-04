@@ -135,6 +135,7 @@
 #'      xlab = "Observed wavelength (angstroms)")
 #' lines(wavelength, fit$beta, col = "orange", lwd = 2.5)
 
+#' @import glmgen
 SURE.trendfilter <- function(x, 
                              y, 
                              weights, 

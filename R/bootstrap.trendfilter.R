@@ -9,22 +9,14 @@
 #' @param x.eval.grid Grid of inputs to evaluate the variability bands on. 
 #' Defaults to the observed inputs.
 #' @param bootstrap.method A string specifying the bootstrap method to be used. 
-#' See Details section below for suggested use. Defaults to "nonparametric".
+#' See Details section below for suggested use. Defaults to 
+#' \code{bootstrap.method = "nonparametric"}.
 #' @param alpha Specifies the width of the \code{1-alpha} pointwise variability 
-#' bands.
+#' bands. Defaults to \code{alpha = 0.05}.
+#' @param B The number of bootstrap samples used to estimate the pointwise
+#' variability bands. Defaults to \code{B=1000}.
 #' @param full.ensemble Return the full bootstrap ensemble as an \code{n x B} 
-#' matrix. Defaults to \code{FALSE}.
-#' @param max_iter Maximum iterations allowed for the trend filtering 
-#' convex optimization 
-#' \href{https://stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{
-#' Ramdas & Tibshirani (2015)}. 
-#' Consider increasing this if the bootstrap estimates do not appear to 
-#' have fully converged to a reasonable estimate of the signal.
-#' @param obj_tol The tolerance used in the convex optimization stopping 
-#' criterion; when the relative change in the objective function is less than 
-#' this value, the algorithm terminates. Consider decreasing this if the 
-#' bootstrap estimates do not appear to have fully converged to a reasonable 
-#' estimate of the signal.
+#' matrix. Defaults to \code{full.ensemble = FALSE}.
 #' @param mc.cores Multi-core computing (for speedups): The number of cores to
 #' utilize. Defaults to the number detected on the machine minus 2.
 #' @return A list with the following elements:
@@ -178,6 +170,7 @@
 #'        col = c("orange", transparency("orange", 90)), 
 #'        legend = c("Trend filtering estimate", "95 percent variability band"))
 
+#' @import glmgen
 #' @importFrom stats quantile
 #' @importFrom dplyr case_when
 bootstrap.trendfilter <- function(obj,
@@ -262,7 +255,7 @@ bootstrap.trendfilter <- function(obj,
   return(obj)
 }
 
-
+#' @importFrom stats predict
 tf.estimator <- function(data, 
                          obj = obj,
                          mode = "lambda")
