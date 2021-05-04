@@ -58,6 +58,8 @@ inds <- which((10^(quasar_spec$col[[2]]))/(quasar.redshift + 1) < lya.rest)
 x <- log.wavelength.scaled[inds]
 y <- flux[inds]
 weights <- weights[inds]
+
+
 # Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
 # k = 2 (recommended)
 
