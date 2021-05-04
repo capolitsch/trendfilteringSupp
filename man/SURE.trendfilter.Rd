@@ -16,9 +16,9 @@ SURE.trendfilter(
 )
 }
 \arguments{
-\item{x}{A vector of the observed inputs.}
+\item{x}{The vector of the observed inputs.}
 
-\item{y}{A vector of the observed outputs.}
+\item{y}{The vector of the observed outputs.}
 
 \item{weights}{A vector of weights for the observed outputs. These are
 defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
@@ -47,23 +47,21 @@ filtering estimate does not appear to have fully converged to a reasonable
 estimate of the signal.}
 }
 \value{
-An object of class \code{SURE.trendfilter}. This is a list with the 
+An object of class 'SURE.trendfilter'. This is a list with the 
 following elements:
 \item{error}{Vector of estimated SURE errors for hyperparameter values.}
-\item{lambda}{Vector of hyperparameter values tested.}
+\item{lambda}{Vector of hyperparameter values tested during validation.}
 \item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
-\item{df}{Vector of effective degrees of freedom for all trend filtering
-estimators with hyperparameters \code{lambda}.}
+\item{df}{Vector of effective degrees of freedom for trend filtering
+estimators fit during validation.}
 \item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
 filtering estimator.}
 \item{i.min}{The index of \code{lambda} that minimizes the SURE error.}
-\item{x}{A vector of the observed inputs.}
-\item{y}{A vector of the observed outputs.}
+\item{x}{The vector of the observed inputs.}
+\item{y}{The vector of the observed outputs.}
 \item{weights}{A vector of weights for the observed outputs. These are
 defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
-standard errors of the uncertainty in the measured outputs. \code{weights}
-should either have length equal to 1 (i.e. equiweighted/homoskedastic outputs) 
-or length equal to \code{length(y)} (i.e. heteroskedastic outputs).}
+standard errors of the uncertainty in the measured outputs.}
 \item{k}{(Integer) The degree of the trend filtering estimator.}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
@@ -89,7 +87,7 @@ hyperparameter values.
 # SDSS spectra are equally spaced in log base-10 wavelength space with a 
 # separation of 10e-4 log-Angstroms. Given the default trend filtering 
 # optimization parameters, it is safer to scale up the inputs in such a 
-# scenario. Here, we scale to unit spacing.
+# scenario. For example, here we scale to unit spacing.
 
 # Read in an SDSS spectrum of a quasar at redshift z = 2.953 and extract the 
 # Lyman-alpha forest.
@@ -112,7 +110,7 @@ weights <- weights[inds]
 # k = 2 (recommended)
 
 set.seed(1)
-lambda.grid <- exp(seq(-10, 7, length = 100))
+lambda.grid <- exp(seq(-10, 5, length = 200))
 SURE.obj <- SURE.trendfilter(x = x, 
                              y = y, 
                              weights = weights, 
@@ -156,6 +154,12 @@ plot(wavelength, y, type = "l",
      main = "Quasar Lyman-alpha forest", 
      xlab = "Observed wavelength (angstroms)", ylab = "flux")
 lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
+legend(x = "topleft", lwd = c(1,2), lty = 1, 
+       col = c("black","orange"), 
+       legend = c("Noisy quasar spectrum",
+                  "Trend filtering estimate"
+                  )
+       )
 }
 \references{
 \enumerate{

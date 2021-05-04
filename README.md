@@ -1,5 +1,5 @@
 # Trend filtering
-Supplementary tools for data analysis with trend filtering
+Statistical analysis with trend filtering
 
 ```
 devtools::install_github("capolitsch/trendfilteringSupp")
@@ -7,6 +7,84 @@ library(trendfilteringSupp)
 
 ?SURE.trendfilter
 ?bootstrap.trendfilter
+
+#############################################################################
+##################### Quasar Lyman-alpha forest example #####################
+#############################################################################
+
+# SDSS spectra are equally spaced in log base-10 wavelength space with a 
+# separation of 10e-4 log-Angstroms. Given the default trend filtering 
+# optimization parameters, it is safer to scale up the inputs in such a 
+# scenario. For example, here we scale to unit spacing.
+
+# Read in an SDSS spectrum of a quasar at redshift z = 2.953 and extract the 
+# Lyman-alpha forest.
+
+data(quasar_spec)
+lya.rest <- 1215.67
+quasar.redshift <- 2.953
+
+log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
+flux <- quasar_spec$col[[1]]
+weights <- quasar_spec$col[[3]]
+
+inds <- which((10^(quasar_spec$col[[2]]))/(quasar.redshift + 1) < lya.rest)
+x <- log.wavelength.scaled[inds]
+y <- flux[inds]
+weights <- weights[inds]
+# Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
+# k = 2 (recommended)
+
+set.seed(1)
+lambda.grid <- exp(seq(-10, 5, length = 200))
+SURE.obj <- SURE.trendfilter(x = x, 
+                            y = y, 
+                            weights = weights, 
+                            k = 2,
+                            lambda = lambda.grid
+                            )
+lambda.min <- SURE.obj$lambda.min
+
+
+# Fit the optimized trend filtering model and get the estimates on an fine
+# equally-spaced input grid
+
+model <- trendfilter(x = x,
+                    y = y, 
+                    weights = weights,
+                    k = 2, 
+                    lambda = lambda.min
+                    )
+                    
+x.eval <- seq(min(x), max(x), length = 1500)
+tf.estimate <- predict(model, x.new = x.eval)
+
+
+# Plot the results
+par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
+
+plot(log(lambda.grid), SURE.obj$error,
+    main = "SURE error curve", 
+    xlab = "log(lambda)", ylab = "SURE error")
+abline(v = log(lambda.min), col = "blue3", lty = 2)
+text(x = log(lambda.min), y = par("usr")[4], 
+    labels = "optimal hyperparameter", pos = 1, col = "blue3")
+    
+    
+# Transform back to wavelength space
+wavelength <- 10 ^ (x / 1000)
+wavelength.eval <- 10 ^ (x.eval / 1000)
+
+plot(wavelength, y, type = "l", 
+    main = "Quasar Lyman-alpha forest", 
+    xlab = "Observed wavelength (angstroms)", ylab = "flux")
+lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
+legend(x = "topleft", lwd = c(1,2), lty = 1, 
+      col = c("black","orange"), 
+      legend = c("Noisy quasar spectrum",
+                 "Trend filtering estimate"
+                 )
+      )
 ```
 
 References:

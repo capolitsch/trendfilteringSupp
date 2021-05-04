@@ -11,19 +11,20 @@ bootstrap.trendfilter(
   alpha = 0.05,
   B = 250L,
   full.ensemble = FALSE,
+  prune = TRUE,
   mc.cores = max(c(parallel::detectCores() - 2), 1)
 )
 }
 \arguments{
-\item{obj}{An object of class \code{SURE.trendfilter} or 
-\code{cv.trendfilter}.}
+\item{obj}{An object of class 'SURE.trendfilter' or 'cv.trendfilter'.}
 
 \item{bootstrap.method}{A string specifying the bootstrap method to be used. 
 See Details section below for suggested use. Defaults to 
 \code{bootstrap.method = "nonparametric"}.}
 
-\item{x.eval}{Grid of inputs to evaluate the variability bands on. 
-Defaults to the observed inputs.}
+\item{x.eval}{Grid of inputs to evaluate the trend filtering estimate and 
+variability bands on. If \code{NULL}, a fine equally-spaced grid is 
+constructed.}
 
 \item{alpha}{Specifies the width of the \code{1-alpha} pointwise variability 
 bands. Defaults to \code{alpha = 0.05}.}
@@ -31,49 +32,59 @@ bands. Defaults to \code{alpha = 0.05}.}
 \item{B}{The number of bootstrap samples used to estimate the pointwise
 variability bands. Defaults to \code{B = 250}.}
 
-\item{full.ensemble}{Return the full bootstrap ensemble as an \code{n x B} 
-matrix. Defaults to \code{full.ensemble = FALSE}.}
+\item{full.ensemble}{If \code{TRUE}, the full trend filtering bootstrap 
+ensemble is returned as an \eqn{n x B} matrix. Defaults to 
+\code{full.ensemble = FALSE}.}
+
+\item{prune}{If \code{TRUE}, then the trend filtering bootstrap ensemble
+is examined for rare instances in which the optimization has stopped at
+zero knots (most likely in error), and removes them from the ensemble. Do
+not change this unless you know what you are doing.}
 
 \item{mc.cores}{Multi-core computing (for speedups): The number of cores to
 utilize. If 4 or more cores are detected, then the default is to utilize
-\code{n.cores - 2}. Else, \code{mc.cores = 1}.}
+\code{available.cores - 2}. Else, \code{mc.cores = 1}.}
 }
 \value{
 An object of class 'bootstrap.trendfilter'. This is a list with the 
 following elements:
-\item{x.eval}{}
-\item{tf.estimate}{}
+\item{x.eval}{The grid of inputs the trend filtering estimate and variability 
+bands were evaluated on.}
+\item{tf.estimate}{The trend filtering estimate of the signal, evaluated on 
+\code{x.eval}.}
 \item{bootstrap.lower.perc.intervals}{Vector of lower bounds for the 1-alpha 
-pointwise variability band.}
+pointwise variability band, evaluated on \code{x.eval}.}
 \item{bootstrap.upper.perc.intervals}{Vector of upper bounds for the 1-alpha 
-pointwise variability band.}
-\item{bootstrap.method}{}
-\item{alpha}{}
+pointwise variability band, evaluated on \code{x.eval}.}
+\item{bootstrap.method}{The string specifying the bootstrap method that was
+used.}
+\item{alpha}{The 'level' of the variability bands, i.e. \code{alpha}
+produces a \eqn{100*(1-\alpha)}\% pointwise variability band.}
 \item{B}{The number of bootstrap samples used to estimate the pointwise
 variability bands.}
-\item{tf.boot.ensemble}{(Optional) The full bootstrap ensemble as an 
-\code{n x B} matrix. If \code{full.ensemble = FALSE}, then this will return 
-\code{NULL}.}
-\item{x}{A vector of the observed inputs.}
-\item{y}{A vector of the observed outputs.}
+\item{tf.boot.ensemble}{(Optional) The full trend filtering bootstrap 
+ensemble as an \eqn{n x B} matrix. If \code{full.ensemble = FALSE}, then 
+this will return \code{NULL}.}
+\item{x}{The vector of the observed inputs.}
+\item{y}{The vector of the observed outputs.}
 \item{weights}{A vector of weights for the observed outputs. These are
-defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
-standard errors of the uncertainty in the measured outputs. \code{weights}
-should either have length equal to 1 (i.e. equiweighted/homoskedastic outputs) 
-or length equal to \code{length(y)} (i.e. heteroskedastic outputs).}
-\item{fitted.values}{}
-\item{residuals}{}
+defined as \code{weights[i] = 1 / sigma[i]^2}, where \code{sigma} is a vector 
+of standard errors of the uncertainty in the measured outputs.}
+\item{fitted.values}{The trend filtering estimate of the signal, evaluated at
+the observed inputs \code{x}.}
+\item{residuals}{\code{residuals = y - fitted.values}.}
 \item{k}{(Integer) The degree of the trend filtering estimator.}
-\item{lambda}{Vector of hyperparameter values tested.}
-\item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
-\item{df}{Vector of effective degrees of freedom for all trend filtering
-estimators with hyperparameters \code{lambda}.}
+\item{lambda}{Vector of hyperparameter values tested during validation.}
+\item{lambda.min}{Hyperparameter value that minimizes the validation error 
+curve.}
+\item{df}{Vector of effective degrees of freedom for trend filtering
+estimators fit during validation.}
 \item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
 filtering estimator.}
-\item{i.min}{The index of \code{lambda} that minimizes the SURE error.}
-\item{validation.method}{Either "SURE" or "cv"}
+\item{i.min}{The index of \code{lambda} that minimizes the validation error.}
+\item{validation.method}{Either "SURE" or "cv".}
 \item{error}{Vector of hyperparameter validation errors, inherited from
-\code{obj} (either class \code{SURE.trendfilter} or \code{cv.trendfilter})}
+\code{obj} (either class 'SURE.trendfilter' or 'cv.trendfilter')}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
 [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
@@ -94,12 +105,14 @@ signal.
 \details{
 The bootstrap method should generally be chosen according to the 
 following criteria: \itemize{
-\item The inputs are irregularly sampled –> 
-\code{bootstrap.method = "nonparametric"}
+\item The inputs are irregularly sampled -> 
+\code{bootstrap.method = "nonparametric"}.
 \item The inputs are regularly sampled and the noise distribution is known –> 
-\code{bootstrap.method = "parametric"} 
+\code{bootstrap.method = "parametric"}.
 \item The inputs are regularly sampled and the noise distribution is 
-unknown –> \code{bootstrap.method = "wild"}}
+unknown –> \code{bootstrap.method = "wild"}.}
+See \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
+Politsch et al. (2020)} for more details.
 }
 \examples{
 #############################################################################
@@ -109,7 +122,7 @@ unknown –> \code{bootstrap.method = "wild"}}
 # SDSS spectra are equally spaced in log base-10 wavelength space with a 
 # separation of 10e-4 log-Angstroms. Given the default trend filtering 
 # optimization parameters, it is safer to scale up the inputs in such a 
-# scenario. Here, we scale to unit spacing.
+# scenario. For example, here we scale to unit spacing.
 
 # Read in an SDSS spectrum of a quasar at redshift z = 2.953 and extract the 
 # Lyman-alpha forest.
@@ -210,9 +223,13 @@ lines(wavelength.eval, boot.out$bootstrap.lower.perc.intervals,
       col = "orange", lwd = 0.5)
 lines(wavelength.eval, boot.out$bootstrap.upper.perc.intervals, 
       col = "orange", lwd = 0.5)
-legend(x = "topleft", lwd = c(2,8), lty = 1, 
-       col = c("orange", transparency("orange", 90)), 
-       legend = c("Trend filtering estimate", "95 percent variability band"))
+legend(x = "topleft", lwd = c(1,2,8), lty = 1, 
+       col = c("black","orange", transparency("orange", 90)), 
+       legend = c("Noisy quasar spectrum",
+                  "Trend filtering estimate",
+                  "95 percent variability band"
+                  )
+       )
 }
 \references{
 \enumerate{
