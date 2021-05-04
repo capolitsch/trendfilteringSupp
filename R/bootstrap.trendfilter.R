@@ -203,7 +203,8 @@ bootstrap.trendfilter <- function(obj,
   obj$x.eval.grid <- x.eval.grid
   data$tf.estimate <- tf.estimator(data = data, 
                                    obj = obj,
-                                   mode = "lambda"
+                                   mode = "lambda",
+                                   x.eval.grid = data$x
                                    )
   data$residuals <- data$y - data$tf.estimate
   obj$tf.estimate <- data$tf.estimate
@@ -247,9 +248,9 @@ bootstrap.trendfilter <- function(obj,
            )
   
   if ( full.ensemble ){
-    obj$tf.boot.ensemble <- tf.boot.ensemble
+    obj$tf.bootstrap.ensemble <- tf.boot.ensemble
   }else{
-    obj$tf.boot.ensemble <- NULL
+    obj$tf.bootstrap.ensemble <- NULL
   }
   
   class(obj) <- "bootstrap.trendfilter"
@@ -260,7 +261,8 @@ bootstrap.trendfilter <- function(obj,
 #' @importFrom stats predict
 tf.estimator <- function(data, 
                          obj = obj,
-                         mode = "lambda")
+                         mode = "lambda",
+                         x.eval.grid = NULL)
   {
   
   if ( mode == "df" ){
@@ -298,7 +300,11 @@ tf.estimator <- function(data,
                           )
   }
   
-  tf.estimate <- as.numeric(predict(tf.fit, x.new = obj$x.eval.grid))
+  if ( !is.null(x.eval.grid) ){
+    tf.estimate <- as.numeric(predict(tf.fit, x.new = x.eval.grid))
+  }else{
+    tf.estimate <- as.numeric(predict(tf.fit, x.new = obj$x.eval.grid))
+  }
   
   return(tf.estimate)
 }
