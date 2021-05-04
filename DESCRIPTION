@@ -18,6 +18,6 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 Depends: dplyr (>= 1.0.5), glmgen (>= 0.0.3), R (>= 3.5.0)
-Imports: glmgen (>= 0.0.3)
+Imports: dplyr (>= 1.0.5), glmgen (>= 0.0.3)
 Remotes: statsmaths/glmgen/R_pkg/glmgen@master
 Maintainer: Collin A. Politsch <capolitsch@cmu.edu>
