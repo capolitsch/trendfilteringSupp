@@ -63,23 +63,23 @@ weights <- weights[inds]
 
 set.seed(1)
 lambda.grid <- exp(seq(-10, 5, length = 200))
-SURE.obj <- SURE.trendfilter(x = x, 
-                            y = y, 
-                            weights = weights, 
-                            k = 2,
-                            lambda = lambda.grid
-                            )
+SURE.obj <- SURE.trendfilter(x = x,
+                             y = y,
+                             weights = weights,
+                             k = 2,
+                             lambda = lambda.grid
+                             )
 lambda.min <- SURE.obj$lambda.min
 
 
 # Fit the optimized trend filtering model and get the estimates on an fine equally-spaced grid
 
 model <- trendfilter(x = x,
-                    y = y, 
-                    weights = weights,
-                    k = 2, 
-                    lambda = lambda.min
-                    )
+                     y = y,
+                     weights = weights,
+                     k = 2,
+                     lambda = lambda.min
+                     )
                     
 x.eval <- seq(min(x), max(x), length = 1500)
 tf.estimate <- predict(model, x.new = x.eval)
@@ -89,25 +89,22 @@ tf.estimate <- predict(model, x.new = x.eval)
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
 
 plot(log(lambda.grid), SURE.obj$error,
-    main = "SURE error curve", 
-    xlab = "log(lambda)", ylab = "SURE error")
+     main = "SURE error curve",
+     xlab = "log(lambda)", ylab = "SURE error")
 abline(v = log(lambda.min), col = "blue3", lty = 2)
-text(x = log(lambda.min), y = par("usr")[4], 
-    labels = "optimal hyperparameter", pos = 1, col = "blue3")
+text(x = log(lambda.min), y = par("usr")[4],
+     labels = "optimal hyperparameter", pos = 1, col = "blue3")
     
     
 # Transform back to wavelength space
 wavelength <- 10 ^ (x / 1000)
 wavelength.eval <- 10 ^ (x.eval / 1000)
 
-plot(wavelength, y, type = "l", 
-    main = "Quasar Lyman-alpha forest", 
-    xlab = "Observed wavelength (angstroms)", ylab = "flux")
+plot(wavelength, y, type = "l",
+     main = "Quasar Lyman-alpha forest",
+     xlab = "Observed wavelength (angstroms)", ylab = "flux")
 lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
-legend(x = "topleft", lwd = c(1,2), lty = 1, 
-      col = c("black","orange"), 
-      legend = c("Noisy quasar spectrum",
-                 "Trend filtering estimate"
-                 )
-      )
+legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"),
+       legend = c("Noisy quasar spectrum", "Trend filtering estimate")
+       )
 ```
