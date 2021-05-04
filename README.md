@@ -43,8 +43,7 @@ optimization parameters, it is safer to scale up the inputs in such a
 scenario. For example, here we scale to unit spacing.
 
 ```
-# Read in an SDSS spectrum of a quasar at redshift z = 2.953 and extract the 
-# Lyman-alpha forest.
+# Read in an SDSS spectrum of a quasar at redshift z = 2.953 and extract the Lyman-alpha forest.
 
 data(quasar_spec)
 lya.rest <- 1215.67
@@ -60,8 +59,7 @@ y <- flux[inds]
 weights <- weights[inds]
 
 
-# Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
-# k = 2 (recommended)
+# Run the SURE optimization for a quadratic trend filtering estimator, i.e. k = 2 (recommended)
 
 set.seed(1)
 lambda.grid <- exp(seq(-10, 5, length = 200))
@@ -74,8 +72,7 @@ SURE.obj <- SURE.trendfilter(x = x,
 lambda.min <- SURE.obj$lambda.min
 
 
-# Fit the optimized trend filtering model and get the estimates on an fine
-# equally-spaced input grid
+# Fit the optimized trend filtering model and get the estimates on an fine equally-spaced input grid
 
 model <- trendfilter(x = x,
                     y = y, 
