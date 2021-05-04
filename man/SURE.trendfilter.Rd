@@ -5,21 +5,33 @@
 \title{Optimize the trend filtering hyperparameter (with respect to Stein's unbiased 
 risk estimate)}
 \usage{
-SURE.trendfilter(x, y, sigma, lambda, k = 2, max_iter = 250, obj_tol = 1e-06)
+SURE.trendfilter(
+  x,
+  y,
+  weights,
+  k = 2L,
+  lambda,
+  max_iter = 250L,
+  obj_tol = 1e-06
+)
 }
 \arguments{
 \item{x}{A vector of the observed inputs.}
 
 \item{y}{A vector of the observed outputs.}
 
-\item{sigma}{A vector of measurement standard errors for the observed outputs.}
+\item{weights}{A vector of weights for the observed outputs. These are
+defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
+standard errors of the uncertainty in the measured outputs. \code{weights}
+should either have length equal to 1 (i.e. equiweighted/homoskedastic outputs) 
+or length equal to \code{length(y)} (i.e. heteroskedastic outputs).}
+
+\item{k}{(Integer) The degree of the trend filtering estimator. Defaults to 
+\code{k=2} (quadratic trend filtering).}
 
 \item{lambda}{A vector of trend filtering hyperparameter values to run the 
 grid search over. Usually, let them be equally-spaced in log-space (see 
 Examples).}
-
-\item{k}{The degree of the trend filtering estimator. Defaults to \code{k=2}
-(quadratic trend filtering).}
 
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
@@ -34,16 +46,39 @@ filtering estimate does not appear to have fully converged to a reasonable
 estimate of the signal.}
 }
 \value{
-A list with the following elements:
+An object of class \code{SURE.trendfilter}. This is a list with the 
+following elements:
+\item{error}{Vector of estimated SURE errors for hyperparameter values.}
 \item{lambda}{Vector of hyperparameter values tested.}
-\item{SURE.error}{Vector of estimated SURE errors for hyperparameter values.}
 \item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
+\item{df}{Vector of effective degrees of freedom for all trend filtering
+estimators with hyperparameters \code{lambda}.}
+\item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
+filtering estimator.}
+\item{i.min}{The index of \code{lambda} that minimizes the SURE error.}
+\item{x}{A vector of the observed inputs.}
+\item{y}{A vector of the observed outputs.}
+\item{weights}{A vector of weights for the observed outputs. These are
+defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
+standard errors of the uncertainty in the measured outputs. \code{weights}
+should either have length equal to 1 (i.e. equiweighted/homoskedastic outputs) 
+or length equal to \code{length(y)} (i.e. heteroskedastic outputs).}
+\item{k}{(Integer) The degree of the trend filtering estimator.}
+\item{max_iter}{Maximum iterations allowed for the trend filtering 
+convex optimization 
+[\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
+Consider increasing this if the trend filtering estimate does not appear to 
+have fully converged to a reasonable estimate of the signal.}
+\item{obj_tol}{The tolerance used in the convex optimization stopping 
+criterion; when the relative change in the objective function is less than 
+this value, the algorithm terminates. Consider decreasing this if the trend 
+filtering estimate does not appear to have fully converged to a reasonable 
+estimate of the signal.}
 }
 \description{
 \code{SURE.trendfilter} computes the Stein's unbiased risk 
-estimate of fixed-input mean-squared prediction error on a grid of 
-hyperparameter values and returns the full error curve and the optimal
-hyperparameter value.
+estimate of fixed-input mean-squared prediction error (MSPE) on a grid of 
+hyperparameter values.
 }
 \examples{
 #############################################################################
@@ -62,13 +97,13 @@ set.seed(1)
 
 log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
 flux <- quasar_spec$col[[1]]
-wts <- quasar_spec$col[[3]]
+weights <- quasar_spec$col[[3]]
 lya.rest.wavelength <- 1215.67
 quasar.redshift <- 2.953
 inds <- which((10^(log.wavelength.scaled/1000))/(quasar.redshift + 1) < lya.rest.wavelength + 40)
 log.wavelength.scaled <- log.wavelength.scaled[inds]
 flux <- flux[inds]
-wts <- wts[inds]
+weights <- weights[inds]
 
 
 # Compute the SURE error curve and the optimal hyperparameter value
@@ -76,7 +111,7 @@ wts <- wts[inds]
 lambda.grid <- exp(seq(-10, 7, length = 250))
 SURE.out <- SURE.trendfilter(x = log.wavelength.scaled, 
                              y = flux, 
-                             sigma = 1 / sqrt(wts), 
+                             weights = weights, 
                              lambda = lambda.grid
                              )
 lambda.min <- SURE.out$lambda.min
@@ -86,7 +121,7 @@ lambda.min <- SURE.out$lambda.min
 
 fit <- glmgen::trendfilter(x = log.wavelength.scaled, 
                            y = flux, 
-                           weights = wts, 
+                           weights = weights, 
                            k = 2, 
                            lambda = lambda.min
                            )
@@ -95,7 +130,7 @@ fit <- glmgen::trendfilter(x = log.wavelength.scaled,
 # Plot the results
 
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-plot(log(lambda.grid), SURE.out$SURE.error, xlab = "log(lambda)", ylab = "SURE",
+plot(log(lambda.grid), SURE.out$error, xlab = "log(lambda)", ylab = "SURE",
      main = "SURE error curve")
 abline(v = log(lambda.min), col = "blue3", lty = 2)
 text(x = log(lambda.min), y = par("usr")[4], pos = 1, col = "blue3", 

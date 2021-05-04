@@ -2,17 +2,20 @@
 #' risk estimate)
 #'
 #' @description \code{SURE.trendfilter} computes the Stein's unbiased risk 
-#' estimate of fixed-input mean-squared prediction error on a grid of 
-#' hyperparameter values and returns the full error curve and the optimal
-#' hyperparameter value.
+#' estimate of fixed-input mean-squared prediction error (MSPE) on a grid of 
+#' hyperparameter values.
 #' @param x A vector of the observed inputs.
 #' @param y A vector of the observed outputs.
-#' @param sigma A vector of measurement standard errors for the observed outputs.
+#' @param weights A vector of weights for the observed outputs. These are
+#' defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
+#' standard errors of the uncertainty in the measured outputs. \code{weights}
+#' should either have length equal to 1 (i.e. equiweighted/homoskedastic outputs) 
+#' or length equal to \code{length(y)} (i.e. heteroskedastic outputs).
+#' @param k (Integer) The degree of the trend filtering estimator. Defaults to 
+#' \code{k=2} (quadratic trend filtering).
 #' @param lambda A vector of trend filtering hyperparameter values to run the 
 #' grid search over. Usually, let them be equally-spaced in log-space (see 
 #' Examples). 
-#' @param k The degree of the trend filtering estimator. Defaults to \code{k=2}
-#' (quadratic trend filtering).
 #' @param max_iter Maximum iterations allowed for the trend filtering 
 #' convex optimization 
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
@@ -23,10 +26,34 @@
 #' this value, the algorithm terminates. Consider decreasing this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.
-#' @return A list with the following elements:
+#' @return An object of class \code{SURE.trendfilter}. This is a list with the 
+#' following elements:
+#' \item{error}{Vector of estimated SURE errors for hyperparameter values.}
 #' \item{lambda}{Vector of hyperparameter values tested.}
-#' \item{SURE.error}{Vector of estimated SURE errors for hyperparameter values.}
 #' \item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
+#' \item{df}{Vector of effective degrees of freedom for all trend filtering
+#' estimators with hyperparameters \code{lambda}.}
+#' \item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
+#' filtering estimator.}
+#' \item{i.min}{The index of \code{lambda} that minimizes the SURE error.}
+#' \item{x}{A vector of the observed inputs.}
+#' \item{y}{A vector of the observed outputs.}
+#' \item{weights}{A vector of weights for the observed outputs. These are
+#' defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
+#' standard errors of the uncertainty in the measured outputs. \code{weights}
+#' should either have length equal to 1 (i.e. equiweighted/homoskedastic outputs) 
+#' or length equal to \code{length(y)} (i.e. heteroskedastic outputs).}
+#' \item{k}{(Integer) The degree of the trend filtering estimator.}
+#' \item{max_iter}{Maximum iterations allowed for the trend filtering 
+#' convex optimization 
+#' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
+#' Consider increasing this if the trend filtering estimate does not appear to 
+#' have fully converged to a reasonable estimate of the signal.}
+#' \item{obj_tol}{The tolerance used in the convex optimization stopping 
+#' criterion; when the relative change in the objective function is less than 
+#' this value, the algorithm terminates. Consider decreasing this if the trend 
+#' filtering estimate does not appear to have fully converged to a reasonable 
+#' estimate of the signal.}
 #' @export SURE.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
 #' @seealso \link{bootstrap.trendfilter}
@@ -65,13 +92,13 @@
 #' 
 #' log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
 #' flux <- quasar_spec$col[[1]]
-#' wts <- quasar_spec$col[[3]]
+#' weights <- quasar_spec$col[[3]]
 #' lya.rest.wavelength <- 1215.67
 #' quasar.redshift <- 2.953
 #' inds <- which((10^(log.wavelength.scaled/1000))/(quasar.redshift + 1) < lya.rest.wavelength + 40)
 #' log.wavelength.scaled <- log.wavelength.scaled[inds]
 #' flux <- flux[inds]
-#' wts <- wts[inds]
+#' weights <- weights[inds]
 #'
 #'
 #' # Compute the SURE error curve and the optimal hyperparameter value
@@ -79,7 +106,7 @@
 #' lambda.grid <- exp(seq(-10, 7, length = 250))
 #' SURE.out <- SURE.trendfilter(x = log.wavelength.scaled, 
 #'                              y = flux, 
-#'                              sigma = 1 / sqrt(wts), 
+#'                              weights = weights, 
 #'                              lambda = lambda.grid
 #'                              )
 #' lambda.min <- SURE.out$lambda.min
@@ -89,7 +116,7 @@
 #' 
 #' fit <- glmgen::trendfilter(x = log.wavelength.scaled, 
 #'                            y = flux, 
-#'                            weights = wts, 
+#'                            weights = weights, 
 #'                            k = 2, 
 #'                            lambda = lambda.min
 #'                            )
@@ -98,7 +125,7 @@
 #' # Plot the results
 #' 
 #' par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-#' plot(log(lambda.grid), SURE.out$SURE.error, xlab = "log(lambda)", ylab = "SURE",
+#' plot(log(lambda.grid), SURE.out$error, xlab = "log(lambda)", ylab = "SURE",
 #'      main = "SURE error curve")
 #' abline(v = log(lambda.min), col = "blue3", lty = 2)
 #' text(x = log(lambda.min), y = par("usr")[4], pos = 1, col = "blue3", 
@@ -110,40 +137,55 @@
 
 SURE.trendfilter <- function(x, 
                              y, 
-                             sigma, 
+                             weights, 
+                             k = 2L, 
                              lambda, 
-                             k = 2, 
-                             max_iter = 250, 
+                             max_iter = 250L, 
                              obj_tol = 1e-06
                              )
   {
   
-  if ( is.null(x) ) stop("x must be specified.")
-  if ( is.null(y) ) stop("y must be specified.")
-  if ( is.null(sigma) ) stop("sigma is needed in order to compute SURE. If estimates are not available, use cross validation.")
-  if ( !(length(sigma) %in% c(1,length(y))) ) stop("sigma must either be scalar or same length as y.")
-  if ( is.null(lambda) ) stop("lambda must be specified.")
-  if ( length(sigma) == 1 ) sigma <- rep(sigma, times = length(y))
+  if ( !is.numeric(x) ) stop("x must be specified.")
+  if ( !is.numeric(y) ) stop("y must be specified.")
+  if ( !is.numeric(weights) ) stop("weights are needed in order to compute SURE. If estimates are not available, use cross validation.")
+  if ( !(length(weights) %in% c(1,length(y))) ) stop("weights must either be scalar or same length as y.")
+  if ( !is.numeric(lambda) ) stop("lambda must be specified.")
+  if ( length(weights) == 1 ) weights <- rep(weights, times = length(y))
   
-  wts <- 1/sigma^2
-  out <- glmgen::trendfilter(x = x, 
-                             y = y,
-                             weights = wts, 
-                             k = k, 
-                             lambda = lambda,
-                             control = glmgen::trendfilter.control.list(max_iter = max_iter, 
-                                                                        obj_tol = obj_tol)
-                             )
+  out <- trendfilter(x = x, 
+                     y = y,
+                     weights = weights, 
+                     lambda = lambda,
+                     k = k, 
+                     control = glmgen::trendfilter.control.list(max_iter = max_iter, 
+                                                                obj_tol = obj_tol
+                                                                )
+                     )
+                             
   if ( length(lambda) == 1 ){
-    SURE.error <- mean( (out$beta - y)^2 ) + (2 * mean(1/wts) / length(x)) * out$df
+    SURE.error <- mean( (out$beta - y) ^ 2 ) + (2 * mean(1 / weights) / length(x)) * out$df
   }
   if ( length(lambda) > 1 ){
-    SURE.error <- colMeans( (out$beta - y)^2 ) + (2 * mean(1/wts) / length(x)) * out$df
+    SURE.error <- colMeans( (out$beta - y) ^ 2 ) + (2 * mean(1 / weights) / length(x)) * out$df
   }
-  return(list(lambda = lambda, 
-              SURE.error = as.numeric(SURE.error), 
-              lambda.min = lambda[which.min(as.numeric(SURE.error))],
-              df.min = NULL
-              )
-         )
+  
+  error <- as.numeric(SURE.error)
+  
+  out.arg <- structure(list(error = error,
+                            lambda = lambda, 
+                            lambda.min = lambda[which.min(error)],
+                            df = out$df,
+                            df.min = out$df[which.min(error)],
+                            i.min = which.min(error),
+                            x = x,
+                            y = y,
+                            weights = weights,
+                            k = as.integer(k),
+                            max_iter = max_iter,
+                            obj_tol = obj_tol
+                            ),
+                       class = "SURE.trendfilter"
+                       )
+  
+  return(out.arg)
 }
