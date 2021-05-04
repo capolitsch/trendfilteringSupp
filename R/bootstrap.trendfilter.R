@@ -350,9 +350,9 @@ tf.estimator <- function(data,
                           data$weights,
                           k = obj$k,
                           lambda = obj$lambda.min, 
-                          control = glmgen::trendfilter.control.list(max_iter = obj$max_iter, 
-                                                                     obj_tol = obj$obj_tol
-                                                                     )
+                          control = trendfilter.control.list(max_iter = obj$max_iter,
+                                                             obj_tol = obj$obj_tol
+                                                             )
                           )
     
     lambda.min <- obj$lambda.min
@@ -372,7 +372,7 @@ nonparametric.resampler <- function(data){
 
 #' @importFrom stats rnorm
 parametric.sampler <- function(data){
-  boot.sample <- data$tf.estimate + rnorm(nrow(data), sd = 1 / sqrt(data$weights))
+  boot.sample <- data$fitted.values + rnorm(nrow(data), sd = 1 / sqrt(data$weights))
   return(data.frame(x = data$x, y = boot.sample, weights = data$weights))
 }
 
@@ -383,6 +383,6 @@ wild.sampler <- function(data){
                                                  replace = TRUE, 
                                                  prob = c((1+sqrt(5))/(2*sqrt(5)), (sqrt(5)-1)/(2*sqrt(5)))
                                                  )
-  wild.boot.sample <- data$tf.estimate + wild.boot.residuals
+  wild.boot.sample <- data$fitted.values + wild.boot.residuals
   return(data.frame(x = data$x, y = wild.boot.sample, weights = data$weights))
 }
