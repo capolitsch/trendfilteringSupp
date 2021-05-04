@@ -233,7 +233,8 @@ bootstrap.trendfilter <- function(obj,
       return(boot.tf.estimate)
     }
     tf.boot.ensemble <- matrix(unlist(parallel::mclapply(1:B, par.func, mc.cores = mc.cores)), 
-                               nrow = length(obj$x.eval.grid))
+                               nrow = length(obj$x.eval.grid)
+                               )
   }
   
   obj$bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, probs = alpha/2)
@@ -280,7 +281,7 @@ tf.estimator <- function(data,
     i.min <- which.min( abs(tf.fit$df - obj$df.min) )
     lambda.min <- obj$lambda[i.min]
     
-    if ( obj$df.min[i.min] == 0 ){
+    if ( obj$df[i.min] <= 2 ){
       return(NULL)
     }
     
