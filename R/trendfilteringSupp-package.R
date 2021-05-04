@@ -1,16 +1,17 @@
 #' Supplementary tools for data analysis with trend filtering
 #'
-#' @description Some supplementary statistical tools for conducting data 
-#' analysis with trend filtering (wrapper of \code{glmgen})
-#' \enumerate{
-#' \item Selecting the trend filtering hyperparameter by minimizing Stein’s unbiased risk estimate
-#' \item Various bootstrap methods for trend filtering uncertainty quantification.
-#' }
+#' @description This package builds on \code{glmgen} by providing additional 
+#'              useful statistical tools for carrying out data analysis with 
+#'              trend filtering [Tibshirani (2014)]. It contains functionality 
+#'              for easily optimizing a trend filtering estimator by cross 
+#'              validation or minimizing Stein's unbiased risk estimate and 
+#'              various bootstrap algorithms for producing variability bands to 
+#'              quantify the uncertainty in the estimator.
 #' @name trendfilteringSupp-package
 #' @docType package
 #' @author Collin A. Politsch \cr \cr 
 #' \strong{Maintainer}: Collin A. Politsch <collinpolitsch@@gmail.com>
-#' @import glmgen
+#' @import glmgen, dplyr
 #' @keywords package
 #' @seealso Refer to:
 #' \enumerate{

@@ -93,7 +93,7 @@ weights <- weights[inds]
 
 
 # Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
-# \code{k=2} (recommended)
+# k = 2 (recommended)
 
 set.seed(1)
 lambda.grid <- exp(seq(-10, 7, length = 250))
