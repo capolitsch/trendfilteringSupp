@@ -152,7 +152,6 @@
 #'      xlab = "Observed wavelength (angstroms)", ylab = "flux")
 #' lines(wavelength.eval.grid, tf.estimate, col = "orange", lwd = 2.5)
 
-#' @import glmgen
 SURE.trendfilter <- function(x, 
                              y, 
                              weights, 

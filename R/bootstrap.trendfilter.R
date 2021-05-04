@@ -171,7 +171,6 @@
 #'        col = c("orange", transparency("orange", 90)), 
 #'        legend = c("Trend filtering estimate", "95 percent variability band"))
 
-#' @import glmgen
 #' @importFrom stats quantile
 #' @importFrom dplyr case_when
 bootstrap.trendfilter <- function(obj,
