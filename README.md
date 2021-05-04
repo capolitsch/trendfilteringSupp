@@ -3,7 +3,7 @@ This package serves as a software supplement to [Politsch et al. (2020a)](https:
 and [Politsch et al. (2020b)](https://academic.oup.com/mnras/article/492/3/4019/5704414).
 The package builds on the [*glmgen*](https://github.com/glmgen/glmgen) package
 by providing additional useful statistical tools for carrying out data analysis 
-with trend filtering [Tibshirani (2014)](https://projecteuclid.org/euclid.aos/1395234979). 
+with trend filtering [[Tibshirani (2014)](https://projecteuclid.org/euclid.aos/1395234979)]. 
 It contains functionality for easily optimizing a trend filtering estimator by 
 cross validation or minimizing Stein's unbiased risk estimate and various 
 bootstrap algorithms for producing variability bands to quantify the uncertainty 
