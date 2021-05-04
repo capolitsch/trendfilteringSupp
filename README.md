@@ -19,8 +19,8 @@ library(trendfilteringSupp)
 
 ## References:
 
-C. A. Politsch et al. Trend Filtering - I. A modern statistical tool for time-domain astronomy 
-and Astronomical Spectroscopy. Monthly Notices of the Royal Astronomical Society, 492(3), p. 4005-4018, 2020. 
+C. A. Politsch et al. [Trend Filtering - I. A modern statistical tool for time-domain astronomy 
+and Astronomical Spectroscopy](https://academic.oup.com/mnras/article/492/3/4005/5704413). Monthly Notices of the Royal Astronomical Society, 492(3), p. 4005-4018, 2020. 
 https://academic.oup.com/mnras/article/492/3/4005/5704413
 
 C. A. Politsch et al. Trend Filtering - II. Denoising astronomical signals with varying degrees of smoothness. Monthly Notices of the Royal Astronomical Society, 492(3), p. 4019-4032, 2020. 
