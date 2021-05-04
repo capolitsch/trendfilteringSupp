@@ -1,18 +1,20 @@
 Package: trendfilteringSupp
 Title: Statistical analysis with trend filtering
-Version: 1.1.0
+Version: 2.0.0
 Author: 
     person(given = "Collin",
            family = "Politsch",
            role = c("aut", "cre"),
            email = "collinpolitsch@gmail.com")
-Description: This package builds on glmgen by providing additional useful 
+Description: This package serves as a software supplement to 
+             Politsch et al. (2020a) and Politsch et al. (2020b). The package 
+             builds on the glmgen package by providing additional useful 
              statistical tools for carrying out data analysis with trend 
-             filtering [Tibshirani (2014)]. It contains functionality for easily
-             optimizing a trend filtering estimator by cross validation or 
-             minimizing Stein's unbiased risk estimate and various bootstrap 
-             algorithms for producing variability bands to quantify the 
-             uncertainty in the estimator.
+             filtering [Tibshirani (2014)]. It contains user-friendly 
+             functionality for optimizing a trend filtering estimator by cross 
+             validation or minimizing Stein's unbiased risk estimate and various 
+             bootstrap algorithms for producing variability bands to quantify 
+             the uncertainty in the estimator.
 License: MIT
 Encoding: UTF-8
 LazyData: true
