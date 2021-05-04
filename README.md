@@ -1,5 +1,13 @@
-# Trend filtering
-Statistical analysis with trend filtering
+# Statistical analysis with trend filtering
+This package serves as a supplement to \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{Politsch et al. (2020a)} 
+and \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{Politsch et al. (2020b)}.
+The package builds on \href{https://github.com/glmgen}{glmgen} by providing 
+additional useful statistical tools for carrying out data analysis with trend 
+filtering \href{https://projecteuclid.org/euclid.aos/1395234979}{Tibshirani (2014)}. 
+It contains functionality for easily optimizing a trend filtering estimator by 
+cross validation or minimizing Stein's unbiased risk estimate and various 
+bootstrap algorithms for producing variability bands to quantify the uncertainty 
+in the estimator.
 
 ```
 devtools::install_github("capolitsch/trendfilteringSupp")
