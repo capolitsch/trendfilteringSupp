@@ -309,7 +309,7 @@ bootstrap.trendfilter <- function(obj,
   if ( full.ensemble ){
     obj$tf.bootstrap.ensemble <- tf.boot.ensemble
   }else{
-    obj$tf.bootstrap.ensemble <- NULL
+    obj <- c(obj, list(tf.bootstrap.ensemble = NULL))
   }
   
   obj <- obj[c("x.eval","tf.estimate","bootstrap.lower.perc.intervals","bootstrap.upper.perc.intervals",
