@@ -16,6 +16,8 @@
 #' @param lambda A vector of trend filtering hyperparameter values to run the 
 #' grid search over. Usually, let them be equally-spaced in log-space (see 
 #' Examples). 
+#' @param x.eval Grid of inputs to evaluate the optimized trend filtering
+#' estimate on. If \code{NULL}, a fine equally-spaced grid is constructed.
 #' @param max_iter Maximum iterations allowed for the trend filtering 
 #' convex optimization 
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 

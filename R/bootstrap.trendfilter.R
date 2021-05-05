@@ -5,9 +5,6 @@
 #' certainty to accompany an optimized trend filtering point estimate of a 
 #' signal. 
 #' @param obj An object of class 'SURE.trendfilter' or 'cv.trendfilter'.
-#' @param x.eval Grid of inputs to evaluate the trend filtering estimate and 
-#' variability bands on. If \code{NULL}, a fine equally-spaced grid is 
-#' constructed.
 #' @param bootstrap.method A string specifying the bootstrap method to be used. 
 #' See Details section below for suggested use. Defaults to 
 #' \code{bootstrap.method = "nonparametric"}.
@@ -187,8 +184,7 @@
 #' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 #' 
 #' boot.out <- bootstrap.trendfilter(obj = SURE.obj,
-#'                                   bootstrap.method = "parametric",
-#'                                   x.eval = x.eval
+#'                                   bootstrap.method = "parametric"
 #'                                   )
 #'                                   
 #'                                   

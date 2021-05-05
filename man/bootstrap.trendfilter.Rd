@@ -39,10 +39,6 @@ not change this unless you know what you are doing.}
 \item{mc.cores}{Multi-core computing (for speedups): The number of cores to
 utilize. If 4 or more cores are detected, then the default is to utilize
 \code{available.cores - 2}. Else, \code{mc.cores = 1}.}
-
-\item{x.eval}{Grid of inputs to evaluate the trend filtering estimate and 
-variability bands on. If \code{NULL}, a fine equally-spaced grid is 
-constructed.}
 }
 \value{
 An object of class 'bootstrap.trendfilter'. This is a list with the 
@@ -193,8 +189,7 @@ plot(wavelength, y, type = "l",
 lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 
 boot.out <- bootstrap.trendfilter(obj = SURE.obj,
-                                  bootstrap.method = "parametric",
-                                  x.eval = x.eval
+                                  bootstrap.method = "parametric"
                                   )
                                   
                                   
