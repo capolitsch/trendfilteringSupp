@@ -41,9 +41,12 @@
 #' produces a \eqn{100*(1-\alpha)}\% pointwise variability band.}
 #' \item{B}{The number of bootstrap samples used to estimate the pointwise
 #' variability bands.}
-#' \item{tf.boot.ensemble}{(Optional) The full trend filtering bootstrap 
+#' \item{tf.bootstrap.ensemble}{(Optional) The full trend filtering bootstrap 
 #' ensemble as an \eqn{n x B} matrix. If \code{full.ensemble = FALSE}, then 
 #' this will return \code{NULL}.}
+#' \item{prune}{If \code{TRUE}, then the trend filtering bootstrap ensemble
+#' is examined for rare instances in which the optimization has stopped at
+#' zero knots (most likely in error), and removes them from the ensemble.}
 #' \item{x}{The vector of the observed inputs.}
 #' \item{y}{The vector of the observed outputs.}
 #' \item{weights}{A vector of weights for the observed outputs. These are
@@ -251,6 +254,7 @@ bootstrap.trendfilter <- function(obj,
     x.eval <- seq(min(obj$x), max(obj$x), length = 1500)
   }
   
+  obj$validation.method <- strsplit(class(obj),"[.]")[[1]][1]
   obj$x.eval <- x.eval
   obj$tf.estimate <- tf.estimator(data = data, 
                                   obj = obj,
@@ -265,7 +269,9 @@ bootstrap.trendfilter <- function(obj,
                                      )
   data$residuals <- data$y - data$fitted.values
 
-  obj <- c(obj, list(prune = prune, residuals = data$residuals))
+  obj <- c(obj, list(prune = prune, 
+                     fitted.values = data$fitted.values, 
+                     residuals = data$residuals))
   
   sampler <- case_when(
     bootstrap.method == "nonparametric" ~ list(nonparametric.resampler),
@@ -298,11 +304,7 @@ bootstrap.trendfilter <- function(obj,
   
   obj$bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, probs = alpha/2)
   obj$bootstrap.upper.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, probs = 1-alpha/2)
-  obj <- c(obj, list(bootstrap.method = bootstrap.method,
-                     alpha = alpha, 
-                     B = B
-                     )
-           )
+  obj <- c(obj, list(bootstrap.method = bootstrap.method, alpha = alpha, B = B) )
   
   if ( full.ensemble ){
     obj$tf.bootstrap.ensemble <- tf.boot.ensemble
@@ -310,6 +312,11 @@ bootstrap.trendfilter <- function(obj,
     obj$tf.bootstrap.ensemble <- NULL
   }
   
+  obj <- obj[c("x.eval","tf.estimate","bootstrap.lower.perc.intervals","bootstrap.upper.perc.intervals",
+               "bootstrap.method","alpha","B","tf.bootstrap.ensemble","prune","x","y","weights",
+               "fitted.values","residuals","k","lambda","lambda.min","df","df.min","i.min",
+               "validation.method","error","max_iter","obj_tol")
+             ]
   class(obj) <- "bootstrap.trendfilter"
   
   return(obj)
@@ -319,7 +326,8 @@ bootstrap.trendfilter <- function(obj,
 tf.estimator <- function(data, 
                          obj = obj,
                          mode = "lambda",
-                         x.eval = NULL)
+                         x.eval = NULL
+                         )
   {
   
   if ( is.null(x.eval) ){

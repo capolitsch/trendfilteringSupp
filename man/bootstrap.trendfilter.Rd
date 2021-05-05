@@ -62,9 +62,12 @@ used.}
 produces a \eqn{100*(1-\alpha)}\% pointwise variability band.}
 \item{B}{The number of bootstrap samples used to estimate the pointwise
 variability bands.}
-\item{tf.boot.ensemble}{(Optional) The full trend filtering bootstrap 
+\item{tf.bootstrap.ensemble}{(Optional) The full trend filtering bootstrap 
 ensemble as an \eqn{n x B} matrix. If \code{full.ensemble = FALSE}, then 
 this will return \code{NULL}.}
+\item{prune}{If \code{TRUE}, then the trend filtering bootstrap ensemble
+is examined for rare instances in which the optimization has stopped at
+zero knots (most likely in error), and removes them from the ensemble.}
 \item{x}{The vector of the observed inputs.}
 \item{y}{The vector of the observed outputs.}
 \item{weights}{A vector of weights for the observed outputs. These are
