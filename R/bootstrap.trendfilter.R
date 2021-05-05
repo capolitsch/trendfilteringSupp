@@ -229,8 +229,7 @@
 
 #' @importFrom stats quantile
 bootstrap.trendfilter <- function(obj,
-                                  bootstrap.method = "nonparametric", 
-                                  x.eval = NULL, 
+                                  bootstrap.method = "nonparametric",
                                   alpha = 0.05, 
                                   B = 250L, 
                                   full.ensemble = FALSE,
@@ -244,34 +243,17 @@ bootstrap.trendfilter <- function(obj,
   }
   
   if ( is.null(obj$weights) ){
-    data <- data.frame(x = obj$x, y = obj$y, weights = 1)
+    data <- data.frame(x = obj$x, y = obj$y, weights = 1,
+                       fitted.values = obj$fitted.values, residuals = obj$residuals
+                       )
     obj$weights <- rep(1, length(obj$x))
   }else{
-    data <- data.frame(x = obj$x, y = obj$y, weights = obj$weights)
+    data <- data.frame(x = obj$x, y = obj$y, weights = obj$weights,
+                       fitted.values = obj$fitted.values, residuals = obj$residuals
+                       )
   }
 
-  if ( is.null(x.eval) ){
-    x.eval <- seq(min(obj$x), max(obj$x), length = 1500)
-  }
-  
-  obj$validation.method <- strsplit(class(obj),"[.]")[[1]][1]
-  obj$x.eval <- x.eval
-  obj$tf.estimate <- tf.estimator(data = data, 
-                                  obj = obj,
-                                  mode = "lambda",
-                                  x.eval = obj$x.eval
-  )
-  
-  data$fitted.values <- tf.estimator(data = data,
-                                     obj = obj,
-                                     mode = "lambda",
-                                     x.eval = data$x
-                                     )
-  data$residuals <- data$y - data$fitted.values
-
-  obj <- c(obj, list(prune = prune, 
-                     fitted.values = data$fitted.values, 
-                     residuals = data$residuals))
+  obj$prune <- prune
   
   sampler <- case_when(
     bootstrap.method == "nonparametric" ~ list(nonparametric.resampler),
@@ -322,7 +304,7 @@ bootstrap.trendfilter <- function(obj,
   return(obj)
 }
 
-#' @importFrom stats predict
+
 tf.estimator <- function(data, 
                          obj = obj,
                          mode = "lambda",
@@ -366,7 +348,9 @@ tf.estimator <- function(data,
     lambda.min <- obj$lambda.min
   }
 
-  tf.estimate <- as.numeric(predict(tf.fit, x.new = x.eval, lambda = lambda.min))
+  tf.estimate <- as.numeric(glmgen:::predict.trendfilter(tf.fit, x.new = x.eval, 
+                                                         lambda = lambda.min)
+                            )
   
   return(tf.estimate)
 }

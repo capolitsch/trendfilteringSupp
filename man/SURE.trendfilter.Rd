@@ -11,6 +11,7 @@ SURE.trendfilter(
   weights,
   k = 2L,
   lambda,
+  x.eval = NULL,
   max_iter = 200L,
   obj_tol = 1e-06
 )
@@ -49,6 +50,11 @@ estimate of the signal.}
 \value{
 An object of class 'SURE.trendfilter'. This is a list with the 
 following elements:
+\item{x.eval}{The grid of inputs the optimized trend filtering estimate was 
+evaluated on.}
+\item{tf.estimate}{The trend filtering estimate of the signal, evaluated on 
+\code{x.eval}.}
+\item{validation.method}{"SURE"}
 \item{error}{Vector of estimated SURE errors for hyperparameter values.}
 \item{lambda}{Vector of hyperparameter values tested during validation.}
 \item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
@@ -62,6 +68,9 @@ filtering estimator.}
 \item{weights}{A vector of weights for the observed outputs. These are
 defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
 standard errors of the uncertainty in the measured outputs.}
+\item{fitted.values}{The trend filtering estimate of the signal, evaluated at
+the observed inputs \code{x}.}
+\item{residuals}{\code{residuals = y - fitted.values}.}
 \item{k}{(Integer) The degree of the trend filtering estimator.}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 

@@ -7,7 +7,6 @@
 bootstrap.trendfilter(
   obj,
   bootstrap.method = "nonparametric",
-  x.eval = NULL,
   alpha = 0.05,
   B = 250L,
   full.ensemble = FALSE,
@@ -21,10 +20,6 @@ bootstrap.trendfilter(
 \item{bootstrap.method}{A string specifying the bootstrap method to be used. 
 See Details section below for suggested use. Defaults to 
 \code{bootstrap.method = "nonparametric"}.}
-
-\item{x.eval}{Grid of inputs to evaluate the trend filtering estimate and 
-variability bands on. If \code{NULL}, a fine equally-spaced grid is 
-constructed.}
 
 \item{alpha}{Specifies the width of the \code{1-alpha} pointwise variability 
 bands. Defaults to \code{alpha = 0.05}.}
@@ -44,6 +39,10 @@ not change this unless you know what you are doing.}
 \item{mc.cores}{Multi-core computing (for speedups): The number of cores to
 utilize. If 4 or more cores are detected, then the default is to utilize
 \code{available.cores - 2}. Else, \code{mc.cores = 1}.}
+
+\item{x.eval}{Grid of inputs to evaluate the trend filtering estimate and 
+variability bands on. If \code{NULL}, a fine equally-spaced grid is 
+constructed.}
 }
 \value{
 An object of class 'bootstrap.trendfilter'. This is a list with the 
