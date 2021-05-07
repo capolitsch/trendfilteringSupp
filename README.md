@@ -10,7 +10,7 @@ library(trendfilteringSupp)
 
 This package serves as a software supplement to [Politsch et al. (2020a)](https://academic.oup.com/mnras/article/492/3/4005/5704413) 
 and [Politsch et al. (2020b)](https://academic.oup.com/mnras/article/492/3/4019/5704414).
-The package builds on the [*glmgen*](https://github.com/glmgen/glmgen) package
+We build on the [*glmgen*](https://github.com/glmgen/glmgen) package
 by providing additional useful statistical tools for carrying out data analysis 
 with trend filtering [[Tibshirani (2014)](https://projecteuclid.org/euclid.aos/1395234979)]. 
 It contains user-friendly functionality for optimizing a trend filtering estimator by 
