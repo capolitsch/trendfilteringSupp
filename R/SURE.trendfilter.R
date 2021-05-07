@@ -1,9 +1,12 @@
 #' Optimize the trend filtering hyperparameter (with respect to Stein's unbiased 
 #' risk estimate)
 #'
-#' @description \code{SURE.trendfilter} computes the Stein's unbiased risk 
-#' estimate of fixed-input mean-squared prediction error (MSPE) on a grid of 
-#' hyperparameter values.
+#' @description \code{SURE.trendfilter} estimates the fixed-input squared error 
+#' of a trend filtering estimator on a grid of hyperparameter values via Stein's 
+#' unbiased risk estimate [\href{https://projecteuclid.org/journals/annals-of-statistics/volume-9/issue-6/Estimation-of-the-Mean-of-a-Multivariate-Normal-Distribution/10.1214/aos/1176345632.full}{Stein (1981)};
+#' \href{http://www.stat.cmu.edu/~larry/=sml/stein.pdf}{Tibshirani & Wasserman 
+#' (2015);} 
+#' \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{Politsch et al. (2020)}].
 #' @param x The vector of the observed inputs.
 #' @param y The vector of the observed outputs.
 #' @param weights A vector of weights for the observed outputs. These are
@@ -12,12 +15,17 @@
 #' should either have length equal to 1 (i.e. equiweighted/homoskedastic outputs) 
 #' or length equal to \code{length(y)} (i.e. heteroskedastic outputs).
 #' @param k (Integer) The degree of the trend filtering estimator. Defaults to 
-#' \code{k = 2} (quadratic trend filtering).
+#' \code{k=2} (quadratic trend filtering).
 #' @param lambda A vector of trend filtering hyperparameter values to run the 
-#' grid search over. Usually, let them be equally-spaced in log-space (see 
+#' grid search over. Usually should let them be equally-spaced in log-space (see 
 #' Examples). 
 #' @param x.eval Grid of inputs to evaluate the optimized trend filtering
 #' estimate on. If \code{NULL}, a fine equally-spaced grid is constructed.
+#' @param thinning (logical) If \code{TRUE}, then the data are preprocessed so 
+#' that a smaller, better conditioned data set is used for fitting. When set to
+#' \code{NULL}, the default, function will auto detect whether thinning should 
+#' be applied (i.e., cases in which the numerical fitting algorithm will 
+#' struggle to converge).
 #' @param max_iter Maximum iterations allowed for the trend filtering 
 #' convex optimization 
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
@@ -36,8 +44,8 @@
 #' \item{tf.estimate}{The trend filtering estimate of the signal, evaluated on 
 #' \code{x.eval}.}
 #' \item{validation.method}{"SURE"}
-#' \item{error}{Vector of estimated SURE errors for hyperparameter values.}
 #' \item{lambda}{Vector of hyperparameter values tested during validation.}
+#' \item{error}{Vector of estimated SURE errors for the hyperparameter values.}
 #' \item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
 #' \item{df}{Vector of effective degrees of freedom for trend filtering
 #' estimators fit during validation.}
@@ -53,6 +61,9 @@
 #' the observed inputs \code{x}.}
 #' \item{residuals}{\code{residuals = y - fitted.values}.}
 #' \item{k}{(Integer) The degree of the trend filtering estimator.}
+#' \item{thinning}{(logical) If \code{TRUE}, then the data are 
+#' preprocessed so that a smaller, better conditioned data set is used for 
+#' fitting.}
 #' \item{max_iter}{Maximum iterations allowed for the trend filtering 
 #' convex optimization 
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
@@ -65,7 +76,7 @@
 #' estimate of the signal.}
 #' @export SURE.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
-#' @seealso \link{bootstrap.trendfilter}
+#' @seealso \code{\link{cv.trendfilter}}, \code{\link{bootstrap.trendfilter}}
 #' @references \enumerate{
 #' \item \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
 #' Politsch et al. (2020). Trend filtering – I. A modern statistical tool for 
@@ -86,85 +97,64 @@
 #' }
 #' @examples 
 #' #############################################################################
-#' ##################### Quasar Lyman-alpha forest example #####################
+#' ##                    Quasar Lyman-alpha forest example                    ##
+#' #############################################################################
+#' ##  SDSS spectra are equally spaced in log base-10 wavelength space with a ##
+#' ##  separation of 1e-4 log-Angstroms. Given the default trend filtering    ##
+#' ##  optimization parameters, it is safer to scale up the inputs in such a  ##
+#' ##  scenario. For example, here we scale to unit spacing.                  ##
 #' #############################################################################
 #' 
-#' # SDSS spectra are equally spaced in log base-10 wavelength space with a 
-#' # separation of 10e-4 log-Angstroms. Given the default trend filtering 
-#' # optimization parameters, it is safer to scale up the inputs in such a 
-#' # scenario. For example, here we scale to unit spacing.
-#' 
-#' # Read in an SDSS spectrum of a quasar at redshift z = 2.953 and extract the 
-#' # Lyman-alpha forest.
+#' # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
+#' # z = 2.953
 #' 
 #' data(quasar_spec)
-#' lya.rest <- 1215.67
-#' quasar.redshift <- 2.953
+#' data(plotting_utilities)
 #' 
-#' log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
-#' flux <- quasar_spec$col[[1]]
-#' weights <- quasar_spec$col[[3]]
 #' 
-#' inds <- which((10^(quasar_spec$col[[2]]))/(quasar.redshift + 1) < lya.rest)
-#' x <- log.wavelength.scaled[inds]
-#' y <- flux[inds]
-#' weights <- weights[inds]
-#'
-#'
 #' # Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
-#' # k = 2 (recommended)
+#' # k = 2 (default)
 #' 
-#' set.seed(1)
-#' lambda.grid <- exp(seq(-10, 5, length = 200))
-#' SURE.obj <- SURE.trendfilter(x = x, 
-#'                              y = y, 
+#' lambda.grid <- exp(seq(-10, 5, length = 150))
+#' SURE.obj <- SURE.trendfilter(x = log10.wavelength.scaled, 
+#'                              y = flux, 
 #'                              weights = weights, 
-#'                              k = 2,
-#'                              lambda = lambda.grid
-#'                              )
+#'                              lambda = lambda.grid)
+#' 
+#'                                           
+#' # Extract the optimized trend filtering estimate on a fine equally-spaced
+#' # grid from the 'SURE.trendfilter' output
+#' 
 #' lambda.min <- SURE.obj$lambda.min
+#' SURE.error <- SURE.obj$error
+#' x.eval <- SURE.obj$x.eval                      
+#' tf.estimate <- SURE.obj$tf.estimate
 #' 
 #' 
-#' # Fit the optimized trend filtering model and get the estimates on an fine
-#' # equally-spaced input grid
+#' # Transform back to wavelength space
 #' 
-#' model <- trendfilter(x = x,
-#'                      y = y, 
-#'                      weights = weights,
-#'                      k = 2, 
-#'                      lambda = lambda.min
-#'                      )
-#'                      
-#' x.eval <- seq(min(x), max(x), length = 1500)
-#' tf.estimate <- predict(model, x.new = x.eval)
+#' wavelength <- 10 ^ (log10.wavelength.scaled / scale.factor)
+#' wavelength.eval <- 10 ^ (x.eval / scale.factor)
 #' 
 #' 
 #' # Plot the results
 #'
 #' par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-#' 
-#' plot(log(lambda.grid), SURE.obj$error,
+#' plot(log(lambda.grid), SURE.error,
 #'      main = "SURE error curve", 
 #'      xlab = "log(lambda)", ylab = "SURE error")
 #' abline(v = log(lambda.min), col = "blue3", lty = 2)
 #' text(x = log(lambda.min), y = par("usr")[4], 
 #'      labels = "optimal hyperparameter", pos = 1, col = "blue3")
-#'      
-#'      
-#' # Transform back to wavelength space
-#' wavelength <- 10 ^ (x / 1000)
-#' wavelength.eval <- 10 ^ (x.eval / 1000)
 #' 
-#' plot(wavelength, y, type = "l", 
+#' plot(wavelength, flux, type = "l", 
 #'      main = "Quasar Lyman-alpha forest", 
 #'      xlab = "Observed wavelength (angstroms)", ylab = "flux")
 #' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 #' legend(x = "topleft", lwd = c(1,2), lty = 1, 
 #'        col = c("black","orange"), 
 #'        legend = c("Noisy quasar spectrum",
-#'                   "Trend filtering estimate"
-#'                   )
-#'        )
+#'                   "Trend filtering estimate"))
 
 SURE.trendfilter <- function(x, 
                              y, 
@@ -172,6 +162,7 @@ SURE.trendfilter <- function(x,
                              k = 2L, 
                              lambda, 
                              x.eval = NULL,
+                             thinning = NULL,
                              max_iter = 200L, 
                              obj_tol = 1e-06
                              )
@@ -181,14 +172,21 @@ SURE.trendfilter <- function(x,
   if ( !is.numeric(y) ) stop("y must be specified.")
   if ( !is.numeric(weights) ) stop("weights are needed in order to compute SURE. If estimates are not available, use cv.trendfilter.")
   if ( !(length(weights) %in% c(1,length(y))) ) stop("weights must either be scalar or same length as y.")
-  if ( !is.numeric(lambda) ) stop("lambda must be specified.")
-  if ( length(weights) == 1 ) weights <- rep(weights, times = length(y))
+  if ( !is.numeric(lambda) ) stop("a vector of hyperparameter values must be specified.")
+  
+  lambda <- sort(lambda)
+
+  weights <- case_when(
+    length(weights) == 1 ~ rep_len(weights, length(y)),
+    length(weights) == length(y) ~ weights
+  )
   
   out <- trendfilter(x = x, 
                      y = y,
                      weights = weights, 
                      lambda = lambda,
                      k = k, 
+                     thinning = thinning,
                      control = trendfilter.control.list(max_iter = max_iter,
                                                         obj_tol = obj_tol
                                                         )
@@ -196,37 +194,42 @@ SURE.trendfilter <- function(x,
                              
   if ( length(lambda) == 1 ){
     SURE.error <- mean( (out$beta - y) ^ 2 ) + (2 * mean(1 / weights) / length(x)) * out$df
-  }
-  if ( length(lambda) > 1 ){
+  }else{
     SURE.error <- colMeans( (out$beta - y) ^ 2 ) + (2 * mean(1 / weights) / length(x)) * out$df
   }
   
   error <- as.numeric(SURE.error)
   lambda.min <- lambda[which.min(error)]
   
-  if ( is.null(x.eval) ){
-    x.eval <- seq(min(x), max(x), length = 1500)
-  }
+  if ( is.null(x.eval) ) x.eval <- seq(min(x), max(x), length = 1500)
   
-  tf.estimate <- as.numeric(glmgen:::predict.trendfilter(out, lambda = lambda.min, x.new = x.eval))
-  fitted.values <- as.numeric(glmgen:::predict.trendfilter(out, lambda = lambda.min, x.new = x))
+  tf.estimate <- glmgen:::predict.trendfilter(out, 
+                                              lambda = lambda.min, 
+                                              x.new = x.eval
+                                              ) %>% as.numeric
+  
+  fitted.values <- glmgen:::predict.trendfilter(out, 
+                                                lambda = lambda.min, 
+                                                x.new = x
+                                                ) %>% as.numeric
   
   obj <- structure(list(x.eval = x.eval,
                         tf.estimate = tf.estimate,
                         validation.method = "SURE",
-                        error = error,
                         lambda = lambda, 
+                        error = error,
                         lambda.min = lambda.min,
                         df = out$df,
                         df.min = out$df[which.min(error)],
-                        i.min = which.min(error),
+                        i.min = as.integer(which.min(error)),
                         x = x,
                         y = y,
                         weights = weights,
                         fitted.values = fitted.values,
                         residuals = y - fitted.values,
                         k = as.integer(k),
-                        max_iter = max_iter,
+                        thinning = thinning,
+                        max_iter = as.integer(max_iter),
                         obj_tol = obj_tol
                         ),
                    class = "SURE.trendfilter"

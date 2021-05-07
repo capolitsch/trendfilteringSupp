@@ -1,5 +1,5 @@
 Package: trendfilteringSupp
-Title: Statistical analysis with trend filtering
+Title: Optimal one-dimensional data analysis with trend filtering
 Version: 2.0.0
 Author: 
     person(given = "Collin",
@@ -12,14 +12,14 @@ Description: This package serves as a software supplement to
              statistical tools for carrying out data analysis with trend 
              filtering [Tibshirani (2014)]. It contains user-friendly 
              functionality for optimizing a trend filtering estimator by cross 
-             validation or minimizing Stein's unbiased risk estimate and various 
-             bootstrap algorithms for producing variability bands to quantify 
-             the uncertainty in the estimator.
+             validation or minimizing Stein's unbiased risk estimate, as well as 
+             various bootstrap algorithms for producing variability bands to 
+             quantif the uncertainty in the estimator.
 License: MIT
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-Depends: dplyr (>= 1.0.5), glmgen (>= 0.0.3), R (>= 3.5.0)
-Imports: dplyr (>= 1.0.5), glmgen (>= 0.0.3)
+Depends: dplyr (>= 1.0.5), magrittr (>= 2.0.1), glmgen (>= 0.0.3), R (>= 3.5.0)
+Imports: matrixStats (>= 0.58.0)
 Remotes: statsmaths/glmgen/R_pkg/glmgen@master
 Maintainer: Collin A. Politsch <capolitsch@cmu.edu>

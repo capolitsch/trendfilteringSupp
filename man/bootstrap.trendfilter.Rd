@@ -6,7 +6,7 @@
 \usage{
 bootstrap.trendfilter(
   obj,
-  bootstrap.method = "nonparametric",
+  bootstrap.method = c("nonparametric", "parametric", "wild"),
   alpha = 0.05,
   B = 250L,
   full.ensemble = FALSE,
@@ -18,8 +18,8 @@ bootstrap.trendfilter(
 \item{obj}{An object of class 'SURE.trendfilter' or 'cv.trendfilter'.}
 
 \item{bootstrap.method}{A string specifying the bootstrap method to be used. 
-See Details section below for suggested use. Defaults to 
-\code{bootstrap.method = "nonparametric"}.}
+One of \code{c("nonparametric","parametric","wild")}. See Details section 
+below for suggested use. Defaults to \code{"nonparametric"}.}
 
 \item{alpha}{Specifies the width of the \code{1-alpha} pointwise variability 
 bands. Defaults to \code{alpha = 0.05}.}
@@ -27,14 +27,15 @@ bands. Defaults to \code{alpha = 0.05}.}
 \item{B}{The number of bootstrap samples used to estimate the pointwise
 variability bands. Defaults to \code{B = 250}.}
 
-\item{full.ensemble}{If \code{TRUE}, the full trend filtering bootstrap 
-ensemble is returned as an \eqn{n x B} matrix. Defaults to 
-\code{full.ensemble = FALSE}.}
+\item{full.ensemble}{(logical) If \code{TRUE}, the full trend filtering 
+bootstrap ensemble is returned as an \eqn{n x B} matrix. Defaults to 
+\code{FALSE}.}
 
-\item{prune}{If \code{TRUE}, then the trend filtering bootstrap ensemble
-is examined for rare instances in which the optimization has stopped at
-zero knots (most likely in error), and removes them from the ensemble. Do
-not change this unless you know what you are doing.}
+\item{prune}{(logical) If \code{TRUE}, then the trend filtering bootstrap 
+ensemble is examined for rare instances in which the optimization has stopped 
+at zero knots (most likely erroneously), and removes them from the ensemble. 
+Defaults to \code{TRUE}. Do not change this unless you really know what you 
+are doing.}
 
 \item{mc.cores}{Multi-core computing (for speedups): The number of cores to
 utilize. If 4 or more cores are detected, then the default is to utilize
@@ -60,9 +61,12 @@ variability bands.}
 \item{tf.bootstrap.ensemble}{(Optional) The full trend filtering bootstrap 
 ensemble as an \eqn{n x B} matrix. If \code{full.ensemble = FALSE}, then 
 this will return \code{NULL}.}
-\item{prune}{If \code{TRUE}, then the trend filtering bootstrap ensemble
-is examined for rare instances in which the optimization has stopped at
-zero knots (most likely in error), and removes them from the ensemble.}
+\item{prune}{(logical) If \code{TRUE}, then the trend filtering bootstrap 
+ensemble is examined for rare instances in which the optimization has 
+stopped at zero knots (most likely erroneously), and removes them from the 
+ensemble.}
+\item{n.pruned}{The number of badly-converged bootstrap trend filtering 
+estimates pruned from the ensemble.}
 \item{x}{The vector of the observed inputs.}
 \item{y}{The vector of the observed outputs.}
 \item{weights}{A vector of weights for the observed outputs. These are
@@ -83,6 +87,9 @@ filtering estimator.}
 \item{validation.method}{Either "SURE" or "cv".}
 \item{error}{Vector of hyperparameter validation errors, inherited from
 \code{obj} (either class 'SURE.trendfilter' or 'cv.trendfilter')}
+\item{thinning}{(logical) If \code{TRUE}, then the data are 
+preprocessed so that a smaller, better conditioned data set is used for 
+fitting.}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
 [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
@@ -114,104 +121,66 @@ Politsch et al. (2020)} for more details.
 }
 \examples{
 #############################################################################
-##################### Quasar Lyman-alpha forest example #####################
+##                    Quasar Lyman-alpha forest example                    ## 
+#############################################################################
+##  SDSS spectra are equally spaced in log base-10 wavelength space with a ##
+##  separation of 1e-4 log-Angstroms. Given the default trend filtering    ##
+##  optimization parameters, it is safer to scale up the inputs in such a  ##
+##  scenario. For example, here we scale to unit spacing.                  ##
 #############################################################################
 
-# SDSS spectra are equally spaced in log base-10 wavelength space with a 
-# separation of 10e-4 log-Angstroms. Given the default trend filtering 
-# optimization parameters, it is safer to scale up the inputs in such a 
-# scenario. For example, here we scale to unit spacing.
-
-# Read in an SDSS spectrum of a quasar at redshift z = 2.953 and extract the 
-# Lyman-alpha forest.
+# Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
+# z = 2.953
 
 data(quasar_spec)
-lya.rest <- 1215.67
-quasar.redshift <- 2.953
-
-log.wavelength.scaled <- quasar_spec$col[[2]] * 1000
-flux <- quasar_spec$col[[1]]
-weights <- quasar_spec$col[[3]]
-
-inds <- which((10^(quasar_spec$col[[2]]))/(quasar.redshift + 1) < lya.rest)
-x <- log.wavelength.scaled[inds]
-y <- flux[inds]
-weights <- weights[inds]
+data(plotting_utilities)
 
 
 # Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
-# k = 2 (recommended)
+# k = 2 (default)
 
-set.seed(1)
-lambda.grid <- exp(seq(-10, 5, length = 200))
-SURE.obj <- SURE.trendfilter(x = x, 
-                             y = y, 
+lambda.grid <- exp(seq(-10, 5, length = 150))
+SURE.obj <- SURE.trendfilter(x = log10.wavelength.scaled, 
+                             y = flux, 
                              weights = weights, 
-                             k = 2,
-                             lambda = lambda.grid
-                             )
+                             lambda = lambda.grid)
+
+                                          
+# Extract the optimized trend filtering estimate on a fine equally-spaced
+# grid from the 'SURE.trendfilter' output
+
 lambda.min <- SURE.obj$lambda.min
+SURE.error <- SURE.obj$error
+x.eval <- SURE.obj$x.eval                      
+tf.estimate <- SURE.obj$tf.estimate
 
 
-# Fit the optimized trend filtering model and get the estimates on an fine
-# equally-spaced input grid
+# Run a parametric bootstrap the optimized trend filtering estimator to 
+# obtain uncertainty bands
 
-model <- trendfilter(x = x,
-                     y = y, 
-                     weights = weights,
-                     k = 2, 
-                     lambda = lambda.min
-                     )
-                     
-x.eval <- seq(min(x), max(x), length = 1500)
-tf.estimate <- predict(model, x.new = x.eval)
+boot.out <- bootstrap.trendfilter(obj = SURE.obj, bootstrap.method = "parametric")
+
+
+# Transform back to wavelength space
+
+wavelength <- 10 ^ (log10.wavelength.scaled / scale.factor)
+wavelength.eval <- 10 ^ (x.eval / scale.factor)
 
 
 # Plot the results
 
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-
-plot(log(lambda.grid), SURE.obj$error,
+plot(log(lambda.grid), SURE.error,
      main = "SURE error curve", 
      xlab = "log(lambda)", ylab = "SURE error")
 abline(v = log(lambda.min), col = "blue3", lty = 2)
 text(x = log(lambda.min), y = par("usr")[4], 
      labels = "optimal hyperparameter", pos = 1, col = "blue3")
-     
-     
-# Transform back to wavelength space
-wavelength <- 10 ^ (x / 1000)
-wavelength.eval <- 10 ^ (x.eval / 1000)
 
-plot(wavelength, y, type = "l", 
+plot(wavelength, flux, type = "l", 
      main = "Quasar Lyman-alpha forest", 
      xlab = "Observed wavelength (angstroms)", ylab = "flux")
 lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
-
-boot.out <- bootstrap.trendfilter(obj = SURE.obj,
-                                  bootstrap.method = "parametric"
-                                  )
-                                  
-                                  
-# Superpose a transparent 95\% variability 'envelope' on top of the trend 
-# filtering point estimate
-
-# transparency() adds transparency to a color. Define transparency with an 
-# integer between 0 and 255, 0 being fully transparent and 255 being fully 
-# visible.
-
-transparency <- function(color, trans){
-
-    num2hex <- function(x)
-    {
-      hex <- unlist(strsplit("0123456789ABCDEF",split=""))
-      return(paste(hex[(x-x\%\%16)/16+1],hex[x\%\%16+1],sep=""))
-    }
-    rgb <- rbind(col2rgb(color),trans)
-    res <- paste("#",apply(apply(rgb,2,num2hex),2,paste,collapse=""),sep="")
-    return(res)
-}
-                                  
 polygon(c(wavelength.eval, rev(wavelength.eval)), 
         c(boot.out$bootstrap.lower.perc.intervals, 
         rev(boot.out$bootstrap.upper.perc.intervals)),
@@ -220,13 +189,11 @@ lines(wavelength.eval, boot.out$bootstrap.lower.perc.intervals,
       col = "orange", lwd = 0.5)
 lines(wavelength.eval, boot.out$bootstrap.upper.perc.intervals, 
       col = "orange", lwd = 0.5)
-legend(x = "topleft", lwd = c(1,2,8), lty = 1, 
+legend(x = "topleft", lwd = c(1,2,8), lty = 1, cex = 0.75,
        col = c("black","orange", transparency("orange", 90)), 
        legend = c("Noisy quasar spectrum",
                   "Trend filtering estimate",
-                  "95 percent variability band"
-                  )
-       )
+                  "95 percent variability band"))
 }
 \references{
 \enumerate{
@@ -251,7 +218,7 @@ Analysis} \cr
 }
 }
 \seealso{
-\code{\link{SURE.trendfilter}}
+\code{\link{SURE.trendfilter}}, \code{\link{cv.trendfilter}}
 }
 \author{
 Collin A. Politsch, \email{collinpolitsch@gmail.com}

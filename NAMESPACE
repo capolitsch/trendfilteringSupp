@@ -2,7 +2,11 @@
 
 export(SURE.trendfilter)
 export(bootstrap.trendfilter)
+export(cv.trendfilter)
 import(dplyr)
 import(glmgen)
+import(magrittr)
+importFrom(matrixStats,rowSds)
+importFrom(parallel,mclapply)
 importFrom(stats,quantile)
 importFrom(stats,rnorm)

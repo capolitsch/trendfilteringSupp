@@ -1,19 +1,14 @@
-#' Quasar spectrum
+#' SDSS quasar Lyman-alpha forest example
 #'
-#' An electromagnetic spectrum measured by the Sloan Digital Sky Survey of a
-#' quasar at redshift z ~ 2.953
+#' The Lyman-alpha forest of a quasar at redshift z ~ 2.953
 #'
-#' @format A list with 9 elements:
+#' @format The data consists of the following numerical variables:
 #' \describe{
-#'   \item{col}{}
-#'   \item{hdr}{}
-#'   \item{colNames}{}
-#'   \item{colUnits}{}
-#'   \item{TNULLn}{}
-#'   \item{TSCALn}{}
-#'   \item{TZEROn}{}
-#'   \item{TDISPn}{}
-#'   \item{header}{}
+#'   \item{log10.wavelength.scaled}{}
+#'   \item{flux}{}
+#'   \item{weights}{}
+#'   \item{scale.factor}{}
 #' }
 #' @source \url{http://sdss3.org/}
-"quasar_spec"
+#' @export "quasar_spec"
+#' @export "plotting_utilities"

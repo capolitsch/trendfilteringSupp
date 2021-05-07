@@ -1,4 +1,4 @@
-# Statistical analysis with trend filtering
+# Optimal one-dimensional data analysis with trend filtering
 
 ```
 devtools::install_github("capolitsch/trendfilteringSupp")
@@ -21,8 +21,8 @@ in the estimator.
 
 ## References:
 
-C. A. Politsch et al. *Trend Filtering - I. A modern statistical tool for time-domain astronomy 
-and Astronomical Spectroscopy*. Monthly Notices of the Royal Astronomical Society, 492(3), p. 4005-4018, 2020. [[Link](https://academic.oup.com/mnras/article/492/3/4005/5704413)]
+C. A. Politsch et al. *Trend Filtering - I. A modern statistical tool for time-domain astronomy and Astronomical Spectroscopy*. 
+Monthly Notices of the Royal Astronomical Society, 492(3), p. 4005-4018, 2020. [[Link](https://academic.oup.com/mnras/article/492/3/4005/5704413)]
 
 C. A. Politsch et al. *Trend Filtering - II. Denoising astronomical signals with varying degrees of smoothness*. 
 Monthly Notices of the Royal Astronomical Society, 492(3), p. 4019-4032, 2020. [[Link](https://academic.oup.com/mnras/article/492/3/4019/5704414)]
@@ -40,7 +40,7 @@ Version 0.0.3 (2014). [[Link](https://github.com/glmgen/glmgen)]
 ## Quasar Lyman-alpha forest example 
 
 SDSS spectra are equally spaced in log base-10 wavelength space with a 
-separation of 10e-4 log-Angstroms. Given the default trend filtering 
+separation of 1e-4 log-Angstroms. Given the default trend filtering 
 optimization parameters, it is safer to scale up the inputs in such a 
 scenario. For example, here we scale to unit spacing.
 
