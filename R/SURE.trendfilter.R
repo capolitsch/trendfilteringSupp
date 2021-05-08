@@ -177,7 +177,6 @@ SURE.trendfilter <- function(x,
   if ( k == 3 ) warning("k=3 can have poor conditioning; k=2 is more stable and visually identical.")
   if ( is.null(lambda) ){
     if ( nlambda != round(nlambda) || nlambda < 15L ) stop("nlambda must be a positive integer >= 15.")
-    lambda <- rep(0, nlambda)
   }else{
     if ( min(lambda) < 0L ) stop("All specified lambda values must be nonnegative.")
     if ( length(lambda) < 15L ) stop("lambda must be have length >= 15.")
@@ -201,6 +200,7 @@ SURE.trendfilter <- function(x,
                      y = y,
                      weights = weights, 
                      lambda = lambda,
+                     nlambda = nlambda,
                      k = k, 
                      thinning = thinning,
                      control = trendfilter.control.list(max_iter = max_iter,
