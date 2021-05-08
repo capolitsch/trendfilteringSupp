@@ -206,6 +206,7 @@ SURE.trendfilter <- function(x,
                        control = trendfilter.control.list(max_iter = max_iter,
                                                           obj_tol = obj_tol
                        )
+    )
   }else{
     out <- trendfilter(x = x, 
                        y = y,
