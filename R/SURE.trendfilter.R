@@ -202,7 +202,7 @@ SURE.trendfilter <- function(x,
                      weights = weights, 
                      lambda = lambda,
                      k = k, 
-                     thinning = !!thinning,
+                     thinning = thinning,
                      control = trendfilter.control.list(max_iter = max_iter,
                                                         obj_tol = obj_tol
                      )
@@ -248,7 +248,7 @@ SURE.trendfilter <- function(x,
                         fitted.values = fitted.values * y.scale,
                         residuals = (y - fitted.values) * y.scale,
                         k = as.integer(k),
-                        thinning = !!thinning,
+                        thinning = thinning,
                         max_iter = as.integer(max_iter),
                         obj_tol = obj_tol
                         ),
