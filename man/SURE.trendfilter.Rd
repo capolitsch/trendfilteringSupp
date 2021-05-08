@@ -10,17 +10,22 @@ SURE.trendfilter(
   y,
   weights,
   k = 2L,
-  lambda,
+  nlambda = 200L,
+  lambda = NULL,
+  n.eval = 1500L,
   x.eval = NULL,
   thinning = NULL,
   max_iter = 200L,
-  obj_tol = 1e-06
+  obj_tol = 1e-07
 )
 }
 \arguments{
-\item{x}{The vector of the observed inputs.}
+\item{x}{The vector of observed values of the input variable (a.k.a. the 
+predictor, covariate, explanatory variable, regressor, independent variable, 
+control variable, etc.)}
 
-\item{y}{The vector of the observed outputs.}
+\item{y}{The vector of observed values of the output variable (a.k.a. the
+response, target, outcome, regressand, dependent variable, etc.).}
 
 \item{weights}{A vector of weights for the observed outputs. These are
 defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
@@ -28,23 +33,30 @@ standard errors of the uncertainty in the measured outputs. \code{weights}
 should either have length equal to 1 (i.e. equiweighted/homoskedastic outputs) 
 or length equal to \code{length(y)} (i.e. heteroskedastic outputs).}
 
-\item{k}{(Integer) The degree of the trend filtering estimator. Defaults to 
+\item{k}{(integer) The degree of the trend filtering estimator. Defaults to 
 \code{k=2} (quadratic trend filtering).}
 
-\item{lambda}{A vector of trend filtering hyperparameter values to run the 
-grid search over. Usually should let them be equally-spaced in log-space (see 
-Examples).}
+\item{nlambda}{(integer) The number of trend filtering hyperparameter values 
+to run the grid search over -- dynamically constructed by the convex 
+optimization algorithm.}
 
-\item{x.eval}{Grid of inputs to evaluate the optimized trend filtering
-estimate on. If \code{NULL}, a fine equally-spaced grid is constructed.}
+\item{lambda}{Overrides \code{nlambda} if passed. A user-supplied vector of 
+hyperparameter values to run the grid search over (recommended to space them 
+on log-scale).}
+
+\item{n.eval}{(integer) The length of the equally-spaced input grid to 
+evaluate the optimized trend filtering estimate on.}
+
+\item{x.eval}{Overrides \code{n.eval} if passed. A user-supplied grid of 
+inputs to evaluate the optimized trend filtering estimate on.}
 
 \item{thinning}{(logical) If \code{TRUE}, then the data are preprocessed so 
-that a smaller, better conditioned data set is used for fitting. When set to
-\code{NULL}, the default, function will auto detect whether thinning should 
-be applied (i.e., cases in which the numerical fitting algorithm will 
-struggle to converge).}
+that a smaller, better conditioned data set is used for fitting. When left
+\code{NULL}, the default, the optimization will automatically detect whether 
+thinning should be applied (i.e., cases in which the numerical fitting 
+algorithm will struggle to converge).}
 
-\item{max_iter}{Maximum iterations allowed for the trend filtering 
+\item{max_iter}{(integer) Maximum iterations allowed for the trend filtering 
 convex optimization 
 [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
 Defaults to \code{max_iter = 200}. Consider increasing this if the trend 
@@ -81,7 +93,7 @@ standard errors of the uncertainty in the measured outputs.}
 \item{fitted.values}{The trend filtering estimate of the signal, evaluated at
 the observed inputs \code{x}.}
 \item{residuals}{\code{residuals = y - fitted.values}.}
-\item{k}{(Integer) The degree of the trend filtering estimator.}
+\item{k}{(integer) The degree of the trend filtering estimator.}
 \item{thinning}{(logical) If \code{TRUE}, then the data are 
 preprocessed so that a smaller, better conditioned data set is used for 
 fitting.}
@@ -98,20 +110,12 @@ estimate of the signal.}
 }
 \description{
 \code{SURE.trendfilter} estimates the fixed-input squared error 
-of a trend filtering estimator on a grid of hyperparameter values via Stein's 
-unbiased risk estimate [\href{https://projecteuclid.org/journals/annals-of-statistics/volume-9/issue-6/Estimation-of-the-Mean-of-a-Multivariate-Normal-Distribution/10.1214/aos/1176345632.full}{Stein (1981)};
-\href{http://www.stat.cmu.edu/~larry/=sml/stein.pdf}{Tibshirani & Wasserman 
-(2015);} 
-\href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{Politsch et al. (2020)}].
+of a trend filtering estimator (via Stein's unbiased risk estimate) on a 
+grid of hyperparameter values and returns the optimized estimator.
 }
 \examples{
 #############################################################################
 ##                    Quasar Lyman-alpha forest example                    ##
-#############################################################################
-##  SDSS spectra are equally spaced in log base-10 wavelength space with a ##
-##  separation of 1e-4 log-Angstroms. Given the default trend filtering    ##
-##  optimization parameters, it is safer to scale up the inputs in such a  ##
-##  scenario. For example, here we scale to unit spacing.                  ##
 #############################################################################
 
 # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
@@ -124,32 +128,24 @@ data(plotting_utilities)
 # Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
 # k = 2 (default)
 
-lambda.grid <- exp(seq(-10, 5, length = 150))
 SURE.obj <- SURE.trendfilter(x = log10.wavelength.scaled, 
                              y = flux, 
-                             weights = weights, 
-                             lambda = lambda.grid)
-
-                                          
-# Extract the optimized trend filtering estimate on a fine equally-spaced
-# grid from the 'SURE.trendfilter' output
-
-lambda.min <- SURE.obj$lambda.min
-SURE.error <- SURE.obj$error
-x.eval <- SURE.obj$x.eval                      
-tf.estimate <- SURE.obj$tf.estimate
+                             weights = weights)
 
 
 # Transform back to wavelength space
 
-wavelength <- 10 ^ (log10.wavelength.scaled / scale.factor)
-wavelength.eval <- 10 ^ (x.eval / scale.factor)
+wavelength <- 10 ^ (log10.wavelength.scaled)
+wavelength.eval <- 10 ^ (x.eval)
 
 
 # Plot the results
 
+lambda.min <- SURE.obj$lambda.min          
+tf.estimate <- SURE.obj$tf.estimate
+
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-plot(log(lambda.grid), SURE.error,
+plot(log(SURE.obj$lambda), SURE.obj$error,
      main = "SURE error curve", 
      xlab = "log(lambda)", ylab = "SURE error")
 abline(v = log(lambda.min), col = "blue3", lty = 2)
