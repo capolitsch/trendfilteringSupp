@@ -196,17 +196,28 @@ SURE.trendfilter <- function(x,
   
   lambda <- sort(lambda, decreasing = TRUE)
   
-  out <- trendfilter(x = x, 
-                     y = y,
-                     weights = weights, 
-                     lambda = lambda,
-                     nlambda = nlambda,
-                     k = k, 
-                     thinning = thinning,
-                     control = trendfilter.control.list(max_iter = max_iter,
-                                                        obj_tol = obj_tol
-                     )
-  )
+  if ( is.null(lambda) ){
+    out <- trendfilter(x = x, 
+                       y = y,
+                       weights = weights, 
+                       nlambda = nlambda,
+                       k = k, 
+                       thinning = thinning,
+                       control = trendfilter.control.list(max_iter = max_iter,
+                                                          obj_tol = obj_tol
+                       )
+  }else{
+    out <- trendfilter(x = x, 
+                       y = y,
+                       weights = weights, 
+                       lambda = lambda,
+                       k = k, 
+                       thinning = thinning,
+                       control = trendfilter.control.list(max_iter = max_iter,
+                                                          obj_tol = obj_tol
+                       )
+    )
+  }
   
   if ( length(lambda) == 1 ){
     SURE.error <- mean( y.scale ^ 2 * (out$beta - y) ^ 2 ) + 2 * out$df / n * mean(y.scale ^ 2 / weights)
