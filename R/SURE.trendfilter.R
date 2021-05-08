@@ -194,8 +194,6 @@ SURE.trendfilter <- function(x,
   y <- data$y / y.scale
   weights <- y.scale ^ 2 * data$weights
   
-  lambda <- sort(lambda, decreasing = TRUE)
-  
   if ( is.null(lambda) ){
     out <- trendfilter(x = x, 
                        y = y,
@@ -207,7 +205,11 @@ SURE.trendfilter <- function(x,
                                                           obj_tol = obj_tol
                        )
     )
+    
+    lambda <- out$lambda
   }else{
+    lambda <- sort(lambda, decreasing = TRUE)
+    
     out <- trendfilter(x = x, 
                        y = y,
                        weights = weights, 
