@@ -9,13 +9,15 @@ cv.trendfilter(
   y,
   weights = NULL,
   k = 2L,
-  lambda,
+  nlambda = 250L,
+  lambda = NULL,
   V = 10L,
-  validation.error.type = c("MSE", "MAD"),
+  validation.error.type = c("MAD", "WMAD", "MSE", "WMSE"),
+  n.eval = 1500L,
   x.eval = NULL,
   thinning = NULL,
-  max_iter = 200L,
-  obj_tol = 1e-06,
+  max_iter = 500L,
+  obj_tol = 1e-09,
   mc.cores = max(c(parallel::detectCores() - 2), 1)
 )
 }
@@ -35,20 +37,27 @@ argument is supplied, it should either have length equal to 1
 \item{k}{(Integer) The degree of the trend filtering estimator. Defaults to 
 \code{k=2} (quadratic trend filtering).}
 
-\item{lambda}{A vector of trend filtering hyperparameter values to run the 
-grid search over. Usually, let them be equally-spaced in log-space (see 
-Examples).}
+\item{nlambda}{(integer) The number of trend filtering hyperparameter values 
+to run the grid search over. Grid is constructed internally.}
+
+\item{lambda}{Overrides \code{nlambda} if passed. A user-supplied vector of 
+trend filtering hyperparameter values to run the grid search over. Usually, 
+let them be equally-spaced in log-space (see Examples), and helpful to 
+provide them in descending order.}
 
 \item{V}{The number of folds the data are split into for the V-fold cross
 validation. Defaults to \code{V=10} (recommended).
 \code{V=length(x)} is equivalent to leave-one-out cross validation.}
 
 \item{validation.error.type}{Type of error to optimize during cross
-validation. One of c("MSE","MAD"), i.e. either mean-squared error or mean 
-absolute deviations error. Defaults to \code{"MSE"}.}
+validation. One of c("MSE","MAD","WMSE","WMAD"), i.e. either mean-squared 
+error or mean absolute deviations error. Defaults to \code{"MSE"}.}
 
-\item{x.eval}{Grid of inputs to evaluate the optimized trend filtering
-estimate on. If \code{NULL}, a fine equally-spaced grid is constructed.}
+\item{n.eval}{(integer) The length of the equally-spaced input grid to 
+evaluate the optimized trend filtering estimate on.}
+
+\item{x.eval}{Overrides \code{n.eval} if passed. A user-supplied grid of 
+inputs to evaluate the optimized trend filtering estimate on.}
 
 \item{thinning}{(logical) If \code{TRUE}, then the data are preprocessed so 
 that a smaller, better conditioned data set is used for fitting. When set to
@@ -59,7 +68,7 @@ struggle to converge).}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
 [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
-Defaults to \code{max_iter = 200}. Consider increasing this if the trend 
+Defaults to \code{max_iter = 250}. Consider increasing this if the trend 
 filtering estimate does not appear to have fully converged to a reasonable 
 estimate of the signal.}
 
@@ -84,7 +93,10 @@ evaluated on \code{x.eval}.}
 \item{V}{The number of folds the data are split into for the V-fold cross
 validation.}
 \item{validation.error.type}{Type of validation loss. One of c("MSE","MAD").}
-\item{lambda}{Vector of hyperparameter values tested during validation.}
+\item{lambda}{Vector of hyperparameter values tested during validation. This
+vector will always be returned in descending order, regardless of the 
+ordering provided by the user. The indices \code{i.min} and \code{i.1se}
+correspond to this descending ordering.}
 \item{error}{Vector of cross validation errors for the given hyperparameter 
 values.}
 \item{se.error}{The standard errors of the cross validation errors.
@@ -141,14 +153,9 @@ grid of hyperparameter values.
 #############################################################################
 ##                    Quasar Lyman-alpha forest example                    ##
 #############################################################################
-##  SDSS spectra are equally spaced in log base-10 wavelength space with a ##
-##  separation of 10e-4 log-Angstroms. Given the default trend filtering   ##
-##  optimization parameters, it is safer to scale up the inputs in such a  ##
-##  scenario. For example, here we scale to unit spacing.                  ##
-#############################################################################
 
 # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-# z = 2.953
+# z = 2.953. SDSS spectra are equally spaced in log10 wavelength space.
 
 data(quasar_spec)
 data(plotting_utilities)
@@ -157,46 +164,42 @@ data(plotting_utilities)
 # Run the cross validation for a quadratic trend filtering estimator, i.e. 
 # k = 2 (default)
 
-lambda.grid <- exp(seq(-10, 5, length = 150))
-cv.obj <- cv.trendfilter(x = log10.wavelength.scaled,
+cv.obj <- cv.trendfilter(x = log10.wavelength,
                          y = flux,
-                         weights = weights,
-                         lambda = lambda.grid)
+                         weights = weights)
 
                                           
-# Extract the optimized trend filtering estimate on a fine equally-spaced
-# grid from the 'cv.trendfilter' output
+# Extract the CV error curve and optimized trend filtering estimate from 
+# the output
 
-lambda.min <- cv.obj$lambda.min
-cv.error <- cv.obj$error
-x.eval <- cv.obj$x.eval                      
+log.lambda <- log(cv.obj$lambda)
+error <- cv.obj$error
+log.lambda.min <- log(cv.obj$lambda.min)
+
+log10.wavelength.eval <- cv.obj$x.eval
 tf.estimate <- cv.obj$tf.estimate
 
 
-# Transform back to wavelength space
+# Transform the inputs to wavelength space (in Angstroms)
 
-wavelength <- 10 ^ (log10.wavelength.scaled / scale.factor)
-wavelength.eval <- 10 ^ (x.eval / scale.factor)
+wavelength <- 10 ^ (log10.wavelength)
+wavelength.eval <- 10 ^ (log10.wavelength.eval)
 
 
 # Plot the results
 
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-plot(log(lambda.grid), cv.error,
-     main = "CV error curve", 
+plot(x = log.lambda, y = error, main = "CV error curve", 
      xlab = "log(lambda)", ylab = "CV error")
-abline(v = log(lambda.min), col = "blue3", lty = 2)
-text(x = log(lambda.min), y = par("usr")[4], 
+abline(v = log.lambda.min, lty = 2, col = "blue3")
+text(x = log.lambda.min, y = par("usr")[4], 
      labels = "optimal hyperparameter", pos = 1, col = "blue3")
 
-plot(wavelength, flux, type = "l", 
-     main = "Quasar Lyman-alpha forest", 
-     xlab = "Observed wavelength (angstroms)", ylab = "flux")
+plot(x = wavelength, y = flux, type = "l", main = "Quasar Lyman-alpha forest", 
+     xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
-legend(x = "topleft", lwd = c(1,2), lty = 1, 
-       col = c("black","orange"), 
-       legend = c("Noisy quasar spectrum",
-                  "Trend filtering estimate"))
+legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
+       legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
 }
 \references{
 \enumerate{
@@ -208,11 +211,8 @@ time-domain astronomy and astronomical spectroscopy} \cr
 Politsch et al. (2020). Trend filtering – II. Denoising astronomical signals 
 with varying degrees of smoothness} \cr
 
-\item 
-
-\item 
-
-\item 
+\item \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
+Hastie et al. (2017). The Elements of Statistical Learning}
 }
 }
 \seealso{

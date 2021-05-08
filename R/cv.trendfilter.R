@@ -14,17 +14,22 @@
 #' \code{length(y)} (i.e. heteroskedastic outputs).
 #' @param k (Integer) The degree of the trend filtering estimator. Defaults to 
 #' \code{k=2} (quadratic trend filtering).
-#' @param lambda A vector of trend filtering hyperparameter values to run the 
-#' grid search over. Usually, let them be equally-spaced in log-space (see 
-#' Examples). 
+#' @param nlambda (integer) The number of trend filtering hyperparameter values 
+#' to run the grid search over. Grid is constructed internally.
+#' @param lambda Overrides \code{nlambda} if passed. A user-supplied vector of 
+#' trend filtering hyperparameter values to run the grid search over. Usually, 
+#' let them be equally-spaced in log-space (see Examples), and helpful to 
+#' provide them in descending order.
 #' @param V The number of folds the data are split into for the V-fold cross
 #' validation. Defaults to \code{V=10} (recommended).
 #' \code{V=length(x)} is equivalent to leave-one-out cross validation.
 #' @param validation.error.type Type of error to optimize during cross
-#' validation. One of c("MSE","MAD"), i.e. either mean-squared error or mean 
-#' absolute deviations error. Defaults to \code{"MSE"}.
-#' @param x.eval Grid of inputs to evaluate the optimized trend filtering
-#' estimate on. If \code{NULL}, a fine equally-spaced grid is constructed.
+#' validation. One of c("MSE","MAD","WMSE","WMAD"), i.e. either mean-squared 
+#' error or mean absolute deviations error. Defaults to \code{"MSE"}.
+#' @param n.eval (integer) The length of the equally-spaced input grid to 
+#' evaluate the optimized trend filtering estimate on.
+#' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
+#' inputs to evaluate the optimized trend filtering estimate on. 
 #' @param thinning (logical) If \code{TRUE}, then the data are preprocessed so 
 #' that a smaller, better conditioned data set is used for fitting. When set to
 #' \code{NULL}, the default, function will auto detect whether thinning should 
@@ -33,7 +38,7 @@
 #' @param max_iter Maximum iterations allowed for the trend filtering 
 #' convex optimization 
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
-#' Defaults to \code{max_iter = 200}. Consider increasing this if the trend 
+#' Defaults to \code{max_iter = 250}. Consider increasing this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.
 #' @param obj_tol The tolerance used in the convex optimization stopping 
@@ -54,7 +59,10 @@
 #' \item{V}{The number of folds the data are split into for the V-fold cross
 #' validation.}
 #' \item{validation.error.type}{Type of validation loss. One of c("MSE","MAD").}
-#' \item{lambda}{Vector of hyperparameter values tested during validation.}
+#' \item{lambda}{Vector of hyperparameter values tested during validation. This
+#' vector will always be returned in descending order, regardless of the 
+#' ordering provided by the user. The indices \code{i.min} and \code{i.1se}
+#' correspond to this descending ordering.}
 #' \item{error}{Vector of cross validation errors for the given hyperparameter 
 #' values.}
 #' \item{se.error}{The standard errors of the cross validation errors.
@@ -113,24 +121,16 @@
 #' Politsch et al. (2020). Trend filtering – II. Denoising astronomical signals 
 #' with varying degrees of smoothness} \cr
 #' 
-#' \item 
-#' 
-#' \item 
-#' 
-#' \item 
+#' \item \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
+#' Hastie et al. (2017). The Elements of Statistical Learning}
 #' }
 #' @examples 
 #' #############################################################################
 #' ##                    Quasar Lyman-alpha forest example                    ##
 #' #############################################################################
-#' ##  SDSS spectra are equally spaced in log base-10 wavelength space with a ##
-#' ##  separation of 10e-4 log-Angstroms. Given the default trend filtering   ##
-#' ##  optimization parameters, it is safer to scale up the inputs in such a  ##
-#' ##  scenario. For example, here we scale to unit spacing.                  ##
-#' #############################################################################
 #' 
 #' # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-#' # z = 2.953
+#' # z = 2.953. SDSS spectra are equally spaced in log10 wavelength space.
 #' 
 #' data(quasar_spec)
 #' data(plotting_utilities)
@@ -139,46 +139,42 @@
 #' # Run the cross validation for a quadratic trend filtering estimator, i.e. 
 #' # k = 2 (default)
 #' 
-#' lambda.grid <- exp(seq(-10, 5, length = 150))
-#' cv.obj <- cv.trendfilter(x = log10.wavelength.scaled,
+#' cv.obj <- cv.trendfilter(x = log10.wavelength,
 #'                          y = flux,
-#'                          weights = weights,
-#'                          lambda = lambda.grid)
+#'                          weights = weights)
 #' 
 #'                                           
-#' # Extract the optimized trend filtering estimate on a fine equally-spaced
-#' # grid from the 'cv.trendfilter' output
+#' # Extract the CV error curve and optimized trend filtering estimate from 
+#' # the output
 #' 
-#' lambda.min <- cv.obj$lambda.min
-#' cv.error <- cv.obj$error
-#' x.eval <- cv.obj$x.eval                      
+#' log.lambda <- log(cv.obj$lambda)
+#' error <- cv.obj$error
+#' log.lambda.min <- log(cv.obj$lambda.min)
+#' 
+#' log10.wavelength.eval <- cv.obj$x.eval
 #' tf.estimate <- cv.obj$tf.estimate
 #' 
 #' 
-#' # Transform back to wavelength space
+#' # Transform the inputs to wavelength space (in Angstroms)
 #' 
-#' wavelength <- 10 ^ (log10.wavelength.scaled / scale.factor)
-#' wavelength.eval <- 10 ^ (x.eval / scale.factor)
+#' wavelength <- 10 ^ (log10.wavelength)
+#' wavelength.eval <- 10 ^ (log10.wavelength.eval)
 #' 
 #' 
 #' # Plot the results
 #'
 #' par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-#' plot(log(lambda.grid), cv.error,
-#'      main = "CV error curve", 
+#' plot(x = log.lambda, y = error, main = "CV error curve", 
 #'      xlab = "log(lambda)", ylab = "CV error")
-#' abline(v = log(lambda.min), col = "blue3", lty = 2)
-#' text(x = log(lambda.min), y = par("usr")[4], 
+#' abline(v = log.lambda.min, lty = 2, col = "blue3")
+#' text(x = log.lambda.min, y = par("usr")[4], 
 #'      labels = "optimal hyperparameter", pos = 1, col = "blue3")
 #' 
-#' plot(wavelength, flux, type = "l", 
-#'      main = "Quasar Lyman-alpha forest", 
-#'      xlab = "Observed wavelength (angstroms)", ylab = "flux")
+#' plot(x = wavelength, y = flux, type = "l", main = "Quasar Lyman-alpha forest", 
+#'      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 #' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
-#' legend(x = "topleft", lwd = c(1,2), lty = 1, 
-#'        col = c("black","orange"), 
-#'        legend = c("Noisy quasar spectrum",
-#'                   "Trend filtering estimate"))
+#' legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
+#'        legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
 
 #' @import magrittr
 #' @import glmgen
@@ -188,33 +184,71 @@ cv.trendfilter <- function(x,
                            y, 
                            weights = NULL, 
                            k = 2L, 
-                           lambda, 
+                           nlambda = 250L,
+                           lambda = NULL, 
                            V = 10L,
-                           validation.error.type = c("MSE","MAD"),
+                           validation.error.type = c("MAD","WMAD","MSE","WMSE"),
+                           n.eval = 1500L,
                            x.eval = NULL,
                            thinning = NULL,
-                           max_iter = 200L, 
-                           obj_tol = 1e-06,
+                           max_iter = 500L, 
+                           obj_tol = 1e-09,
                            mc.cores = max(c(parallel::detectCores() - 2), 1)
                            )
   {
+
+  if ( missing(x) || is.null(x) ) stop("x must be passed.")
+  if ( missing(y) || is.null(y) ) stop("y must be passed.")
+  if ( length(x) != length(y) ) stop("x and y must have the same length.")
+  if ( !is.null(weights) ){
+    if ( any(weights == 0L) ) stop("cannot pass zero weights.")
+    if ( !(length(weights) %in% c(1,length(y))) ) stop("weights must either be have length 1 or length(y), or be NULL.")
+  }
+  if ( length(y) < k + 2 ) stop("y must have length >= k+2 for kth order trend filtering.")
+  if ( k < 0 || k != round(k) ) stop("k must be a nonnegative integer. k=2 recommended")
+  if ( k > 3 ) stop("Large k leads to generally worse conditioning; k=0,1,2 are the most stable choices.")
+  if ( k == 3 ) warning("k=3 can have poor conditioning; k=2 is more stable and visually identical.")
+  if ( is.null(lambda) ){
+    if ( nlambda != round(nlambda) || nlambda < 25L ) stop("nlambda must be a positive integer >= 25.")
+  }else{
+    if ( min(lambda) < 0L ) stop("All specified lambda values must be nonnegative.")
+    if ( length(lambda) < 25L ) stop("lambda must be have length >= 25.")
+  }
   
-  if ( !is.numeric(x) ) stop("x must be specified.")
-  if ( !is.numeric(y) ) stop("y must be specified.")
-  if ( !(length(weights) %in% c(1,length(y))) ) stop("weights must either be scalar or same length as y.")
-  if ( !is.numeric(lambda) ) stop("a vector of hyperparameter values must be specified.")
-  if ( length(lambda) < 5 ) stop("your hyperparameter grid is too coarse.")
-  
-  weights <- case_when(
-    is.null(weights) ~ rep_len(1, length(y)),
-    length(weights) == 1 ~ rep_len(weights, length(y)),
-    length(weights) == length(y) ~ weights
-  )
-  
-  if ( is.null(x.eval) ) x.eval <- seq(min(x), max(x), length = 1500)
-  lambda <- sort(lambda)
   validation.error.type <- match.arg(validation.error.type)
   mc.cores <- ifelse(mc.cores > V, V, mc.cores)
+  
+  if ( is.null(lambda) ){
+    lambda <- seq(10, -10, length = nlambda) %>% exp 
+  }else{
+    lambda <- sort(lambda, decreasing = TRUE)
+  }
+
+  if ( length(weights) != length(y) ){
+    weights <- case_when(
+      length(weights) == 1 ~ rep_len(weights, length(y)),
+      length(weights) == 0 ~ rep_len(1, length(y))
+    )
+  }
+
+  data <- tibble(x, y, weights) %>% 
+    arrange(x) %>% 
+    drop_na
+  
+  x.scale <- mean(diff(data$x))
+  y.scale <- mean(data$y) / 10
+  x <- data$x / x.scale
+  y <- data$y / y.scale
+  weights <- y.scale ^ 2 * data$weights
+  
+  data.folded <- tibble(x, y, weights) %>% 
+    group_split( sample( rep_len(1:V, nrow(data)) ), .keep = FALSE )
+  
+  if ( is.null(x.eval) ){
+    x.eval <- seq(min(x), max(x), length = n.eval)
+  }else{
+    x.eval <- sort(x.eval) / x.scale
+  }
   
   obj <- structure(list(x.eval = x.eval,
                         validation.method = "cv",
@@ -223,6 +257,7 @@ cv.trendfilter <- function(x,
                         lambda = lambda, 
                         x = x,
                         y = y,
+                        y.scale = y.scale,
                         weights = weights,
                         k = as.integer(k),
                         thinning = thinning,
@@ -232,20 +267,19 @@ cv.trendfilter <- function(x,
                    class = "cv.trendfilter"
                    )
   
-  data.folded <- tibble(x, y, weights) %>% 
-    group_split( sample( rep_len(1:V, length(x)) ), .keep = FALSE )
+  rm(x,y,weights,lambda,k,thinning,max_iter,obj_tol,V,data)
 
-  cv.out <- mclapply(1:V, 
+  cv.out <- mclapply(1:obj$V, 
                      FUN = trendfilter.validate, 
                      data.folded = data.folded, 
                      obj = obj, 
                      mc.cores = mc.cores
                      ) %>%
     unlist %>%
-    matrix(ncol = V)
+    matrix(ncol = obj$V)
   
   obj <- c(obj, list(error = rowMeans(cv.out),
-                     se.error = matrixStats::rowSds(cv.out) / sqrt(V)
+                     se.error = matrixStats::rowSds(cv.out) / sqrt(obj$V)
                      )
            )
  
@@ -258,11 +292,11 @@ cv.trendfilter <- function(x,
     trendfilter(x = x, 
                 y = y,
                 weights = weights,
-                lambda = obj$lambda,
-                k = obj$k, 
-                thinning = obj$thinning,
-                control = trendfilter.control.list(max_iter = obj$max_iter,
-                                                   obj_tol = obj$obj_tol
+                lambda = lambda,
+                k = k, 
+                thinning = thinning,
+                control = trendfilter.control.list(max_iter = max_iter,
+                                                   obj_tol = obj_tol
                                                    )
                 )
   
@@ -280,6 +314,13 @@ cv.trendfilter <- function(x,
                                                     x.new = obj$x
                                                     ) %>% as.numeric
   obj$residuals <- obj$y - obj$fitted.values
+  obj$x.eval <- obj$x.eval * x.scale
+  obj$tf.estimate <- obj$tf.estimate * y.scale
+  obj$x <- obj$x * x.scale
+  obj$y <- obj$y * y.scale
+  obj$weights <- obj$weights * y.scale ^ 2
+  obj$fitted.values <- obj$fitted.values * y.scale
+  obj$residuals <- (obj$y - obj$fitted.values) * y.scale
 
   obj <- obj[c("x.eval","tf.estimate","validation.method","V","validation.error.type","lambda",
                "error","se.error","lambda.min","lambda.1se","df","df.min","df.1se",
@@ -317,10 +358,18 @@ trendfilter.validate <- function(validation.index,
     suppressWarnings
   
   if ( obj$validation.error.type == "MSE" ){
-    validation.error.mat <- (tf.validate.preds - data.validate$y) ^ 2 * data.validate$weights / sum(data.validate$weights)
+    validation.error.mat <- obj$y.scale ^ 2 * (tf.validate.preds - data.validate$y) ^ 2
   }
   if ( obj$validation.error.type == "MAD" ){
-    validation.error.mat <- abs(tf.validate.preds - data.validate$y) * sqrt(data.validate$weights) / sum(sqrt(data.validate$weights))
+    validation.error.mat <- obj$y.scale * abs(tf.validate.preds - data.validate$y)
+  }
+  if ( obj$validation.error.type == "WMSE" ){
+    validation.error.mat <- obj$y.scale ^ 2 * (tf.validate.preds - data.validate$y) ^ 2 * 
+    (data.validate$weights / obj$y.scale ^ 2) / sum((data.validate$weights) / obj$y.scale ^ 2)
+  }
+  if ( obj$validation.error.type == "WMAD" ){
+    validation.error.mat <- obj$y.scale * abs(tf.validate.preds - data.validate$y) * 
+      sqrt(data.validate$weights / obj$y.scale ^ 2) / sum(sqrt(data.validate$weights / obj$y.scale ^ 2))
   }
   
   validation.error.sum <- colMeans(validation.error.mat) %>% as.numeric

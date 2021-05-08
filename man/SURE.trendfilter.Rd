@@ -10,13 +10,13 @@ SURE.trendfilter(
   y,
   weights,
   k = 2L,
-  nlambda = 200L,
+  nlambda = 250L,
   lambda = NULL,
   n.eval = 1500L,
   x.eval = NULL,
   thinning = NULL,
-  max_iter = 200L,
-  obj_tol = 1e-07
+  max_iter = 500L,
+  obj_tol = 1e-09
 )
 }
 \arguments{
@@ -37,12 +37,12 @@ or length equal to \code{length(y)} (i.e. heteroskedastic outputs).}
 \code{k=2} (quadratic trend filtering).}
 
 \item{nlambda}{(integer) The number of trend filtering hyperparameter values 
-to run the grid search over -- dynamically constructed by the convex 
-optimization algorithm.}
+to run the grid search over. Grid is constructed internally.}
 
 \item{lambda}{Overrides \code{nlambda} if passed. A user-supplied vector of 
-hyperparameter values to run the grid search over (recommended to space them 
-on log-scale).}
+trend filtering hyperparameter values to run the grid search over. Usually, 
+let them be equally-spaced in log-space (see Examples), and helpful to 
+provide them in descending order.}
 
 \item{n.eval}{(integer) The length of the equally-spaced input grid to 
 evaluate the optimized trend filtering estimate on.}
@@ -59,7 +59,7 @@ algorithm will struggle to converge).}
 \item{max_iter}{(integer) Maximum iterations allowed for the trend filtering 
 convex optimization 
 [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
-Defaults to \code{max_iter = 200}. Consider increasing this if the trend 
+Defaults to \code{max_iter = 250L}. Consider increasing this if the trend 
 filtering estimate does not appear to have fully converged to a reasonable 
 estimate of the signal.}
 
@@ -77,8 +77,10 @@ evaluated on.}
 \item{tf.estimate}{The trend filtering estimate of the signal, evaluated on 
 \code{x.eval}.}
 \item{validation.method}{"SURE"}
-\item{lambda}{Vector of hyperparameter values tested during validation.}
-\item{error}{Vector of estimated SURE errors for the hyperparameter values.}
+\item{lambda}{Vector of hyperparameter values tested during validation
+(always returned in descending order).}
+\item{error}{Vector of SURE error estimates corresponding to the *descending* 
+set of lambda values tested during validation.}
 \item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
 \item{df}{Vector of effective degrees of freedom for trend filtering
 estimators fit during validation.}
@@ -119,7 +121,7 @@ grid of hyperparameter values and returns the optimized estimator.
 #############################################################################
 
 # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-# z = 2.953
+# z = 2.953. SDSS spectra are equally spaced in log10 wavelength space.
 
 data(quasar_spec)
 data(plotting_utilities)
@@ -128,38 +130,42 @@ data(plotting_utilities)
 # Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
 # k = 2 (default)
 
-SURE.obj <- SURE.trendfilter(x = log10.wavelength.scaled, 
+SURE.obj <- SURE.trendfilter(x = log10.wavelength, 
                              y = flux, 
                              weights = weights)
 
 
-# Transform back to wavelength space
+# Extract the SURE error curve and optimized trend filtering estimate from 
+# the output
 
-wavelength <- 10 ^ (log10.wavelength.scaled)
-wavelength.eval <- 10 ^ (x.eval)
+log.lambda <- log(SURE.obj$lambda)
+error <- SURE.obj$error
+log.lambda.min <- log(SURE.obj$lambda.min)
+
+log10.wavelength.eval <- SURE.obj$x.eval
+tf.estimate <- SURE.obj$tf.estimate
+
+
+# Transform the inputs to wavelength space (in Angstroms)
+
+wavelength <- 10 ^ (log10.wavelength)
+wavelength.eval <- 10 ^ (log10.wavelength.eval)
 
 
 # Plot the results
 
-lambda.min <- SURE.obj$lambda.min          
-tf.estimate <- SURE.obj$tf.estimate
-
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-plot(log(SURE.obj$lambda), SURE.obj$error,
-     main = "SURE error curve", 
+plot(x = log.lambda, y = error, main = "SURE error curve", 
      xlab = "log(lambda)", ylab = "SURE error")
-abline(v = log(lambda.min), col = "blue3", lty = 2)
-text(x = log(lambda.min), y = par("usr")[4], 
+abline(v = log.lambda.min, lty = 2, col = "blue3")
+text(x = log.lambda.min, y = par("usr")[4], 
      labels = "optimal hyperparameter", pos = 1, col = "blue3")
 
-plot(wavelength, flux, type = "l", 
-     main = "Quasar Lyman-alpha forest", 
-     xlab = "Observed wavelength (angstroms)", ylab = "flux")
+plot(x = wavelength, y = flux, type = "l", main = "Quasar Lyman-alpha forest", 
+     xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
-legend(x = "topleft", lwd = c(1,2), lty = 1, 
-       col = c("black","orange"), 
-       legend = c("Noisy quasar spectrum",
-                  "Trend filtering estimate"))
+legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
+       legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
 }
 \references{
 \enumerate{
