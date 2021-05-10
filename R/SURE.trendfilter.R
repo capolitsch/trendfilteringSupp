@@ -1,9 +1,10 @@
 #' Optimize the trend filtering hyperparameter (with respect to Stein's unbiased 
 #' risk estimate)
 #'
-#' @description \code{SURE.trendfilter} estimates the fixed-input squared error 
-#' of a trend filtering estimator (via Stein's unbiased risk estimate) over a 
-#' grid of hyperparameter values and returns the optimized estimator.
+#' @description \loadmathjax{} \code{SURE.trendfilter} estimates the fixed-input 
+#' squared error of a trend filtering estimator (via Stein's unbiased risk 
+#' estimate) over a grid of hyperparameter values and returns the optimized 
+#' estimator.
 #' @param x The vector of observed values of the input variable (a.k.a. the 
 #' predictor, covariate, explanatory variable, regressor, independent variable, 
 #' control variable, etc.)

@@ -129,9 +129,10 @@ filtering estimate does not appear to have fully converged to a reasonable
 estimate of the signal.}
 }
 \description{
-\code{SURE.trendfilter} estimates the fixed-input squared error 
-of a trend filtering estimator (via Stein's unbiased risk estimate) over a 
-grid of hyperparameter values and returns the optimized estimator.
+\loadmathjax{} \code{SURE.trendfilter} estimates the fixed-input 
+squared error of a trend filtering estimator (via Stein's unbiased risk 
+estimate) over a grid of hyperparameter values and returns the optimized 
+estimator.
 }
 \examples{
 #############################################################################
