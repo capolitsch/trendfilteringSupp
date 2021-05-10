@@ -27,13 +27,16 @@
 #' \code{V=length(x)} is equivalent to leave-one-out cross validation.
 #' @param validation.error.type Type of error to optimize during cross
 #' validation. One of c("WMAD","WMSE","MAD","MSE"), i.e. mean-absolute 
-#' deviations error, mean-squared error, and their weighted counterparts. If 
-#' \code{weights = NULL}, then each weighted and non-weighted pair are 
-#' equivalent. Defaults to \code{"WMAD"}. That is,
-#' \mjeqn{\text{WMAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii}
-#' \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii}
-#' \mjeqn{\text{MAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|}{ascii}
-#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2}{ascii}
+#' deviations error, mean-squared error, and their weighted counterparts. That 
+#' is,
+#' \mjeqn{\text{WMAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
+#' \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
+#' \mjeqn{\text{MAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
+#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} 
+#' where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
+#' estimate with hyperparameter \eqn{\lambda}, evaluated at 
+#' \mjeqn{x_i}{ascii}. If \code{weights = NULL}, then the weighted and 
+#' unweighted counterparts are equivalent.
 #' @param n.eval (integer) The length of the equally-spaced input grid to 
 #' evaluate the optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
