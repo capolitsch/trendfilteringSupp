@@ -2,36 +2,42 @@
 #' risk estimate)
 #'
 #' @description \code{SURE.trendfilter} estimates the fixed-input squared error 
-#' of a trend filtering estimator (via Stein's unbiased risk estimate) on a 
+#' of a trend filtering estimator (via Stein's unbiased risk estimate) over a 
 #' grid of hyperparameter values and returns the optimized estimator.
 #' @param x The vector of observed values of the input variable (a.k.a. the 
 #' predictor, covariate, explanatory variable, regressor, independent variable, 
 #' control variable, etc.)
 #' @param y The vector of observed values of the output variable (a.k.a. the
 #' response, target, outcome, regressand, dependent variable, etc.).
-#' @param weights A vector of weights for the observed outputs. These are
-#' defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
-#' standard errors of the uncertainty in the measured outputs. \code{weights}
-#' should either have length equal to 1 (i.e. equiweighted/homoskedastic outputs) 
-#' or length equal to \code{length(y)} (i.e. heteroskedastic outputs).
-#' @param k (integer) The degree of the trend filtering estimator. Defaults to 
-#' \code{k=2} (quadratic trend filtering).
-#' @param nlambda (integer) The number of trend filtering hyperparameter values 
-#' to run the grid search over. Grid is constructed internally.
+#' @param weights (Must be passed in order to optimize with respect to SURE):
+#' A vector of weights for the observed outputs. These are defined as 
+#' \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of standard 
+#' errors of the uncertainty in the output measurements. \code{weights} should 
+#' either have length equal to 1 (corresponding to observations with a constant 
+#' (scalar) variance of \code{sigma = 1/sqrt(weights)}) or length equal to 
+#' \code{length(y)} (i.e. heteroskedastic outputs). If reliable estimates of
+#' the error variance are not available, use \code{cv.trendfilter} instead.
+#' @param k The degree of the trend filtering estimator. Defaults to 
+#' \code{k=2} (quadratic trend filtering). Must be one of \code{k = 0,1,2,3},
+#' although \code{k=3} is discouraged due to algorithmic instability (and is
+#' visually indistinguishable from \code{k=2} anyway).
+#' @param nlambda The number of trend filtering hyperparameter values 
+#' to run the grid search over. If \code{lambda = NULL}, a grid of length 
+#' \code{nlambda} is constructed internally.
 #' @param lambda Overrides \code{nlambda} if passed. A user-supplied vector of 
 #' trend filtering hyperparameter values to run the grid search over. Usually, 
-#' let them be equally-spaced in log-space (see Examples), and helpful to 
+#' let them be equally-spaced in log-space (see Examples), and good to 
 #' provide them in descending order.
-#' @param n.eval (integer) The length of the equally-spaced input grid to 
-#' evaluate the optimized trend filtering estimate on.
+#' @param n.eval The length of the equally-spaced \code{x} grid to evaluate the 
+#' optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
 #' inputs to evaluate the optimized trend filtering estimate on. 
-#' @param thinning (logical) If \code{TRUE}, then the data are preprocessed so 
+#' @param thinning If \code{TRUE}, then the data are preprocessed so 
 #' that a smaller, better conditioned data set is used for fitting. When left
 #' \code{NULL}, the default, the optimization will automatically detect whether 
 #' thinning should be applied (i.e., cases in which the numerical fitting 
 #' algorithm will struggle to converge).
-#' @param max_iter (integer) Maximum iterations allowed for the trend filtering 
+#' @param max_iter Maximum iterations allowed for the trend filtering 
 #' convex optimization 
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
 #' Defaults to \code{max_iter = 250L}. Consider increasing this if the trend 
@@ -46,31 +52,31 @@
 #' following elements:
 #' \item{x.eval}{The grid of inputs the optimized trend filtering estimate was 
 #' evaluated on.}
-#' \item{tf.estimate}{The trend filtering estimate of the signal, evaluated on 
-#' \code{x.eval}.}
+#' \item{tf.estimate}{The optimized trend filtering estimate of the signal, 
+#' evaluated on \code{x.eval}.}
 #' \item{validation.method}{"SURE"}
 #' \item{lambda}{Vector of hyperparameter values tested during validation
 #' (always returned in descending order).}
 #' \item{error}{Vector of SURE error estimates corresponding to the *descending* 
 #' set of lambda values tested during validation.}
 #' \item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
-#' \item{df}{Vector of effective degrees of freedom for trend filtering
+#' \item{df}{Vector of effective degrees of freedom for all trend filtering
 #' estimators fit during validation.}
 #' \item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
 #' filtering estimator.}
-#' \item{i.min}{The index of \code{lambda} that minimizes the SURE error.}
+#' \item{i.min}{The index of \code{lambda} (descending order) that minimizes 
+#' the SURE error curve.}
 #' \item{x}{The vector of the observed inputs.}
 #' \item{y}{The vector of the observed outputs.}
 #' \item{weights}{A vector of weights for the observed outputs. These are
 #' defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
 #' standard errors of the uncertainty in the measured outputs.}
-#' \item{fitted.values}{The trend filtering estimate of the signal, evaluated at
-#' the observed inputs \code{x}.}
+#' \item{fitted.values}{The optimized trend filtering estimate of the signal, 
+#' evaluated at the observed inputs \code{x}.}
 #' \item{residuals}{\code{residuals = y - fitted.values}.}
-#' \item{k}{(integer) The degree of the trend filtering estimator.}
-#' \item{thinning}{(logical) If \code{TRUE}, then the data are 
-#' preprocessed so that a smaller, better conditioned data set is used for 
-#' fitting.}
+#' \item{k}{The degree of the trend filtering estimator.}
+#' \item{thinning}{If \code{TRUE}, then the data are preprocessed so that a 
+#' smaller, better conditioned data set is used for fitting.}
 #' \item{max_iter}{Maximum iterations allowed for the trend filtering 
 #' convex optimization 
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
@@ -164,7 +170,7 @@ SURE.trendfilter <- function(x,
                              x.eval = NULL,
                              thinning = NULL,
                              max_iter = 500L, 
-                             obj_tol = 1e-09
+                             obj_tol = 1e-10
                              )
   {
   

@@ -1,31 +1,37 @@
 #' Optimize the trend filtering hyperparameter (by V-fold cross validation)
 #'
-#' @description \code{cv.trendfilter} performs V-fold cross validation to
-#' estimate the random-input squared error of a trend filtering estimator on a 
-#' grid of hyperparameter values.
-#' @param x The vector of the observed inputs.
+#' @description \loadmathjax{} \code{cv.trendfilter} performs V-fold cross validation to
+#' estimate the random-input squared error of a trend filtering estimator over 
+#' a grid of hyperparameter values and returns the optimized estimator.
+#' @param x The vector of the observed inputs. 
+#' \mjeqn{x+y}{ascii}
 #' @param y The vector of the observed outputs.
-#' @param weights A vector of weights for the observed outputs. These are
-#' defined as \code{weights = 1/sigma^2}, where \code{sigma} is a vector of 
-#' standard errors of the uncertainty in the measured outputs. Defaults to 
-#' \code{NULL}, in which case the data all have unit weighting. If an
-#' argument is supplied, it should either have length equal to 1 
-#' (implying homoskedastic outputs) or a vector with length equal to 
+#' @param weights A vector of weights for the observed outputs. These are defined as 
+#' \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of standard 
+#' errors of the uncertainty in the output measurements. \code{weights} should 
+#' either have length equal to 1 (corresponding to observations with a constant 
+#' (scalar) variance of \code{sigma = 1/sqrt(weights)}) or length equal to 
 #' \code{length(y)} (i.e. heteroskedastic outputs).
-#' @param k (Integer) The degree of the trend filtering estimator. Defaults to 
-#' \code{k=2} (quadratic trend filtering).
-#' @param nlambda (integer) The number of trend filtering hyperparameter values 
-#' to run the grid search over. Grid is constructed internally.
+#' @param k The degree of the trend filtering estimator. Defaults to 
+#' \code{k=2} (quadratic trend filtering). Must be one of \code{k = 0,1,2,3},
+#' although \code{k=3} is discouraged due to algorithmic instability (and is
+#' visually indistinguishable from \code{k=2} anyway).
+#' @param nlambda The number of trend filtering hyperparameter values 
+#' to run the grid search over. If \code{lambda = NULL}, a grid of length 
+#' \code{nlambda} is constructed internally.
 #' @param lambda Overrides \code{nlambda} if passed. A user-supplied vector of 
 #' trend filtering hyperparameter values to run the grid search over. Usually, 
-#' let them be equally-spaced in log-space (see Examples), and helpful to 
+#' let them be equally-spaced in log-space (see Examples), and good to 
 #' provide them in descending order.
 #' @param V The number of folds the data are split into for the V-fold cross
 #' validation. Defaults to \code{V=10} (recommended).
 #' \code{V=length(x)} is equivalent to leave-one-out cross validation.
 #' @param validation.error.type Type of error to optimize during cross
-#' validation. One of c("MSE","MAD","WMSE","WMAD"), i.e. either mean-squared 
-#' error or mean absolute deviations error. Defaults to \code{"MSE"}.
+#' validation. One of c("WMAD","MAD","WMSE","MSE"), i.e. mean-absolute 
+#' deviations error, mean-squared error, and their weighted counterparts. If 
+#' \code{weights = NULL}, then each weighted and non-weighted pair are 
+#' equivalent. Defaults to \code{"WMAD"}. That is,
+#' \deqn{WMAD(\lambda) = 1/n \sum |y - tf.estimate_i| * \sigma}
 #' @param n.eval (integer) The length of the equally-spaced input grid to 
 #' evaluate the optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
@@ -192,7 +198,7 @@ cv.trendfilter <- function(x,
                            x.eval = NULL,
                            thinning = NULL,
                            max_iter = 500L, 
-                           obj_tol = 1e-09,
+                           obj_tol = 1e-10,
                            mc.cores = max(c(parallel::detectCores() - 2), 1)
                            )
   {
