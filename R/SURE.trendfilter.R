@@ -211,7 +211,7 @@ SURE.trendfilter <- function(x,
 
   n.obs <- nrow(data)
   x.scale <- mean(diff(data$x))
-  y.scale <- mean(data$y) / 10
+  y.scale <- mean(abs(data$y)) / 10
   x <- data$x / x.scale
   y <- data$y / y.scale
   weights <- y.scale ^ 2 * data$weights
