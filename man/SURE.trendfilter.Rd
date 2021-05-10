@@ -53,7 +53,7 @@ provide them in descending order. Do not use this argument unless you know
 what you are doing.}
 
 \item{validation.error.type}{Type of error to optimize with respect to. 
-One of \code{c(WMSE","MSE")}. That is, \cr \cr 
+One of \code{c("WMSE","MSE")}. That is, \cr \cr 
 \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
 \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
 where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
