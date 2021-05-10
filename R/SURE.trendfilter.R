@@ -234,10 +234,11 @@ SURE.trendfilter <- function(x,
                      )
   )
 
-  if ( !is.null(weights) ){
+  if ( validation.error.type == "MSE" ){
     error <- y.scale ^ 2 * ( colMeans( (out$beta - y) ^ 2 ) + 2 * out$df / n.obs * mean(1 / weights) ) %>%
       as.numeric
-  }else{
+  }
+  if ( validation.error.type == "WMSE"){
     error <- y.scale ^ 2 * ( colMeans( (out$beta - y) ^ 2 * weights / sum(weights) ) + 2 * out$df / n.obs * mean(1 / weights) ) %>%
       as.numeric
   }
