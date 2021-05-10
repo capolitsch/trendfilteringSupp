@@ -300,7 +300,7 @@ cv.trendfilter <- function(x,
  
   obj$i.min <- which.min(obj$error)
   obj$lambda.min <- obj$lambda[obj$i.min]
-  obj$i.1se <- obj %$% which(error <= error[i.min] + se.error[i.min]) %>% max
+  obj$i.1se <- obj %$% which(error <= error[i.min] + se.error[i.min]) %>% min
   obj$lambda.1se <- obj$lambda[obj$i.1se]
 
   out <- obj %$%
@@ -333,7 +333,7 @@ cv.trendfilter <- function(x,
   obj$tf.estimate <- obj$tf.estimate * y.scale
   obj$x <- obj$x * x.scale
   obj$y <- obj$y * y.scale
-  obj$weights <- obj$weights * y.scale ^ 2
+  obj$weights <- obj$weights / y.scale ^ 2
   obj$fitted.values <- obj$fitted.values * y.scale
   obj$residuals <- (obj$y - obj$fitted.values) * y.scale
 
