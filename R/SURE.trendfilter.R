@@ -27,7 +27,8 @@
 #' @param lambda Overrides \code{nlambda} if passed. A user-supplied vector of 
 #' trend filtering hyperparameter values to run the grid search over. Usually, 
 #' let them be equally-spaced in log-space (see Examples), and good to 
-#' provide them in descending order.
+#' provide them in descending order. Do not use this argument unless you know
+#' what you are doing.
 #' @param n.eval The length of the equally-spaced \code{x} grid to evaluate the 
 #' optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
@@ -169,7 +170,7 @@ SURE.trendfilter <- function(x,
                              n.eval = 1500L,
                              x.eval = NULL,
                              thinning = NULL,
-                             max_iter = 500L, 
+                             max_iter = 600L, 
                              obj_tol = 1e-10
                              )
   {

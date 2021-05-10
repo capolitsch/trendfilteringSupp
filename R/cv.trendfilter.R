@@ -21,7 +21,8 @@
 #' @param lambda Overrides \code{nlambda} if passed. A user-supplied vector of 
 #' trend filtering hyperparameter values to run the grid search over. Usually, 
 #' let them be equally-spaced in log-space (see Examples), and good to 
-#' provide them in descending order.
+#' provide them in descending order. Do not use this argument unless you know
+#' what you are doing.
 #' @param V The number of folds the data are split into for the V-fold cross
 #' validation. Defaults to \code{V=10} (recommended).
 #' \code{V=length(x)} is equivalent to leave-one-out cross validation.
@@ -36,7 +37,9 @@
 #' where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
 #' estimate with hyperparameter \eqn{\lambda}, evaluated at 
 #' \mjeqn{x_i}{ascii}. If \code{weights = NULL}, then the weighted and 
-#' unweighted counterparts are equivalent.
+#' unweighted counterparts are equivalent. In short, weighting helps combat
+#' heteroskedasticity and absolute error decreases sensitivity to outliers.
+#' Defaults to \code{"WMAD"}.
 #' @param n.eval The length of the equally-spaced input grid to evaluate the 
 #' optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
@@ -58,13 +61,13 @@
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.
 #' @param mc.cores Multi-core computing (for speedups): The number of cores to
-#' utilize. If 4 or more cores are detected, then the default is to utilize the
-#' minimum of \code{available.cores - 2} and \code{V}. Else, \code{mc.cores = 1}.
+#' utilize. If 4 or more cores are detected, then the default is to utilize
+#' \code{min(V, detected.cores - 2)}. Else, \code{mc.cores = 1}.
 #' @return An object of class 'cv.trendfilter'. This is a list with the 
 #' following elements:
 #' \item{x.eval}{The grid of inputs the optimized trend filtering estimate was 
 #' evaluated on.}
-#' \item{tf.estimate}{The optimizied trend filtering estimate of the signal, 
+#' \item{tf.estimate}{The optimized trend filtering estimate of the signal, 
 #' evaluated on \code{x.eval}.}
 #' \item{validation.method}{"cv"}
 #' \item{V}{The number of folds the data are split into for the V-fold cross
@@ -203,7 +206,7 @@ cv.trendfilter <- function(x,
                            n.eval = 1500L,
                            x.eval = NULL,
                            thinning = NULL,
-                           max_iter = 500L, 
+                           max_iter = 600L, 
                            obj_tol = 1e-10,
                            mc.cores = max(c(parallel::detectCores() - 2), 1)
                            )

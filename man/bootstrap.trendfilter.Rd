@@ -27,11 +27,11 @@ bands. Defaults to \code{alpha = 0.05}.}
 \item{B}{The number of bootstrap samples used to estimate the pointwise
 variability bands. Defaults to \code{B = 250}.}
 
-\item{full.ensemble}{(logical) If \code{TRUE}, the full trend filtering 
+\item{full.ensemble}{If \code{TRUE}, the full trend filtering 
 bootstrap ensemble is returned as an \eqn{n x B} matrix. Defaults to 
 \code{FALSE}.}
 
-\item{prune}{(logical) If \code{TRUE}, then the trend filtering bootstrap 
+\item{prune}{If \code{TRUE}, then the trend filtering bootstrap 
 ensemble is examined for rare instances in which the optimization has stopped 
 at zero knots (most likely erroneously), and removes them from the ensemble. 
 Defaults to \code{TRUE}. Do not change this unless you really know what you 
@@ -39,7 +39,7 @@ are doing.}
 
 \item{mc.cores}{Multi-core computing (for speedups): The number of cores to
 utilize. If 4 or more cores are detected, then the default is to utilize
-\code{available.cores - 2}. Else, \code{mc.cores = 1}.}
+\code{min(V, detected.cores - 2)}. Else, \code{mc.cores = 1}.}
 }
 \value{
 An object of class 'bootstrap.trendfilter'. This is a list with the 
@@ -61,7 +61,7 @@ variability bands.}
 \item{tf.bootstrap.ensemble}{(Optional) The full trend filtering bootstrap 
 ensemble as an \eqn{n x B} matrix. If \code{full.ensemble = FALSE}, then 
 this will return \code{NULL}.}
-\item{prune}{(logical) If \code{TRUE}, then the trend filtering bootstrap 
+\item{prune}{If \code{TRUE}, then the trend filtering bootstrap 
 ensemble is examined for rare instances in which the optimization has 
 stopped at zero knots (most likely erroneously), and removes them from the 
 ensemble.}
@@ -69,13 +69,11 @@ ensemble.}
 estimates pruned from the ensemble.}
 \item{x}{The vector of the observed inputs.}
 \item{y}{The vector of the observed outputs.}
-\item{weights}{A vector of weights for the observed outputs. These are
-defined as \code{weights[i] = 1 / sigma[i]^2}, where \code{sigma} is a vector 
-of standard errors of the uncertainty in the measured outputs.}
-\item{fitted.values}{The trend filtering estimate of the signal, evaluated at
-the observed inputs \code{x}.}
+\item{weights}{A vector of weights for the observed outputs. These are 
+defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
+standard errors of the uncertainty in the output measurements.}
 \item{residuals}{\code{residuals = y - fitted.values}.}
-\item{k}{(Integer) The degree of the trend filtering estimator.}
+\item{k}{The degree of the trend filtering estimator.}
 \item{lambda}{Vector of hyperparameter values tested during validation.}
 \item{lambda.min}{Hyperparameter value that minimizes the validation error 
 curve.}
@@ -87,22 +85,22 @@ filtering estimator.}
 \item{validation.method}{Either "SURE" or "cv".}
 \item{error}{Vector of hyperparameter validation errors, inherited from
 \code{obj} (either class 'SURE.trendfilter' or 'cv.trendfilter')}
-\item{thinning}{(logical) If \code{TRUE}, then the data are 
+\item{thinning}{If \code{TRUE}, then the data are 
 preprocessed so that a smaller, better conditioned data set is used for 
 fitting.}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
 [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
-Consider increasing this if the trend filtering estimate does not appear to 
+Increase this if the trend filtering estimate does not appear to 
 have fully converged to a reasonable estimate of the signal.}
 \item{obj_tol}{The tolerance used in the convex optimization stopping 
 criterion; when the relative change in the objective function is less than 
-this value, the algorithm terminates. Consider decreasing this if the trend 
+this value, the algorithm terminates. Decrease this if the trend 
 filtering estimate does not appear to have fully converged to a reasonable 
 estimate of the signal.}
 }
 \description{
-\code{bootstrap.trendfilter} implements any of three possible 
+\loadmathjax{} \code{bootstrap.trendfilter} implements any of three possible 
 bootstrap algorithms to obtain pointwise variability bands with a specified 
 certainty to accompany an optimized trend filtering point estimate of a 
 signal.
@@ -110,12 +108,12 @@ signal.
 \details{
 The bootstrap method should generally be chosen according to the 
 following criteria: \itemize{
-\item The inputs are irregularly sampled -> 
+\item The inputs are irregularly sampled \mjeqn{\Longrightarrow}{ascii} 
 \code{bootstrap.method = "nonparametric"}.
-\item The inputs are regularly sampled and the noise distribution is known –> 
-\code{bootstrap.method = "parametric"}.
+\item The inputs are regularly sampled and the noise distribution is known 
+\mjeqn{\Longrightarrow}{ascii} \code{bootstrap.method = "parametric"}.
 \item The inputs are regularly sampled and the noise distribution is 
-unknown –> \code{bootstrap.method = "wild"}.}
+unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.method = "wild"}.}
 See \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
 Politsch et al. (2020)} for more details.
 }
