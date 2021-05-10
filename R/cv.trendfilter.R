@@ -31,7 +31,9 @@
 #' \code{weights = NULL}, then each weighted and non-weighted pair are 
 #' equivalent. Defaults to \code{"WMAD"}. That is,
 #' \deqn{WMAD(\lambda) = 1/n \sum |y - tf.estimate_i| * \sigma}
-#' \mjeqn{\frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|}{ascii}
+#' \begin{center}
+#' \mjeqn{\frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|\frac{w_i}{\sum_jw_j}}{ascii}
+#' \end{center}
 #' @param n.eval (integer) The length of the equally-spaced input grid to 
 #' evaluate the optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
