@@ -28,11 +28,11 @@
 #' @param validation.error.type Type of error to optimize during cross
 #' validation. One of c("WMAD","WMSE","MAD","MSE"), i.e. mean-absolute 
 #' deviations error, mean-squared error, and their weighted counterparts. That 
-#' is,
+#' is, \cr 
 #' \mjeqn{\text{WMAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
 #' \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
 #' \mjeqn{\text{MAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
-#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} 
+#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr 
 #' where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
 #' estimate with hyperparameter \eqn{\lambda}, evaluated at 
 #' \mjeqn{x_i}{ascii}. If \code{weights = NULL}, then the weighted and 
