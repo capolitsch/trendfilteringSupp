@@ -27,19 +27,19 @@
 #' validation. Defaults to \code{V=10} (recommended).
 #' \code{V=length(x)} is equivalent to leave-one-out cross validation.
 #' @param validation.error.type Type of error to optimize during cross
-#' validation. One of \code{c("WMAPE","WMSPE","MAPE","MSPE")}, i.e. mean-absolute 
-#' deviations prediction error, mean-squared prediction error, and their 
-#' weighted counterparts. That is, \cr \cr 
-#' \mjeqn{\text{WMAPE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
-#' \mjeqn{\text{WMSPE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
-#' \mjeqn{\text{MAPE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
-#' \mjeqn{\text{MSPE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
+#' validation. One of \code{c("WMAE","WMSE","MAE","MSE")}, i.e. mean-absolute 
+#' deviations error, mean-squared error, and their weighted counterparts. 
+#' That is, \cr \cr 
+#' \mjeqn{\text{WMAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
+#' \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
+#' \mjeqn{\text{MAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
+#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
 #' where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
 #' estimate with hyperparameter \eqn{\lambda}, evaluated at 
 #' \mjeqn{x_i}{ascii}. If \code{weights = NULL}, then the weighted and 
 #' unweighted counterparts are equivalent. In short, weighting helps combat
 #' heteroskedasticity and absolute error decreases sensitivity to outliers.
-#' Defaults to \code{"WMAPE"}.
+#' Defaults to \code{"WMAE"}.
 #' @param n.eval The length of the equally-spaced input grid to evaluate the 
 #' optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
@@ -73,7 +73,7 @@
 #' \item{V}{The number of folds the data are split into for the V-fold cross
 #' validation.}
 #' \item{validation.error.type}{Type of error that validation was performed on. 
-#' One of \code{c("WMAPE","WMSPE","MAPE","MSPE")}.}
+#' One of \code{c("WMAE","WMSE","MAE","MSE")}.}
 #' \item{lambda}{Vector of hyperparameter values tested during validation. This
 #' vector will always be returned in descending order, regardless of the 
 #' ordering provided by the user. The indices \code{i.min} and \code{i.1se}

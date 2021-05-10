@@ -177,7 +177,7 @@ SURE.trendfilter <- function(x,
                              k = 2L, 
                              nlambda = 250L, 
                              lambda = NULL,
-                             validation.error.type = c("WMSE","MSE"),
+                             validation.error.type = c("MSE","WMSE"),
                              n.eval = 1500L,
                              x.eval = NULL,
                              thinning = NULL,
@@ -205,6 +205,8 @@ SURE.trendfilter <- function(x,
     if ( length(lambda) < 25L ) stop("lambda must be have length >= 25.")
   }
   if ( length(weights) == 1 ) weights <- rep(weights, length(x))
+  
+  validation.error.type <- match.arg(validation.error.type)
   
   data <- tibble(x, y, weights) %>% 
     arrange(x) %>% 
@@ -239,7 +241,7 @@ SURE.trendfilter <- function(x,
       as.numeric
   }
   if ( validation.error.type == "WMSE"){
-    error <- y.scale ^ 2 * ( colMeans( (out$beta - y) ^ 2 * weights / sum(weights) ) + 2 * out$df / n.obs * mean(1 / weights) ) %>%
+    error <- y.scale ^ 2 * ( colMeans( (out$beta - y) ^ 2 * weights / sum(weights) ) + 2 * out$df / n.obs ) %>%
       as.numeric
   }
   i.min <- as.integer(which.min(error))
