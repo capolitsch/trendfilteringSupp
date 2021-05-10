@@ -81,11 +81,11 @@
 #' \item{max_iter}{Maximum iterations allowed for the trend filtering 
 #' convex optimization 
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
-#' Consider increasing this if the trend filtering estimate does not appear to 
+#' Increase this if the trend filtering estimate does not appear to 
 #' have fully converged to a reasonable estimate of the signal.}
 #' \item{obj_tol}{The tolerance used in the convex optimization stopping 
 #' criterion; when the relative change in the objective function is less than 
-#' this value, the algorithm terminates. Consider decreasing this if the trend 
+#' this value, the algorithm terminates. Decrease this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.}
 #' @export SURE.trendfilter
@@ -222,20 +222,9 @@ SURE.trendfilter <- function(x,
                                                         obj_tol = obj_tol
                      )
   )
-  
-  if ( length(lambda) == 1 ){
-    SURE.error <- mean( (out$beta - y) ^ 2 ) + (2 * mean(1 / weights) / length(x)) * out$df
-  }else{
-    SURE.error <- colMeans( (out$beta - y) ^ 2 ) + (2 * mean(1 / weights) / length(x)) * out$df
-  }
-  
-  if ( length(lambda) == 1 ){
-    SURE.error <- y.scale ^ 2 * mean( (out$beta - y) ^ 2 ) + 2 * out$df / n.obs * mean(y.scale ^ 2 / weights)
-  }else{
-    SURE.error <- y.scale ^ 2 * colMeans( (out$beta - y) ^ 2 ) + 2 * out$df / n.obs * mean(y.scale ^ 2 / weights)
-  }
 
-  error <- as.numeric(SURE.error)
+  error <- y.scale ^ 2 * colMeans( (out$beta - y) ^ 2 ) + 2 * y.scale ^ 2 * out$df / n.obs * mean(1 / weights) %>%
+    as.numeric
   i.min <- as.integer(which.min(error))
   lambda.min <- lambda[i.min]
   
@@ -245,15 +234,11 @@ SURE.trendfilter <- function(x,
     x.eval <- sort(x.eval) / x.scale
   }
   
-  tf.estimate <- glmgen:::predict.trendfilter(out, 
-                                              lambda = lambda.min, 
-                                              x.new = x.eval
-                                              ) %>% as.numeric
+  tf.estimate <- glmgen:::predict.trendfilter(out, lambda = lambda.min, x.new = x.eval) %>% 
+    as.numeric
   
-  fitted.values <- glmgen:::predict.trendfilter(out, 
-                                                lambda = lambda.min, 
-                                                x.new = x
-                                                ) %>% as.numeric
+  fitted.values <- glmgen:::predict.trendfilter(out, lambda = lambda.min, x.new = x) %>% 
+    as.numeric
   
   obj <- structure(list(x.eval = x.eval * x.scale,
                         tf.estimate = tf.estimate * y.scale,

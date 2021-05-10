@@ -109,11 +109,11 @@ smaller, better conditioned data set is used for fitting.}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
 [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
-Consider increasing this if the trend filtering estimate does not appear to 
+Increase this if the trend filtering estimate does not appear to 
 have fully converged to a reasonable estimate of the signal.}
 \item{obj_tol}{The tolerance used in the convex optimization stopping 
 criterion; when the relative change in the objective function is less than 
-this value, the algorithm terminates. Consider decreasing this if the trend 
+this value, the algorithm terminates. Decrease this if the trend 
 filtering estimate does not appear to have fully converged to a reasonable 
 estimate of the signal.}
 }

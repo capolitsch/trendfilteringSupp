@@ -12,7 +12,7 @@ cv.trendfilter(
   nlambda = 250L,
   lambda = NULL,
   V = 10L,
-  validation.error.type = c("MAD", "WMAD", "MSE", "WMSE"),
+  validation.error.type = c("MAE", "WMAE", "MSE", "WMSE"),
   n.eval = 1500L,
   x.eval = NULL,
   thinning = NULL,
@@ -53,19 +53,19 @@ validation. Defaults to \code{V=10} (recommended).
 \code{V=length(x)} is equivalent to leave-one-out cross validation.}
 
 \item{validation.error.type}{Type of error to optimize during cross
-validation. One of \code{c("WMAD","WMSE","MAD","MSE")}, i.e. mean-absolute 
+validation. One of \code{c("WMAE","WMSE","MAE","MSE")}, i.e. mean-absolute 
 deviations error, mean-squared error, and their weighted counterparts. That 
 is, \cr \cr 
-\mjeqn{\text{WMAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
+\mjeqn{\text{WMAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
 \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
-\mjeqn{\text{MAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
+\mjeqn{\text{MAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
 \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
 where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
 estimate with hyperparameter \eqn{\lambda}, evaluated at 
 \mjeqn{x_i}{ascii}. If \code{weights = NULL}, then the weighted and 
 unweighted counterparts are equivalent. In short, weighting helps combat
 heteroskedasticity and absolute error decreases sensitivity to outliers.
-Defaults to \code{"WMAD"}.}
+Defaults to \code{"WMAE"}.}
 
 \item{n.eval}{The length of the equally-spaced input grid to evaluate the 
 optimized trend filtering estimate on.}
@@ -106,8 +106,8 @@ evaluated on \code{x.eval}.}
 \item{validation.method}{"cv"}
 \item{V}{The number of folds the data are split into for the V-fold cross
 validation.}
-\item{validation.error.type}{Type of validation loss. One of 
-\code{c("WMAD","WMSE","MAD","MSE")}.}
+\item{validation.error.type}{Type of error that validation was performed on. 
+One of \code{c("WMAE","WMSE","MAE","MSE")}.}
 \item{lambda}{Vector of hyperparameter values tested during validation. This
 vector will always be returned in descending order, regardless of the 
 ordering provided by the user. The indices \code{i.min} and \code{i.1se}
@@ -142,8 +142,8 @@ standard errors of the uncertainty in the measured outputs.}
 \item{fitted.values}{The trend filtering estimate of the signal, evaluated at
 the observed inputs \code{x}.}
 \item{residuals}{\code{residuals = y - fitted.values}.}
-\item{k}{(Integer) The degree of the trend filtering estimator.}
-\item{thinning}{(logical) If \code{TRUE}, then the data are preprocessed so 
+\item{k}{The degree of the trend filtering estimator.}
+\item{thinning}{If \code{TRUE}, then the data are preprocessed so 
 that a smaller, better conditioned data set is used for fitting. When set to
 \code{NULL}, the default, function will auto detect whether thinning should 
 be applied (i.e., cases in which the numerical fitting algorithm will 
