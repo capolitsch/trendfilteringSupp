@@ -4,7 +4,6 @@
 #' estimate the random-input squared error of a trend filtering estimator over 
 #' a grid of hyperparameter values and returns the optimized estimator.
 #' @param x The vector of the observed inputs. 
-#' \mjeqn{x+y}{ascii}
 #' @param y The vector of the observed outputs.
 #' @param weights A vector of weights for the observed outputs. These are defined as 
 #' \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of standard 
@@ -32,6 +31,7 @@
 #' \code{weights = NULL}, then each weighted and non-weighted pair are 
 #' equivalent. Defaults to \code{"WMAD"}. That is,
 #' \deqn{WMAD(\lambda) = 1/n \sum |y - tf.estimate_i| * \sigma}
+#' \mjeqn{\frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|}{ascii}
 #' @param n.eval (integer) The length of the equally-spaced input grid to 
 #' evaluate the optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
