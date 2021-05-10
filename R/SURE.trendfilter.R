@@ -29,6 +29,15 @@
 #' let them be equally-spaced in log-space (see Examples), and good to 
 #' provide them in descending order. Do not use this argument unless you know
 #' what you are doing.
+#' @param validation.error.type Type of error to optimize with respect to. 
+#' One of \code{c(WMSE","MSE")}. That is, \cr \cr 
+#' \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
+#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
+#' where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
+#' estimate with hyperparameter \eqn{\lambda}, evaluated at 
+#' \mjeqn{x_i}{ascii}. If \code{weights = NULL}, then the weighted and 
+#' unweighted counterparts are equivalent. In short, weighting helps combat
+#' heteroskedasticity. Defaults to \code{"WMSE"}.
 #' @param n.eval The length of the equally-spaced \code{x} grid to evaluate the 
 #' optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
@@ -167,6 +176,7 @@ SURE.trendfilter <- function(x,
                              k = 2L, 
                              nlambda = 250L, 
                              lambda = NULL,
+                             validation.error.type = c("WMSE","MSE"),
                              n.eval = 1500L,
                              x.eval = NULL,
                              thinning = NULL,
@@ -223,8 +233,13 @@ SURE.trendfilter <- function(x,
                      )
   )
 
-  error <- y.scale ^ 2 * colMeans( (out$beta - y) ^ 2 ) + 2 * y.scale ^ 2 * out$df / n.obs * mean(1 / weights) %>%
-    as.numeric
+  if ( !is.null(weights) ){
+    error <- y.scale ^ 2 * ( colMeans( (out$beta - y) ^ 2 ) + 2 * out$df / n.obs * mean(1 / weights) ) %>%
+      as.numeric
+  }else{
+    error <- y.scale ^ 2 * ( colMeans( (out$beta - y) ^ 2 * weights / sum(weights) ) + 2 * out$df / n.obs * mean(1 / weights) ) %>%
+      as.numeric
+  }
   i.min <- as.integer(which.min(error))
   lambda.min <- lambda[i.min]
   

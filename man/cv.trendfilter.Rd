@@ -12,7 +12,7 @@ cv.trendfilter(
   nlambda = 250L,
   lambda = NULL,
   V = 10L,
-  validation.error.type = c("MAE", "WMAE", "MSE", "WMSE"),
+  validation.error.type = c("WMAE", "WMSE", "MAE", "MSE"),
   n.eval = 1500L,
   x.eval = NULL,
   thinning = NULL,

@@ -202,7 +202,7 @@ cv.trendfilter <- function(x,
                            nlambda = 250L,
                            lambda = NULL, 
                            V = 10L,
-                           validation.error.type = c("MAE","WMAE","MSE","WMSE"),
+                           validation.error.type = c("WMAE","WMSE","MAE","MSE"),
                            n.eval = 1500L,
                            x.eval = NULL,
                            thinning = NULL,
@@ -380,11 +380,11 @@ trendfilter.validate <- function(validation.index,
   }
   if ( obj$validation.error.type == "WMSE" ){
     validation.error.mat <- obj$y.scale ^ 2 * (tf.validate.preds - data.validate$y) ^ 2 * 
-    (data.validate$weights / obj$y.scale ^ 2) / sum((data.validate$weights) / obj$y.scale ^ 2)
+    (data.validate$weights) / sum((data.validate$weights))
   }
   if ( obj$validation.error.type == "WMAE" ){
     validation.error.mat <- obj$y.scale * abs(tf.validate.preds - data.validate$y) * 
-      sqrt(data.validate$weights / obj$y.scale ^ 2) / sum(sqrt(data.validate$weights / obj$y.scale ^ 2))
+      sqrt(data.validate$weights) / sum(sqrt(data.validate$weights))
   }
   
   validation.error.sum <- colMeans(validation.error.mat) %>% as.numeric
