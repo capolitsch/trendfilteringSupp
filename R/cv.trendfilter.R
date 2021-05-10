@@ -26,22 +26,22 @@
 #' validation. Defaults to \code{V=10} (recommended).
 #' \code{V=length(x)} is equivalent to leave-one-out cross validation.
 #' @param validation.error.type Type of error to optimize during cross
-#' validation. One of c("WMAD","WMSE","MAD","MSE"), i.e. mean-absolute 
+#' validation. One of \code{c("WMAD","WMSE","MAD","MSE")}, i.e. mean-absolute 
 #' deviations error, mean-squared error, and their weighted counterparts. That 
-#' is, \cr 
+#' is, \cr \cr 
 #' \mjeqn{\text{WMAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
 #' \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
 #' \mjeqn{\text{MAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
-#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr 
+#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
 #' where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
 #' estimate with hyperparameter \eqn{\lambda}, evaluated at 
 #' \mjeqn{x_i}{ascii}. If \code{weights = NULL}, then the weighted and 
 #' unweighted counterparts are equivalent.
-#' @param n.eval (integer) The length of the equally-spaced input grid to 
-#' evaluate the optimized trend filtering estimate on.
+#' @param n.eval The length of the equally-spaced input grid to evaluate the 
+#' optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
 #' inputs to evaluate the optimized trend filtering estimate on. 
-#' @param thinning (logical) If \code{TRUE}, then the data are preprocessed so 
+#' @param thinning If \code{TRUE}, then the data are preprocessed so 
 #' that a smaller, better conditioned data set is used for fitting. When set to
 #' \code{NULL}, the default, function will auto detect whether thinning should 
 #' be applied (i.e., cases in which the numerical fitting algorithm will 
@@ -49,12 +49,12 @@
 #' @param max_iter Maximum iterations allowed for the trend filtering 
 #' convex optimization 
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
-#' Defaults to \code{max_iter = 250}. Consider increasing this if the trend 
+#' Defaults to \code{max_iter = 600L}. Increase this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.
 #' @param obj_tol The tolerance used in the convex optimization stopping 
 #' criterion; when the relative change in the objective function is less than 
-#' this value, the algorithm terminates. Consider decreasing this if the trend 
+#' this value, the algorithm terminates. Decrease this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.
 #' @param mc.cores Multi-core computing (for speedups): The number of cores to
@@ -69,7 +69,8 @@
 #' \item{validation.method}{"cv"}
 #' \item{V}{The number of folds the data are split into for the V-fold cross
 #' validation.}
-#' \item{validation.error.type}{Type of validation loss. One of c("MSE","MAD").}
+#' \item{validation.error.type}{Type of validation loss. One of 
+#' \code{c("WMAD","WMSE","MAD","MSE")}.}
 #' \item{lambda}{Vector of hyperparameter values tested during validation. This
 #' vector will always be returned in descending order, regardless of the 
 #' ordering provided by the user. The indices \code{i.min} and \code{i.1se}
@@ -113,13 +114,13 @@
 #' \item{max_iter}{Maximum iterations allowed for the trend filtering 
 #' convex optimization 
 #' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
-#' Consider increasing this if the trend filtering estimate does not appear to 
-#' have fully converged to a reasonable estimate of the signal.}
+#' Increase this if the trend filtering estimate does not appear to have fully 
+#' converged to a reasonable estimate of the signal.}
 #' \item{obj_tol}{The tolerance used in the convex optimization stopping 
 #' criterion; when the relative change in the objective function is less than 
-#' this value, the algorithm terminates. Consider decreasing this if the trend 
-#' filtering estimate does not appear to have fully converged to a reasonable 
-#' estimate of the signal.}
+#' this value, the algorithm terminates. Decrease this if the trend filtering 
+#' estimate does not appear to have fully converged to a reasonable estimate of 
+#' the signal.}
 #' @export cv.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
 #' @seealso \code{\link{SURE.trendfilter}}, \code{\link{bootstrap.trendfilter}}
