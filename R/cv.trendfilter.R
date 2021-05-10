@@ -26,14 +26,14 @@
 #' validation. Defaults to \code{V=10} (recommended).
 #' \code{V=length(x)} is equivalent to leave-one-out cross validation.
 #' @param validation.error.type Type of error to optimize during cross
-#' validation. One of c("WMAD","MAD","WMSE","MSE"), i.e. mean-absolute 
+#' validation. One of c("WMAD","WMSE","MAD","MSE"), i.e. mean-absolute 
 #' deviations error, mean-squared error, and their weighted counterparts. If 
 #' \code{weights = NULL}, then each weighted and non-weighted pair are 
 #' equivalent. Defaults to \code{"WMAD"}. That is,
-#' \deqn{WMAD(\lambda) = 1/n \sum |y - tf.estimate_i| * \sigma}
-#' \begin{center}
-#' \mjeqn{\frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|\frac{w_i}{\sum_jw_j}}{ascii}
-#' \end{center}
+#' \mjeqn{\text{WMAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii}
+#' \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii}
+#' \mjeqn{\text{MAD}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|}{ascii}
+#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2}{ascii}
 #' @param n.eval (integer) The length of the equally-spaced input grid to 
 #' evaluate the optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
