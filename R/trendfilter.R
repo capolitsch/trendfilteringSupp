@@ -4,13 +4,14 @@
 #' user-friendly trend filtering. This should be a very long paragraph... 
 #' @param x The vector of the observed inputs. 
 #' @param y The vector of the observed outputs.
-#' @param weights A vector of weights for the observed outputs. These are defined as 
-#' \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of standard 
-#' errors of the uncertainty in the output measurements. \code{weights} should 
-#' either have length equal to 1 (corresponding to observations with a constant 
-#' (scalar) variance of \code{sigma = 1/sqrt(weights)}) or length equal to 
-#' \code{length(y)} (i.e. heteroskedastic outputs). \strong{If reasonable 
-#' estimates of the error variance are not available, leave this \code{NULL}}.
+#' @param weights \strong{If reasonable estimates of the error variance are not 
+#' available, leave this \code{NULL}}.A vector of weights for the observed 
+#' outputs. These are defined as \code{weights = 1 / sigma^2}, where 
+#' \code{sigma} is a vector of standard errors of the uncertainty in the output 
+#' measurements. \code{weights} should either have length equal to 1 
+#' (corresponding to observations with a constant (scalar) variance of 
+#' \code{sigma = 1/sqrt(weights)}) or length equal to \code{length(y)} (i.e. 
+#' heteroskedastic outputs). 
 #' @param control.list 
 #' \itemize{
 #' \item{\code{modeling.control()}:\cr \code{k, lambda, nlambda, V, validation.error.type}}

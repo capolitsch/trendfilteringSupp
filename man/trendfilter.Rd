@@ -11,13 +11,14 @@ trendfilter(x, y, weights = NULL, control.list)
 
 \item{y}{The vector of the observed outputs.}
 
-\item{weights}{A vector of weights for the observed outputs. These are defined as 
-\code{weights = 1 / sigma^2}, where \code{sigma} is a vector of standard 
-errors of the uncertainty in the output measurements. \code{weights} should 
-either have length equal to 1 (corresponding to observations with a constant 
-(scalar) variance of \code{sigma = 1/sqrt(weights)}) or length equal to 
-\code{length(y)} (i.e. heteroskedastic outputs). \strong{If reasonable 
-estimates of the error variance are not available, leave this \code{NULL}}.}
+\item{weights}{\strong{If reasonable estimates of the error variance are not 
+available, leave this \code{NULL}}.A vector of weights for the observed 
+outputs. These are defined as \code{weights = 1 / sigma^2}, where 
+\code{sigma} is a vector of standard errors of the uncertainty in the output 
+measurements. \code{weights} should either have length equal to 1 
+(corresponding to observations with a constant (scalar) variance of 
+\code{sigma = 1/sqrt(weights)}) or length equal to \code{length(y)} (i.e. 
+heteroskedastic outputs).}
 
 \item{control.list}{\itemize{
 \item{\code{modeling.control()}:\cr \code{k, lambda, nlambda, V, validation.error.type}}
