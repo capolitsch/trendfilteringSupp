@@ -188,6 +188,8 @@
 
 #' @importFrom parallel mclapply
 #' @importFrom matrixStats rowSds
+#' @importFrom tidyr drop_na
+#' @importFrom magrittr %$%
 cv.trendfilter <- function(x, 
                            y, 
                            weights = NULL, 

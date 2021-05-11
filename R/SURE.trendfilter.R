@@ -170,6 +170,7 @@
 #' legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
 #'        legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
 
+#' @importFrom tidyr drop_na
 SURE.trendfilter <- function(x, 
                              y, 
                              weights, 
