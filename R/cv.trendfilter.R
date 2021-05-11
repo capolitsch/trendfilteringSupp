@@ -347,16 +347,16 @@ trendfilter.validate <- function(validation.index,
   data.train <- data.folded[-validation.index] %>% bind_rows
   data.validate <- data.folded[[validation.index]]
   
-  out <- trendfilter(x = data.train$x,
-                     y = data.train$y,
-                     weights = data.train$weights,
-                     k = obj$k,
-                     lambda = obj$lambda, 
-                     thinning = obj$thinning,
-                     control = trendfilter.control.list(max_iter = obj$max_iter,
-                                                        obj_tol = obj$obj_tol
-                                                        )
-                     )
+  out <- glmgen::trendfilter(x = data.train$x,
+                             y = data.train$y,
+                             weights = data.train$weights,
+                             k = obj$k,
+                             lambda = obj$lambda,
+                             thinning = obj$thinning,
+                             control = trendfilter.control.list(max_iter = obj$max_iter,
+                                                                obj_tol = obj$obj_tol
+                                                                )
+                             )
   
   tf.validate.preds <- glmgen:::predict.trendfilter(out,
                                                     lambda = obj$lambda,
