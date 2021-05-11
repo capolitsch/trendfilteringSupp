@@ -13,8 +13,9 @@
 #' @param B The number of bootstrap samples used to estimate the pointwise
 #' variability bands. Defaults to \code{B = 250}.
 #' @param full.ensemble If \code{TRUE}, the full trend filtering 
-#' bootstrap ensemble is returned as an \eqn{n x B} matrix. Defaults to 
-#' \code{FALSE}.
+#' bootstrap ensemble is returned as an \eqn{n x B} matrix, less any columns
+#' potentially pruned post-hoc (see \code{prune} below). Defaults to 
+#' \code{full.ensemble = FALSE}.
 #' @param prune If \code{TRUE}, then the trend filtering bootstrap 
 #' ensemble is examined for rare instances in which the optimization has stopped 
 #' at zero knots (most likely erroneously), and removes them from the ensemble. 
@@ -178,8 +179,6 @@
 #' plot(x = wavelength, y = flux, type = "l", main = "Quasar Lyman-alpha forest", 
 #'      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 #' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
-#' legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
-#'        legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
 #' polygon(c(wavelength.eval, rev(wavelength.eval)), 
 #'         c(boot.out$bootstrap.lower.perc.intervals, 
 #'         rev(boot.out$bootstrap.upper.perc.intervals)),
