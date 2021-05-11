@@ -79,7 +79,8 @@
 #' this value, the algorithm terminates. Decrease this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.}
-#' @details This should be a very detailed description...
+#' @details This should be a very detailed description... Refer to 
+#' Politsch et al. (2020a) for when each method is most appropriate.
 #' @export bootstrap.trendfilter
 #' @details The bootstrap method should generally be chosen according to the 
 #' following criteria: \itemize{
@@ -130,18 +131,24 @@
 #' #############################################################################
 #' 
 #' # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-#' # z = 2.953. SDSS spectra are equally spaced in log10 wavelength space.
+#' # z ~ 2.953. SDSS spectra are equally spaced in log10 wavelength space, 
+#' # minus some instances of masked pixels.
 #' 
 #' data(quasar_spec)
 #' data(plotting_utilities)
 #' 
 #' 
-#' # Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
-#' # k = 2 (default)
+#' # We are interested in denoising the observed brightness of the quasar 
+#' # (measured as a 'flux' quantity) over the observed wavelength range. Since 
+#' # the logarithmic wavelengths are gridded, we optimize the trend filtering 
+#' # hyperparameter by minimizing the SURE estimate of fixed-input squared 
+#' # prediction error. For smoothness, we use quadratic trend filtering, i.e. 
+#' # the default \code{k=2}. 
 #' 
 #' SURE.obj <- SURE.trendfilter(x = log10.wavelength, 
 #'                              y = flux, 
-#'                              weights = weights)
+#'                              weights = weights,
+#'                              prune = FALSE)
 #' 
 #' 
 #' # Extract the SURE error curve and optimized trend filtering estimate from 
@@ -182,7 +189,7 @@
 #' polygon(c(wavelength.eval, rev(wavelength.eval)), 
 #'         c(boot.out$bootstrap.lower.perc.intervals, 
 #'         rev(boot.out$bootstrap.upper.perc.intervals)),
-#'         col = transparency("orange", 90), border=NA)
+#'         col = transparency("orange", 90), border = NA)
 #' lines(wavelength.eval, boot.out$bootstrap.lower.perc.intervals, 
 #'       col = "orange", lwd = 0.5)
 #' lines(wavelength.eval, boot.out$bootstrap.upper.perc.intervals, 
@@ -194,6 +201,7 @@
 #'                   "95 percent variability band"))
 
 #' @importFrom dplyr case_when
+#' @importFrom tidyr tibble
 #' @importFrom magrittr %>%
 #' @importFrom parallel mclapply detectCores
 #' @importFrom stats quantile
@@ -216,16 +224,16 @@ bootstrap.trendfilter <- function(obj,
   obj$prune <- prune
 
   if ( is.null(obj$weights) ){
-    data <- data.frame(x = obj$x, y = obj$y, weights = 1,
-                       fitted.values = obj$fitted.values, 
-                       residuals = obj$residuals
-                       )
+    data <- tibble(x = obj$x, y = obj$y, weights = 1,
+                   fitted.values = obj$fitted.values,
+                   residuals = obj$residuals
+                   )
     obj$weights <- rep(1, length(obj$x))
   }else{
-    data <- data.frame(x = obj$x, y = obj$y, weights = obj$weights,
-                       fitted.values = obj$fitted.values, 
-                       residuals = obj$residuals
-                       )
+    data <- tibble(x = obj$x, y = obj$y, weights = obj$weights,
+                   fitted.values = obj$fitted.values,
+                   residuals = obj$residuals
+                   )
   }
 
   sampler <- case_when(
@@ -283,12 +291,14 @@ bootstrap.trendfilter <- function(obj,
 }
 
 
-#' @importFrom glmgen trendfilter.control.list
 tf.estimator <- function(data, 
                          obj,
                          mode = "lambda"
                          )
   {
+  
+  optimization.controls <- glmgen::trendfilter.control.list(max_iter = obj$max_iter,
+                                                            obj_tol = obj$obj_tol)
 
   if ( mode == "df" ){
     tf.fit <- glmgen::trendfilter(x = data$x,
@@ -297,16 +307,14 @@ tf.estimator <- function(data,
                                   k = obj$k,
                                   lambda = obj$lambda,
                                   thinning = obj$thinning,
-                                  control = trendfilter.control.list(max_iter = obj$max_iter,
-                                                                     obj_tol = obj$obj_tol
-                                                                     )
+                                  control = optimization.controls
                                   )
     
     i.min <- which.min( abs(tf.fit$df - obj$df.min) )
     lambda.min <- obj$lambda[i.min]
     
     if ( obj$prune & obj$df[i.min] <= 2 ){
-      return(NULL)
+      return(integer(0))
     }
     
   }else{
@@ -316,9 +324,7 @@ tf.estimator <- function(data,
                                   k = obj$k,
                                   lambda = obj$lambda.min,
                                   thinning = obj$thinning,
-                                  control = trendfilter.control.list(max_iter = obj$max_iter,
-                                                                     obj_tol = obj$obj_tol
-                                                                     )
+                                  control = optimization.controls
                                   )
     
     lambda.min <- obj$lambda.min
@@ -340,12 +346,14 @@ nonparametric.resampler <- function(data){
 
 
 #' @importFrom stats rnorm
+#' @importFrom tidyr tibble
 parametric.sampler <- function(data){
   boot.sample <- data$fitted.values + rnorm(nrow(data), sd = 1 / sqrt(data$weights))
-  return(data.frame(x = data$x, y = boot.sample, weights = data$weights))
+  return(tibble(x = data$x, y = boot.sample, weights = data$weights))
 }
 
 
+#' @importFrom tidyr tibble
 wild.sampler <- function(data){
   wild.boot.residuals <- data$residuals * sample(x = c((1+sqrt(5))/2, 1-sqrt(5)/2), 
                                                  size = nrow(data), 
@@ -353,5 +361,5 @@ wild.sampler <- function(data){
                                                  prob = c((1+sqrt(5))/(2*sqrt(5)), (sqrt(5)-1)/(2*sqrt(5)))
                                                  )
   wild.boot.sample <- data$fitted.values + wild.boot.residuals
-  return(data.frame(x = data$x, y = wild.boot.sample, weights = data$weights))
+  return(tibble(x = data$x, y = wild.boot.sample, weights = data$weights))
 }

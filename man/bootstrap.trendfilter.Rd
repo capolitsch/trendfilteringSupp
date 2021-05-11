@@ -106,7 +106,8 @@ certainty to accompany an optimized trend filtering point estimate of a
 signal.
 }
 \details{
-This should be a very detailed description...
+This should be a very detailed description... Refer to 
+Politsch et al. (2020a) for when each method is most appropriate.
 
 The bootstrap method should generally be chosen according to the 
 following criteria: \itemize{
@@ -125,18 +126,24 @@ Politsch et al. (2020a)} for more details.
 #############################################################################
 
 # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-# z = 2.953. SDSS spectra are equally spaced in log10 wavelength space.
+# z ~ 2.953. SDSS spectra are equally spaced in log10 wavelength space, 
+# minus some instances of masked pixels.
 
 data(quasar_spec)
 data(plotting_utilities)
 
 
-# Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
-# k = 2 (default)
+# We are interested in denoising the observed brightness of the quasar 
+# (measured as a 'flux' quantity) over the observed wavelength range. Since 
+# the logarithmic wavelengths are gridded, we optimize the trend filtering 
+# hyperparameter by minimizing the SURE estimate of fixed-input squared 
+# prediction error. For smoothness, we use quadratic trend filtering, i.e. 
+# the default \code{k=2}. 
 
 SURE.obj <- SURE.trendfilter(x = log10.wavelength, 
                              y = flux, 
-                             weights = weights)
+                             weights = weights,
+                             prune = FALSE)
 
 
 # Extract the SURE error curve and optimized trend filtering estimate from 
@@ -177,7 +184,7 @@ lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 polygon(c(wavelength.eval, rev(wavelength.eval)), 
         c(boot.out$bootstrap.lower.perc.intervals, 
         rev(boot.out$bootstrap.upper.perc.intervals)),
-        col = transparency("orange", 90), border=NA)
+        col = transparency("orange", 90), border = NA)
 lines(wavelength.eval, boot.out$bootstrap.lower.perc.intervals, 
       col = "orange", lwd = 0.5)
 lines(wavelength.eval, boot.out$bootstrap.upper.perc.intervals, 
