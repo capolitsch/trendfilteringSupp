@@ -147,8 +147,7 @@
 #' 
 #' SURE.obj <- SURE.trendfilter(x = log10.wavelength, 
 #'                              y = flux, 
-#'                              weights = weights,
-#'                              prune = FALSE)
+#'                              weights = weights)
 #' 
 #' 
 #' # Extract the SURE error curve and optimized trend filtering estimate from 
