@@ -19,7 +19,7 @@ either have length equal to 1 (corresponding to observations with a constant
 \code{length(y)} (i.e. heteroskedastic outputs).}
 
 \item{control.list}{\itemize{
-\item{\code{model.control()}:\cr \code{k, lambda, nlambda, V, validation.error.type}}
+\item{\code{modeling.control()}:\cr \code{k, lambda, nlambda, V, validation.error.type}}
 \item{\code{evaluation.conrol()}:\cr \code{n.eval, x.eval}}
 \item{\code{algorithm.control()}:\cr \code{thinning, max_iter, obj_tol}}
 }}

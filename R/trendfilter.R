@@ -12,7 +12,7 @@
 #' \code{length(y)} (i.e. heteroskedastic outputs).
 #' @param control.list 
 #' \itemize{
-#' \item{\code{model.control()}:\cr \code{k, lambda, nlambda, V, validation.error.type}}
+#' \item{\code{modeling.control()}:\cr \code{k, lambda, nlambda, V, validation.error.type}}
 #' \item{\code{evaluation.conrol()}:\cr \code{n.eval, x.eval}}
 #' \item{\code{algorithm.control()}:\cr \code{thinning, max_iter, obj_tol}}
 #' }
@@ -133,4 +133,19 @@ trendfilter <- function(x,
   }
   
   mc.cores <- max(c(parallel::detectCores() - 2), 1)
+}
+
+
+modeling.control <- function(){
+  
+}
+
+
+evaluation.control <- function(){
+  
+}
+
+
+algorithm.control <- function(){
+  
 }
