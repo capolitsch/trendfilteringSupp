@@ -4,7 +4,7 @@
 \alias{relax.trendfilter}
 \title{Relaxed trend filtering (under construction. do not use.)}
 \usage{
-relax.trendfilter(obj, gamma)
+relax.trendfilter(obj, gamma, mc.cores = detectCores())
 }
 \arguments{
 \item{gamma}{mixing hyperparameter}

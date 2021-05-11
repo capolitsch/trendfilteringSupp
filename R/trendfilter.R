@@ -12,6 +12,8 @@
 #' (corresponding to observations with a constant (scalar) variance of 
 #' \code{sigma = 1/sqrt(weights)}) or length equal to \code{length(y)} (i.e. 
 #' heteroskedastic outputs). 
+#' @param mc.cores Multi-core computing (for speedups): The number of cores to
+#' utilize. Defaults to the number of cores detected.
 #' @param control.list 
 #' \itemize{
 #' \item{\code{modeling.control()}:\cr \code{k, lambda, nlambda, V, validation.error.type}}
@@ -115,6 +117,7 @@
 trendfilter <- function(x,
                         y,
                         weights = NULL,
+                        mc.cores = detectCores(),
                         control.list
                         )
 {
@@ -136,7 +139,6 @@ trendfilter <- function(x,
     if ( length(lambda) < 25L ) stop("lambda must be have length >= 25.")
   }
   
-  mc.cores <- max(c(detectCores() - 2), 1)
 }
 
 

@@ -38,8 +38,7 @@ Defaults to \code{TRUE}. Do not change this unless you really know what you
 are doing.}
 
 \item{mc.cores}{Multi-core computing (for speedups): The number of cores to
-utilize. If 4 or more cores are detected, then the default is to utilize
-\code{min(V, detected.cores - 2)}. Else, \code{mc.cores = 1}.}
+utilize. Defaults to the number of cores detected.}
 }
 \value{
 An object of class 'bootstrap.trendfilter'. This is a list with the 
@@ -121,16 +120,11 @@ Politsch et al. (2020a)} for more details.
 }
 \examples{
 #############################################################################
-##                    Quasar Lyman-alpha forest example                    ## 
-#############################################################################
-##  SDSS spectra are equally spaced in log base-10 wavelength space with a ##
-##  separation of 1e-4 log-Angstroms. Given the default trend filtering    ##
-##  optimization parameters, it is safer to scale up the inputs in such a  ##
-##  scenario. For example, here we scale to unit spacing.                  ##
+##                    Quasar Lyman-alpha forest example                    ##
 #############################################################################
 
 # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-# z = 2.953
+# z = 2.953. SDSS spectra are equally spaced in log10 wavelength space.
 
 data(quasar_spec)
 data(plotting_utilities)
@@ -139,19 +133,19 @@ data(plotting_utilities)
 # Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
 # k = 2 (default)
 
-lambda.grid <- exp(seq(-10, 5, length = 150))
-SURE.obj <- SURE.trendfilter(x = log10.wavelength.scaled, 
+SURE.obj <- SURE.trendfilter(x = log10.wavelength, 
                              y = flux, 
-                             weights = weights, 
-                             lambda = lambda.grid)
+                             weights = weights)
 
-                                          
-# Extract the optimized trend filtering estimate on a fine equally-spaced
-# grid from the 'SURE.trendfilter' output
 
-lambda.min <- SURE.obj$lambda.min
-SURE.error <- SURE.obj$error
-x.eval <- SURE.obj$x.eval                      
+# Extract the SURE error curve and optimized trend filtering estimate from 
+# the output
+
+log.lambda <- log(SURE.obj$lambda)
+error <- SURE.obj$error
+log.lambda.min <- log(SURE.obj$lambda.min)
+
+log10.wavelength.eval <- SURE.obj$x.eval
 tf.estimate <- SURE.obj$tf.estimate
 
 
@@ -161,26 +155,26 @@ tf.estimate <- SURE.obj$tf.estimate
 boot.out <- bootstrap.trendfilter(obj = SURE.obj, bootstrap.method = "parametric")
 
 
-# Transform back to wavelength space
+# Transform the inputs to wavelength space (in Angstroms)
 
-wavelength <- 10 ^ (log10.wavelength.scaled / scale.factor)
-wavelength.eval <- 10 ^ (x.eval / scale.factor)
+wavelength <- 10 ^ (log10.wavelength)
+wavelength.eval <- 10 ^ (log10.wavelength.eval)
 
 
 # Plot the results
 
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-plot(log(lambda.grid), SURE.error,
-     main = "SURE error curve", 
+plot(x = log.lambda, y = error, main = "SURE error curve", 
      xlab = "log(lambda)", ylab = "SURE error")
-abline(v = log(lambda.min), col = "blue3", lty = 2)
-text(x = log(lambda.min), y = par("usr")[4], 
+abline(v = log.lambda.min, lty = 2, col = "blue3")
+text(x = log.lambda.min, y = par("usr")[4], 
      labels = "optimal hyperparameter", pos = 1, col = "blue3")
 
-plot(wavelength, flux, type = "l", 
-     main = "Quasar Lyman-alpha forest", 
-     xlab = "Observed wavelength (angstroms)", ylab = "flux")
+plot(x = wavelength, y = flux, type = "l", main = "Quasar Lyman-alpha forest", 
+     xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
+legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
+       legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
 polygon(c(wavelength.eval, rev(wavelength.eval)), 
         c(boot.out$bootstrap.lower.perc.intervals, 
         rev(boot.out$bootstrap.upper.perc.intervals)),

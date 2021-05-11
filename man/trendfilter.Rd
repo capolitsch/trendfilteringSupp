@@ -4,7 +4,7 @@
 \alias{trendfilter}
 \title{User-friendly trend filtering (under construction. do not use.)}
 \usage{
-trendfilter(x, y, weights = NULL, control.list)
+trendfilter(x, y, weights = NULL, mc.cores = detectCores(), control.list)
 }
 \arguments{
 \item{x}{The vector of the observed inputs.}
@@ -19,6 +19,9 @@ measurements. \code{weights} should either have length equal to 1
 (corresponding to observations with a constant (scalar) variance of 
 \code{sigma = 1/sqrt(weights)}) or length equal to \code{length(y)} (i.e. 
 heteroskedastic outputs).}
+
+\item{mc.cores}{Multi-core computing (for speedups): The number of cores to
+utilize. Defaults to the number of cores detected.}
 
 \item{control.list}{\itemize{
 \item{\code{modeling.control()}:\cr \code{k, lambda, nlambda, V, validation.error.type}}

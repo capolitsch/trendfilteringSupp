@@ -27,9 +27,10 @@
 
 
 #' @importFrom parallel mclapply detectCores
-relax.trendfilter <- function(obj, gamma
+relax.trendfilter <- function(obj, 
+                              gamma, 
+                              mc.cores = detectCores()
                               )
 {
-  mc.cores <- max(c(detectCores() - 2), 1)
   
 }

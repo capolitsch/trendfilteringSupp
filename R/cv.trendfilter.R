@@ -54,8 +54,7 @@
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.
 #' @param mc.cores Multi-core computing (for speedups): The number of cores to
-#' utilize. If 4 or more cores are detected, then the default is to utilize
-#' \code{min(V, detected.cores - 2)}. Else, \code{mc.cores = 1}.
+#' utilize. Defaults to \code{min(detected.cores, V)}.
 #' @return An object of class 'cv.trendfilter'. This is a list with the 
 #' following elements:
 #' \item{x.eval}{The grid of inputs the optimized trend filtering estimate was 
@@ -205,7 +204,7 @@ cv.trendfilter <- function(x,
                            thinning = NULL,
                            max_iter = 600L, 
                            obj_tol = 1e-10,
-                           mc.cores = max(c(detectCores() - 2), 1)
+                           mc.cores = min(detectCores(), V)
                            )
   {
 
@@ -238,7 +237,6 @@ cv.trendfilter <- function(x,
     filter( weights != 0 )
   
   validation.error.type <- match.arg(validation.error.type)
-  mc.cores <- ifelse(mc.cores > V, V, mc.cores)
   
   if ( is.null(lambda) ){
     lambda <- seq(10, -10, length = nlambda) %>% exp 
