@@ -9,8 +9,8 @@
 #' errors of the uncertainty in the output measurements. \code{weights} should 
 #' either have length equal to 1 (corresponding to observations with a constant 
 #' (scalar) variance of \code{sigma = 1/sqrt(weights)}) or length equal to 
-#' \code{length(y)} (i.e. heteroskedastic outputs). **If reasonable estimates of
-#' the error variance are not available, leave this \code{NULL}**.
+#' \code{length(y)} (i.e. heteroskedastic outputs). \strong{If reasonable 
+#' estimates of the error variance are not available, leave this \code{NULL}}.
 #' @param control.list 
 #' \itemize{
 #' \item{\code{modeling.control()}:\cr \code{k, lambda, nlambda, V, validation.error.type}}
