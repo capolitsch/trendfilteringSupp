@@ -4,8 +4,8 @@
 #' user-friendly trend filtering. This should be a very long paragraph... 
 #' @param x The vector of the observed inputs. 
 #' @param y The vector of the observed outputs.
-#' @param weights \strong{If reasonable estimates of the error variance are not 
-#' available, leave this \code{NULL}}.A vector of weights for the observed 
+#' @param weights \strong{(If reasonable estimates of the error variance are not 
+#' available, leave this \code{NULL})}: A vector of weights for the observed 
 #' outputs. These are defined as \code{weights = 1 / sigma^2}, where 
 #' \code{sigma} is a vector of standard errors of the uncertainty in the output 
 #' measurements. \code{weights} should either have length equal to 1 
@@ -24,7 +24,7 @@
 #' evaluated on.}
 #' \item{tf.estimate}{The optimized trend filtering estimate of the signal, 
 #' evaluated on \code{x.eval}.}
-#' \item{validation.method}{"cv"}
+#' \item{validation.method}{One of c("V-fold CV","SURE")}
 #' \item{V}{The number of folds the data are split into for the V-fold cross
 #' validation.}
 #' \item{validation.error.type}{Type of error that validation was performed on. 
@@ -110,6 +110,8 @@
 #' \href{https://projecteuclid.org/journals/annals-of-statistics/volume-40/issue-2/Degrees-of-freedom-in-lasso-problems/10.1214/12-AOS1003.full}{[Link]}} \cr
 #' }
 
+
+#' @importFrom parallel mclapply detectCores
 trendfilter <- function(x,
                         y,
                         weights = NULL,
@@ -134,7 +136,7 @@ trendfilter <- function(x,
     if ( length(lambda) < 25L ) stop("lambda must be have length >= 25.")
   }
   
-  mc.cores <- max(c(parallel::detectCores() - 2), 1)
+  mc.cores <- max(c(detectCores() - 2), 1)
 }
 
 

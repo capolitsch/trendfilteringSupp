@@ -18,7 +18,7 @@ cv.trendfilter(
   thinning = NULL,
   max_iter = 600L,
   obj_tol = 1e-10,
-  mc.cores = max(c(parallel::detectCores() - 2), 1)
+  mc.cores = max(c(detectCores() - 2), 1)
 )
 }
 \arguments{

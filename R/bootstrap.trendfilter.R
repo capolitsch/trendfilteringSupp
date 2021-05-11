@@ -200,14 +200,18 @@
 #'                   "Trend filtering estimate",
 #'                   "95 percent variability band"))
 
+#' @importFrom dplyr case_when
+#' @importFrom magrittr %>%
+#' @importFrom parallel mclapply detectCores
 #' @importFrom stats quantile
+#' @importFrom glmgen trendfilter.control.list
 bootstrap.trendfilter <- function(obj,
                                   bootstrap.method = c("nonparametric","parametric","wild"),
                                   alpha = 0.05, 
                                   B = 250L, 
                                   full.ensemble = FALSE,
                                   prune = TRUE,
-                                  mc.cores = max(c(parallel::detectCores() - 2), 1)
+                                  mc.cores = max(c(detectCores() - 2), 1)
                                   )
 {
   
@@ -220,12 +224,14 @@ bootstrap.trendfilter <- function(obj,
 
   if ( is.null(obj$weights) ){
     data <- data.frame(x = obj$x, y = obj$y, weights = 1,
-                       fitted.values = obj$fitted.values, residuals = obj$residuals
+                       fitted.values = obj$fitted.values, 
+                       residuals = obj$residuals
                        )
     obj$weights <- rep(1, length(obj$x))
   }else{
     data <- data.frame(x = obj$x, y = obj$y, weights = obj$weights,
-                       fitted.values = obj$fitted.values, residuals = obj$residuals
+                       fitted.values = obj$fitted.values, 
+                       residuals = obj$residuals
                        )
   }
 
@@ -253,14 +259,16 @@ bootstrap.trendfilter <- function(obj,
       )
       return(boot.tf.estimate)
     }
-    tf.boot.ensemble <- matrix(unlist(parallel::mclapply(1:B, par.func, mc.cores = mc.cores)), 
+    tf.boot.ensemble <- matrix(unlist(mclapply(1:B, par.func, mc.cores = mc.cores)),
                                nrow = length(obj$x.eval)
                                )
   }
   
   obj$n.pruned <- B - ncol(tf.boot.ensemble)
-  obj$bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, probs = alpha/2)
-  obj$bootstrap.upper.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, probs = 1-alpha/2)
+  obj$bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, 
+                                              probs = alpha/2)
+  obj$bootstrap.upper.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, 
+                                              probs = 1-alpha/2)
   obj <- c(obj, list(bootstrap.method = bootstrap.method, alpha = alpha, B = B) )
   
   if ( full.ensemble ){
@@ -269,10 +277,12 @@ bootstrap.trendfilter <- function(obj,
     obj <- c(obj, list(tf.bootstrap.ensemble = NULL))
   }
   
-  obj <- obj[c("x.eval","tf.estimate","bootstrap.lower.perc.intervals","bootstrap.upper.perc.intervals",
-               "bootstrap.method","alpha","B","tf.bootstrap.ensemble","prune","n.pruned","x","y",
-               "weights", "fitted.values","residuals","k","lambda","lambda.min","df","df.min","i.min",
-               "validation.method","error","thinning","max_iter","obj_tol")
+  obj <- obj[c("x.eval","tf.estimate","bootstrap.lower.perc.intervals",
+               "bootstrap.upper.perc.intervals","bootstrap.method","alpha","B",
+               "tf.bootstrap.ensemble","prune","n.pruned","x","y","weights", 
+               "fitted.values","residuals","k","lambda","lambda.min","df",
+               "df.min","i.min","validation.method","error","thinning",
+               "max_iter","obj_tol")
              ]
   class(obj) <- "bootstrap.trendfilter"
   
@@ -280,6 +290,7 @@ bootstrap.trendfilter <- function(obj,
 }
 
 
+#' @importFrom glmgen trendfilter.control.list
 tf.estimator <- function(data, 
                          obj,
                          mode = "lambda"
@@ -287,16 +298,16 @@ tf.estimator <- function(data,
   {
 
   if ( mode == "df" ){
-    tf.fit <- glmgen::trendfilter(x = data$x, 
-                          y = data$y, 
-                          weights = data$weights, 
-                          k = obj$k,
-                          lambda = obj$lambda, 
-                          thinning = obj$thinning,
-                          control = trendfilter.control.list(max_iter = obj$max_iter,
-                                                             obj_tol = obj$obj_tol
-                                                             )
-                          )
+    tf.fit <- glmgen::trendfilter(x = data$x,
+                                  y = data$y,
+                                  weights = data$weights,
+                                  k = obj$k,
+                                  lambda = obj$lambda,
+                                  thinning = obj$thinning,
+                                  control = trendfilter.control.list(max_iter = obj$max_iter,
+                                                                     obj_tol = obj$obj_tol
+                                                                     )
+                                  )
     
     i.min <- which.min( abs(tf.fit$df - obj$df.min) )
     lambda.min <- obj$lambda[i.min]
@@ -306,16 +317,16 @@ tf.estimator <- function(data,
     }
     
   }else{
-    tf.fit <- glmgen::trendfilter(x = data$x, 
-                          y = data$y, 
-                          weights = data$weights,
-                          k = obj$k,
-                          lambda = obj$lambda.min, 
-                          thinning = obj$thinning,
-                          control = trendfilter.control.list(max_iter = obj$max_iter,
-                                                             obj_tol = obj$obj_tol
-                                                             )
-                          )
+    tf.fit <- glmgen::trendfilter(x = data$x,
+                                  y = data$y,
+                                  weights = data$weights,
+                                  k = obj$k,
+                                  lambda = obj$lambda.min,
+                                  thinning = obj$thinning,
+                                  control = trendfilter.control.list(max_iter = obj$max_iter,
+                                                                     obj_tol = obj$obj_tol
+                                                                     )
+                                  )
     
     lambda.min <- obj$lambda.min
   }
@@ -328,7 +339,7 @@ tf.estimator <- function(data,
   return(tf.estimate)
 }
 
-
+#' @importFrom dplyr slice_sample
 nonparametric.resampler <- function(data){
   resampled.data <- slice_sample(data, n = nrow(data), replace = TRUE)
   return(resampled.data)

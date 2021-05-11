@@ -25,9 +25,11 @@
 #' \href{https://www.sciencedirect.com/science/article/abs/pii/S0167947306004956}{[Link]}} \cr
 #' }
 
+
+#' @importFrom parallel mclapply detectCores
 relax.trendfilter <- function(obj, gamma
                               )
 {
-  mc.cores <- max(c(parallel::detectCores() - 2), 1)
+  mc.cores <- max(c(detectCores() - 2), 1)
   
 }

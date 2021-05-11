@@ -186,10 +186,12 @@
 #' legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
 #'        legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
 
-#' @importFrom parallel mclapply
-#' @importFrom matrixStats rowSds
+
+#' @importFrom dplyr arrange case_when group_split bind_rows
+#' @importFrom magrittr %$% %>%
 #' @importFrom tidyr drop_na
-#' @importFrom magrittr %$%
+#' @importFrom parallel mclapply detectCores
+#' @importFrom matrixStats rowSds
 cv.trendfilter <- function(x, 
                            y, 
                            weights = NULL, 
@@ -203,7 +205,7 @@ cv.trendfilter <- function(x,
                            thinning = NULL,
                            max_iter = 600L, 
                            obj_tol = 1e-10,
-                           mc.cores = max(c(parallel::detectCores() - 2), 1)
+                           mc.cores = max(c(detectCores() - 2), 1)
                            )
   {
 
@@ -298,16 +300,16 @@ cv.trendfilter <- function(x,
   obj$lambda.1se <- obj$lambda[obj$i.1se]
 
   out <- obj %$%
-    glmgen::trendfilter(x = x, 
-                y = y,
-                weights = weights,
-                lambda = lambda,
-                k = k, 
-                thinning = thinning,
-                control = trendfilter.control.list(max_iter = max_iter,
-                                                   obj_tol = obj_tol
-                                                   )
-                )
+    glmgen::trendfilter(x = x,
+                        y = y,
+                        weights = weights,
+                        lambda = lambda,
+                        k = k,
+                        thinning = thinning,
+                        control = trendfilter.control.list(max_iter = max_iter,
+                                                           obj_tol = obj_tol
+                                                           )
+                        )
   
   obj$df <- out$df
   obj$df.min <- out$df[obj$i.min]
@@ -331,10 +333,10 @@ cv.trendfilter <- function(x,
   obj$fitted.values <- obj$fitted.values * y.scale
   obj$residuals <- (obj$y - obj$fitted.values) * y.scale
 
-  obj <- obj[c("x.eval","tf.estimate","validation.method","V","validation.error.type","lambda",
-               "error","se.error","lambda.min","lambda.1se","df","df.min","df.1se",
-               "i.min","i.1se","x","y","weights","fitted.values","residuals","k",
-               "thinning","max_iter","obj_tol")]
+  obj <- obj[c("x.eval","tf.estimate","validation.method","V","validation.error.type",
+               "lambda","error","se.error","lambda.min","lambda.1se","df","df.min",
+               "df.1se","i.min","i.1se","x","y","weights","fitted.values","residuals",
+               "k","thinning","max_iter","obj_tol")]
   
   return(obj)
 }

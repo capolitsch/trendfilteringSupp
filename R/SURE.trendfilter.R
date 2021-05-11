@@ -170,7 +170,9 @@
 #' legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
 #'        legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
 
-#' @importFrom tidyr drop_na
+#' @importFrom tidyr drop_na tibble
+#' @importFrom magrittr %>%
+#' @importFrom dplyr arrange filter
 SURE.trendfilter <- function(x, 
                              y, 
                              weights, 
@@ -222,16 +224,16 @@ SURE.trendfilter <- function(x,
     lambda <- sort(lambda, decreasing = TRUE)
   }
 
-  out <- glmgen::trendfilter(x = x, 
-                     y = y,
-                     weights = weights, 
-                     lambda = lambda,
-                     k = k, 
-                     thinning = thinning,
-                     control = trendfilter.control.list(max_iter = max_iter,
-                                                        obj_tol = obj_tol
-                     )
-  )
+  out <- glmgen::trendfilter(x = x,
+                             y = y,
+                             weights = weights,
+                             lambda = lambda,
+                             k = k,
+                             thinning = thinning,
+                             control = trendfilter.control.list(max_iter = max_iter,
+                                                                obj_tol = obj_tol
+                                                                )
+                             )
   
   error <- y.scale ^ 2 * ( colMeans( (out$beta - y) ^ 2 ) + 2 * out$df / n.obs * mean(1 / weights) ) %>%
     as.numeric
