@@ -71,7 +71,7 @@
 #' fitting.}
 #' \item{max_iter}{Maximum iterations allowed for the trend filtering 
 #' convex optimization 
-#' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
+#' (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and Tibshirani 2015}). 
 #' Increase this if the trend filtering estimate does not appear to 
 #' have fully converged to a reasonable estimate of the signal.}
 #' \item{obj_tol}{The tolerance used in the convex optimization stopping 
@@ -79,6 +79,7 @@
 #' this value, the algorithm terminates. Decrease this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.}
+#' @details This should be a very detailed description...
 #' @export bootstrap.trendfilter
 #' @details The bootstrap method should generally be chosen according to the 
 #' following criteria: \itemize{
@@ -89,28 +90,39 @@
 #' \item The inputs are regularly sampled and the noise distribution is 
 #' unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.method = "wild"}.}
 #' See \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
-#' Politsch et al. (2020)} for more details.
+#' Politsch et al. (2020a)} for more details.
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
-#' @seealso \code{\link{SURE.trendfilter}}, \code{\link{cv.trendfilter}}
+#' @seealso \code{\link{trendfilter}}, \code{\link{SURE.trendfilter}}, 
+#' \code{\link{cv.trendfilter}}, \code{\link{relax.trendfilter}}
 #' @references \enumerate{
-#' \item \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
-#' Politsch et al. (2020). Trend filtering – I. A modern statistical tool for 
-#' time-domain astronomy and astronomical spectroscopy} \cr
+#' \item{Politsch et al. (2020a). Trend filtering – I. A modern 
+#' statistical tool for time-domain astronomy and astronomical spectroscopy. 
+#' \emph{Monthly Notices of the Royal Astronomical Society}, 492(3), 
+#' p. 4005-4018.
+#' \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{[Link]}} \cr
 #' 
-#' \item \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
-#' Politsch et al. (2020). Trend filtering – II. Denoising astronomical signals 
-#' with varying degrees of smoothness} \cr
+#' \item{Politsch et al. (2020b). Trend Filtering – II. Denoising 
+#' astronomical signals with varying degrees of smoothness. \emph{Monthly 
+#' Notices of the Royal Astronomical Society}, 492(3), p. 4019-4032.
+#' \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{[Link]}} \cr
 #' 
-#' \item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full}{
-#' Efron (1979). Bootstrap Methods: Another Look at the Jackknife} \cr
+#' \item{Hastie, Tibshirani, and Friedman (2009). The Elements of Statistical 
+#' Learning: Data Mining, Inference, and Prediction. 2nd edition. Springer 
+#' Series in Statistics. \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
+#' [Online print #12]}}
 #' 
-#' \item \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
-#' Efron and Tibshirani (1986). Bootstrap Methods for Standard Errors, 
-#' Confidence Intervals, and Other Measures of Statistical Accuracy} \cr
+#' \item{Efron and Tibshirani (1986). Bootstrap Methods for Standard Errors, 
+#' Confidence Intervals, and Other Measures of Statistical Accuracy. Statistical
+#' Science, 1(1), p. 54-75.
+#' \href{https://projecteuclid.org/journals/statistical-science/volume-1/issue-1/Bootstrap-Methods-for-Standard-Errors-Confidence-Intervals-and-Other-Measures/10.1214/ss/1177013815.full}{[Link]}} \cr
 #' 
-#' \item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-14/issue-4/Jackknife-Bootstrap-and-Other-Resampling-Methods-in-Regression-Analysis/10.1214/aos/1176350142.full}{
-#' Wu (1986). Jackknife, Bootstrap and Other Resampling Methods in Regression 
-#' Analysis} \cr
+#' \item{Wu (1986). Jackknife, Bootstrap and Other Resampling Methods in 
+#' Regression Analysis. \emph{The Annals of Statistics}, 14(4), 1261-1295.
+#' \href{https://projecteuclid.org/journals/annals-of-statistics/volume-14/issue-4/Jackknife-Bootstrap-and-Other-Resampling-Methods-in-Regression-Analysis/10.1214/aos/1176350142.full}{[Link]}} \cr
+#' 
+#' \item{Efron (1979). Bootstrap Methods: Another Look at the Jackknife.
+#' \emph{The Annals of Statistics}, 7(1), p. 1-26.
+#' \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full}{[Link]}} \cr
 #' }
 #' @examples 
 #' #############################################################################
@@ -275,7 +287,7 @@ tf.estimator <- function(data,
   {
 
   if ( mode == "df" ){
-    tf.fit <- trendfilter(x = data$x, 
+    tf.fit <- glmgen::trendfilter(x = data$x, 
                           y = data$y, 
                           weights = data$weights, 
                           k = obj$k,
@@ -294,7 +306,7 @@ tf.estimator <- function(data,
     }
     
   }else{
-    tf.fit <- trendfilter(x = data$x, 
+    tf.fit <- glmgen::trendfilter(x = data$x, 
                           y = data$y, 
                           weights = data$weights,
                           k = obj$k,

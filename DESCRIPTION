@@ -1,8 +1,9 @@
 Package: trendfilteringSupp
 Title: Optimal one-dimensional data analysis with trend filtering
 Version: 2.0.0
-Author: 
-    person(given = "Collin",
+Date: 2021-05-10
+Authors@R: 
+    person(given = "Collin A.",
            family = "Politsch",
            role = c("aut", "cre"),
            email = "collinpolitsch@gmail.com")
@@ -24,4 +25,4 @@ Depends: R (>= 3.5.0), glmgen (>= 0.0.3), dplyr (>= 1.0.5), tidyr (>= 1.1.3),
 Imports: matrixStats (>= 0.58.0)
 Remotes: statsmaths/glmgen/R_pkg/glmgen@master
 RdMacros: mathjaxr
-Maintainer: Collin A. Politsch <capolitsch@cmu.edu>
+Maintainer: Collin A. Politsch <collinpolitsch@gmail.com>

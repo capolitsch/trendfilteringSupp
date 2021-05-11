@@ -55,14 +55,7 @@ validation. Defaults to \code{V=10} (recommended).
 \item{validation.error.type}{Type of error to optimize during cross
 validation. One of \code{c("WMAE","WMSE","MAE","MSE")}, i.e. mean-absolute 
 deviations error, mean-squared error, and their weighted counterparts. 
-That is, \cr \cr 
-\mjeqn{\text{WMAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
-\mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
-\mjeqn{\text{MAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
-\mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
-where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
-estimate with hyperparameter \eqn{\lambda}, evaluated at 
-\mjeqn{x_i}{ascii}. If \code{weights = NULL}, then the weighted and 
+If \code{weights = NULL}, then the weighted and 
 unweighted counterparts are equivalent. In short, weighting helps combat
 heteroskedasticity and absolute error decreases sensitivity to outliers.
 Defaults to \code{"WMAE"}.}
@@ -81,7 +74,7 @@ struggle to converge).}
 
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
-[\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
+(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and Tibshirani 2015}). 
 Defaults to \code{max_iter = 600L}. Increase this if the trend 
 filtering estimate does not appear to have fully converged to a reasonable 
 estimate of the signal.}
@@ -150,7 +143,7 @@ be applied (i.e., cases in which the numerical fitting algorithm will
 struggle to converge).}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
-[\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
+(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani 2015}). 
 Increase this if the trend filtering estimate does not appear to have fully 
 converged to a reasonable estimate of the signal.}
 \item{obj_tol}{The tolerance used in the convex optimization stopping 
@@ -163,6 +156,16 @@ the signal.}
 \loadmathjax{} \code{cv.trendfilter} performs V-fold cross validation to
 estimate the random-input squared error of a trend filtering estimator over 
 a grid of hyperparameter values and returns the optimized estimator.
+}
+\details{
+This should be a very detailed description... \cr \cr
+\mjeqn{\text{WMAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
+\mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
+\mjeqn{\text{MAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
+\mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
+where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
+estimate with hyperparameter \eqn{\lambda}, evaluated at 
+\mjeqn{x_i}{ascii}.
 }
 \examples{
 #############################################################################
@@ -218,20 +221,14 @@ legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"),
 }
 \references{
 \enumerate{
-\item \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
-Politsch et al. (2020). Trend filtering – I. A modern statistical tool for 
-time-domain astronomy and astronomical spectroscopy} \cr
-
-\item \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
-Politsch et al. (2020). Trend filtering – II. Denoising astronomical signals 
-with varying degrees of smoothness} \cr
-
-\item \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
-Hastie et al. (2017). The Elements of Statistical Learning}
-}
+\item Hastie, Tibshirani, and Friedman (2009). The Elements of Statistical 
+Learning: Data Mining, Inference, and Prediction. 2nd edition. Springer 
+Series in Statistics. \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
+[Online print #12]}.}
 }
 \seealso{
-\code{\link{SURE.trendfilter}}, \code{\link{bootstrap.trendfilter}}
+\code{\link{trendfilter}}, \code{\link{SURE.trendfilter}}, 
+\code{\link{relax.trendfilter}}, \code{\link{bootstrap.trendfilter}}
 }
 \author{
 Collin A. Politsch, \email{collinpolitsch@gmail.com}

@@ -30,15 +30,6 @@
 #' let them be equally-spaced in log-space (see Examples), and good to 
 #' provide them in descending order. Do not use this argument unless you know
 #' what you are doing.
-#' @param validation.error.type Type of error to optimize with respect to. 
-#' One of \code{c("WMSE","MSE")}. That is, \cr \cr 
-#' \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
-#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
-#' where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
-#' estimate with hyperparameter \eqn{\lambda}, evaluated at 
-#' \mjeqn{x_i}{ascii}. If \code{weights = NULL}, then the weighted and 
-#' unweighted counterparts are equivalent. In short, weighting helps combat
-#' heteroskedasticity. Defaults to \code{"WMSE"}.
 #' @param n.eval The length of the equally-spaced \code{x} grid to evaluate the 
 #' optimized trend filtering estimate on.
 #' @param x.eval Overrides \code{n.eval} if passed. A user-supplied grid of 
@@ -50,7 +41,7 @@
 #' algorithm will struggle to converge).
 #' @param max_iter Maximum iterations allowed for the trend filtering 
 #' convex optimization 
-#' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
+#' (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and Tibshirani 2015}). 
 #' Defaults to \code{max_iter = 600L}. Increase this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.
@@ -90,7 +81,7 @@
 #' smaller, better conditioned data set is used for fitting.}
 #' \item{max_iter}{Maximum iterations allowed for the trend filtering 
 #' convex optimization 
-#' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
+#' (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani 2015}). 
 #' Increase this if the trend filtering estimate does not appear to 
 #' have fully converged to a reasonable estimate of the signal.}
 #' \item{obj_tol}{The tolerance used in the convex optimization stopping 
@@ -98,26 +89,34 @@
 #' this value, the algorithm terminates. Decrease this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.}
+#' @details This should be a very detailed description...
 #' @export SURE.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
-#' @seealso \code{\link{cv.trendfilter}}, \code{\link{bootstrap.trendfilter}}
+#' @seealso \code{\link{trendfilter}}, \code{\link{cv.trendfilter}},
+#' \code{\link{relax.trendfilter}}, \code{\link{bootstrap.trendfilter}}
 #' @references \enumerate{
-#' \item \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
-#' Politsch et al. (2020). Trend filtering – I. A modern statistical tool for 
-#' time-domain astronomy and astronomical spectroscopy} \cr
+#' \item{Politsch et al. (2020a). Trend filtering – I. A modern 
+#' statistical tool for time-domain astronomy and astronomical spectroscopy. 
+#' \emph{Monthly Notices of the Royal Astronomical Society}, 492(3), 
+#' p. 4005-4018.
+#' \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{[Link]}} \cr
 #' 
-#' \item \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
-#' Politsch et al. (2020). Trend filtering – II. Denoising astronomical signals 
-#' with varying degrees of smoothness} \cr
+#' \item{Tibshirani and Taylor (2012). Degrees of freedom in lasso problems.
+#' \emph{The Annals of Statistics}, 40(2), p. 1198-1232.
+#' \href{https://projecteuclid.org/journals/annals-of-statistics/volume-40/issue-2/Degrees-of-freedom-in-lasso-problems/10.1214/12-AOS1003.full}{[Link]}} \cr
 #' 
-#' \item \href{http://www.stat.cmu.edu/~larry/=sml/stein.pdf}{Tibshirani 
-#' and Wasserman (Course notes). Stein’s Unbiased Risk Estimate} \cr
+#' \item{Tibshirani and Wasserman (2015). Stein’s Unbiased Risk Estimate.
+#' 36-702: Statistical Machine Learning course notes (Carnegie Mellon).
+#' \href{http://www.stat.cmu.edu/~larry/=sml/stein.pdf}{[Link]}} \cr
 #' 
-#' \item \href{https://www.tandfonline.com/doi/abs/10.1198/016214504000000692}{Efron 
-#' (2004). The Estimation of Prediction Error: Covariance Penalties and Cross-Validation} \cr
+#' \item{Efron (2014). The Estimation of Prediction Error: Covariance Penalties 
+#' and Cross-Validation. \emph{Journal of the American Statistical Association}.
+#' 99(467), p. 619-632.
+#' \href{https://www.tandfonline.com/doi/abs/10.1198/016214504000000692}{[Link]}} \cr
 #' 
-#' \item \href{https://projecteuclid.org/journals/annals-of-statistics/volume-9/issue-6/Estimation-of-the-Mean-of-a-Multivariate-Normal-Distribution/10.1214/aos/1176345632.full}{Stein (1981).
-#' Estimation of the Mean of a Multivariate Normal Distribution}
+#' \item{Stein (1981). Estimation of the Mean of a Multivariate Normal 
+#' Distribution. \emph{The Annals of Statistics}. 9(6), p. 1135-1151.
+#' \href{https://projecteuclid.org/journals/annals-of-statistics/volume-9/issue-6/Estimation-of-the-Mean-of-a-Multivariate-Normal-Distribution/10.1214/aos/1176345632.full}{[Link]}}
 #' }
 #' @examples 
 #' #############################################################################
@@ -191,7 +190,6 @@ SURE.trendfilter <- function(x,
   if ( missing(weights) | !is.numeric(weights) ){
     stop("weights are needed in order to compute SURE. If estimates are not available, use cv.trendfilter.")
   }
-  if ( any(weights == 0L) ) stop("cannot pass zero weights.")
   if ( !(length(weights) %in% c(1,length(y))) ) stop("weights must either be have length 1 or length(y).")
   if ( length(y) < k + 2 ) stop("y must have length >= k+2 for kth order trend filtering.")
   if ( k < 0 || k != round(k) ) stop("k must be a nonnegative integer. k=2 recommended")
@@ -207,7 +205,8 @@ SURE.trendfilter <- function(x,
   
   data <- tibble(x, y, weights) %>% 
     arrange(x) %>% 
-    drop_na
+    drop_na %>%
+    filter( weights != 0 )
 
   n.obs <- nrow(data)
   x.scale <- mean(diff(data$x))
@@ -222,7 +221,7 @@ SURE.trendfilter <- function(x,
     lambda <- sort(lambda, decreasing = TRUE)
   }
 
-  out <- trendfilter(x = x, 
+  out <- glmgen::trendfilter(x = x, 
                      y = y,
                      weights = weights, 
                      lambda = lambda,

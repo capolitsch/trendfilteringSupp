@@ -1,23 +1,39 @@
-#' Supplementary tools for data analysis with trend filtering
+#' Optimal one-dimensional data analysis with trend filtering
 #'
-#' @description This package builds on \code{glmgen} by providing additional 
-#'              useful statistical tools for carrying out data analysis with 
-#'              trend filtering [Tibshirani (2014)]. It contains functionality 
-#'              for easily optimizing a trend filtering estimator by cross 
-#'              validation or minimizing Stein's unbiased risk estimate and 
-#'              various bootstrap algorithms for producing variability bands to 
-#'              quantify the uncertainty in the estimator.
+#' @description This package serves as a software supplement to 
+#' Politsch et al. (2020a) and Politsch et al. (2020b). We build on 
+#' the glmgen package by providing additional useful statistical tools 
+#' for carrying out data analysis with trend filtering 
+#' (Tibshirani 2014). It contains user-friendly functionality for 
+#' optimizing a trend filtering estimator by cross validation or 
+#' minimizing Stein's unbiased risk estimate, as well as various 
+#' bootstrap algorithms for producing variability bands to quantify 
+#' the uncertainty in the estimator.
 #' @name trendfilteringSupp-package
 #' @docType package
 #' @author Collin A. Politsch \cr \cr 
 #' \strong{Maintainer}: Collin A. Politsch <collinpolitsch@@gmail.com>
-#' @import glmgen
-#' @import dplyr
 #' @keywords package
-#' @seealso Refer to:
+#' @references 
 #' \enumerate{
-#' \item{\href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{Trend filtering – I. A modern statistical tool for time-domain astronomy and astronomical spectroscopy}}
-#' \item{\href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{Trend filtering – II. Denoising astronomical signals with varying degrees of smoothness}}
+#' \item{Politsch et al. (2020a). Trend filtering – I. A modern statistical tool
+#' for time-domain astronomy and astronomical spectroscopy. \emph{Monthly 
+#' Notices of the Royal Astronomical Society}, 492(3), p. 4005-4018. 
+#' \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{[Link]}}
+#' \item{Politsch et al. (2020b). Trend Filtering – II. Denoising astronomical 
+#' signals with varying degrees of smoothness. \emph{Monthly Notices of the 
+#' Royal Astronomical Society}, 492(3), p. 4019-4032.
+#' \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{[Link]}}
+#' \item{Tibshirani (2014). Adaptive piecewise polynomial estimation via trend 
+#' filtering. \emph{The Annals of Statistics}. 42(1), p. 285-323.
+#' \href{https://projecteuclid.org/euclid.aos/1395234979}{[Link]}}
+#' \item{Ramdas and Tibshirani (2016). Fast and Flexible ADMM Algorithms 
+#' for Trend Filtering. \emph{Journal of Computational and Graphical 
+#' Statistics}, 25(3), p. 839-858.
+#' \href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}}
+#' \item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
+#' generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
+#' \href{https://github.com/glmgen/glmgen}{[Link]}}
 #' }
 NULL
 

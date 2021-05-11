@@ -29,14 +29,7 @@
 #' @param validation.error.type Type of error to optimize during cross
 #' validation. One of \code{c("WMAE","WMSE","MAE","MSE")}, i.e. mean-absolute 
 #' deviations error, mean-squared error, and their weighted counterparts. 
-#' That is, \cr \cr 
-#' \mjeqn{\text{WMAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
-#' \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
-#' \mjeqn{\text{MAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
-#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
-#' where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
-#' estimate with hyperparameter \eqn{\lambda}, evaluated at 
-#' \mjeqn{x_i}{ascii}. If \code{weights = NULL}, then the weighted and 
+#' If \code{weights = NULL}, then the weighted and 
 #' unweighted counterparts are equivalent. In short, weighting helps combat
 #' heteroskedasticity and absolute error decreases sensitivity to outliers.
 #' Defaults to \code{"WMAE"}.
@@ -51,7 +44,7 @@
 #' struggle to converge).
 #' @param max_iter Maximum iterations allowed for the trend filtering 
 #' convex optimization 
-#' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
+#' (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and Tibshirani 2015}). 
 #' Defaults to \code{max_iter = 600L}. Increase this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.
@@ -116,7 +109,7 @@
 #' struggle to converge).}
 #' \item{max_iter}{Maximum iterations allowed for the trend filtering 
 #' convex optimization 
-#' [\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani (2015)}]. 
+#' (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani 2015}). 
 #' Increase this if the trend filtering estimate does not appear to have fully 
 #' converged to a reasonable estimate of the signal.}
 #' \item{obj_tol}{The tolerance used in the convex optimization stopping 
@@ -124,21 +117,23 @@
 #' this value, the algorithm terminates. Decrease this if the trend filtering 
 #' estimate does not appear to have fully converged to a reasonable estimate of 
 #' the signal.}
+#' @details This should be a very detailed description... \cr \cr
+#' \mjeqn{\text{WMAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
+#' \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
+#' \mjeqn{\text{MAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
+#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
+#' where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
+#' estimate with hyperparameter \eqn{\lambda}, evaluated at 
+#' \mjeqn{x_i}{ascii}. 
 #' @export cv.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
-#' @seealso \code{\link{SURE.trendfilter}}, \code{\link{bootstrap.trendfilter}}
+#' @seealso \code{\link{trendfilter}}, \code{\link{SURE.trendfilter}}, 
+#' \code{\link{relax.trendfilter}}, \code{\link{bootstrap.trendfilter}}
 #' @references \enumerate{
-#' \item \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
-#' Politsch et al. (2020). Trend filtering – I. A modern statistical tool for 
-#' time-domain astronomy and astronomical spectroscopy} \cr
-#' 
-#' \item \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
-#' Politsch et al. (2020). Trend filtering – II. Denoising astronomical signals 
-#' with varying degrees of smoothness} \cr
-#' 
-#' \item \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
-#' Hastie et al. (2017). The Elements of Statistical Learning}
-#' }
+#' \item Hastie, Tibshirani, and Friedman (2009). The Elements of Statistical 
+#' Learning: Data Mining, Inference, and Prediction. 2nd edition. Springer 
+#' Series in Statistics. \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
+#' [Online print #12]}.}
 #' @examples 
 #' #############################################################################
 #' ##                    Quasar Lyman-alpha forest example                    ##
@@ -191,8 +186,6 @@
 #' legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
 #'        legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
 
-#' @import magrittr
-#' @import glmgen
 #' @importFrom parallel mclapply
 #' @importFrom matrixStats rowSds
 cv.trendfilter <- function(x, 
@@ -216,7 +209,6 @@ cv.trendfilter <- function(x,
   if ( missing(y) || is.null(y) ) stop("y must be passed.")
   if ( length(x) != length(y) ) stop("x and y must have the same length.")
   if ( !is.null(weights) ){
-    if ( any(weights == 0L) ) stop("cannot pass zero weights.")
     if ( !(length(weights) %in% c(1,length(y))) ) stop("weights must either be have length 1 or length(y), or be NULL.")
   }
   if ( length(y) < k + 2 ) stop("y must have length >= k+2 for kth order trend filtering.")
@@ -229,6 +221,17 @@ cv.trendfilter <- function(x,
     if ( min(lambda) < 0L ) stop("All specified lambda values must be nonnegative.")
     if ( length(lambda) < 25L ) stop("lambda must be have length >= 25.")
   }
+  if ( length(weights) != length(y) ){
+    weights <- case_when(
+      length(weights) == 1 ~ rep_len(weights, length(y)),
+      length(weights) == 0 ~ rep_len(1, length(y))
+    )
+  }
+  
+  data <- tibble(x, y, weights) %>% 
+    arrange(x) %>% 
+    drop_na %>%
+    filter( weights != 0 )
   
   validation.error.type <- match.arg(validation.error.type)
   mc.cores <- ifelse(mc.cores > V, V, mc.cores)
@@ -238,17 +241,6 @@ cv.trendfilter <- function(x,
   }else{
     lambda <- sort(lambda, decreasing = TRUE)
   }
-
-  if ( length(weights) != length(y) ){
-    weights <- case_when(
-      length(weights) == 1 ~ rep_len(weights, length(y)),
-      length(weights) == 0 ~ rep_len(1, length(y))
-    )
-  }
-
-  data <- tibble(x, y, weights) %>% 
-    arrange(x) %>% 
-    drop_na
   
   x.scale <- mean(diff(data$x))
   y.scale <- mean(abs(data$y)) / 10
@@ -294,7 +286,7 @@ cv.trendfilter <- function(x,
     matrix(ncol = obj$V)
   
   obj <- c(obj, list(error = rowMeans(cv.out),
-                     se.error = matrixStats::rowSds(cv.out) / sqrt(obj$V)
+                     se.error = rowSds(cv.out) / sqrt(obj$V)
                      )
            )
  
@@ -304,7 +296,7 @@ cv.trendfilter <- function(x,
   obj$lambda.1se <- obj$lambda[obj$i.1se]
 
   out <- obj %$%
-    trendfilter(x = x, 
+    glmgen::trendfilter(x = x, 
                 y = y,
                 weights = weights,
                 lambda = lambda,
