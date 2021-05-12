@@ -37,7 +37,7 @@
 #' \item{bootstrap.method}{The string specifying the bootstrap method that was
 #' used.}
 #' \item{alpha}{The 'level' of the variability bands, i.e. \code{alpha}
-#' produces a \eqn{100\cdot(1-\alpha)\%} pointwise variability band.}
+#' produces a \code{100*(1-alpha)}\% pointwise variability band.}
 #' \item{B}{The number of bootstrap samples used to estimate the pointwise
 #' variability bands.}
 #' \item{tf.bootstrap.ensemble}{(Optional) The full trend filtering bootstrap 
