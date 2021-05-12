@@ -1,16 +1,21 @@
 #' Optimize the trend filtering hyperparameter (by V-fold cross validation)
 #'
-#' @description \loadmathjax{} \code{cv.trendfilter} performs V-fold cross validation to
-#' estimate the random-input squared error of a trend filtering estimator over 
-#' a grid of hyperparameter values and returns the optimized estimator.
-#' @param x The vector of the observed inputs. 
-#' @param y The vector of the observed outputs.
-#' @param weights A vector of weights for the observed outputs. These are defined as 
-#' \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of standard 
-#' errors of the uncertainty in the output measurements. \code{weights} should 
-#' either have length equal to 1 (corresponding to observations with a constant 
-#' (scalar) variance of \code{sigma = 1/sqrt(weights)}) or length equal to 
-#' \code{length(y)} (i.e. heteroskedastic outputs).
+#' @description \loadmathjax{} \code{cv.trendfilter} performs V-fold cross 
+#' validation to estimate the random-input squared error of a trend filtering 
+#' estimator over a grid of hyperparameter values and returns the full error 
+#' curve and the optimized trend filtering estimate within a larger list of 
+#' helpful ancillary information.
+#' @param x The vector of observed values of the input variable (a.k.a. the 
+#' predictor, covariate, explanatory variable, regressor, independent variable, 
+#' control variable, etc.)
+#' @param y The vector of observed values of the output variable (a.k.a. the
+#' response, target, outcome, regressand, dependent variable, etc.).
+#' @param weights A vector of weights for the observed outputs. These are 
+#' defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
+#' standard errors of the uncertainty in the output measurements. \code{weights} 
+#' should either have length equal to 1 (corresponding to observations with a 
+#' constant (scalar) variance of \code{sigma = 1/sqrt(weights)}) or length equal 
+#' to \code{length(y)} (i.e. heteroskedastic outputs).
 #' @param k The degree of the trend filtering estimator. Defaults to 
 #' \code{k=2} (quadratic trend filtering). Must be one of \code{k = 0,1,2,3},
 #' although \code{k=3} is discouraged due to algorithmic instability (and is
@@ -19,13 +24,14 @@
 #' to run the grid search over. If \code{lambda = NULL}, a grid of length 
 #' \code{nlambda} is constructed internally.
 #' @param lambda Overrides \code{nlambda} if passed. A user-supplied vector of 
-#' trend filtering hyperparameter values to run the grid search over. Usually, 
-#' let them be equally-spaced in log-space (see Examples), and good to 
-#' provide them in descending order. Do not use this argument unless you know
-#' what you are doing.
+#' trend filtering hyperparameter values to run the grid search over. Usually
+#' good to let them be equally-spaced in log-space. Descending order is 
+#' encouraged to avoid ambiguity, since they will be resorted internally for
+#' algorithmic benefits. Regardless, the sorted vector is returned in the 
+#' function output. Using this argument is discouraged unless you know what you 
+#' are doing.
 #' @param V The number of folds the data are split into for the V-fold cross
-#' validation. Defaults to \code{V=10} (recommended).
-#' \code{V=length(x)} is equivalent to leave-one-out cross validation.
+#' validation. Defaults to \code{V=5} (recommended).
 #' @param validation.error.type Type of error to optimize during cross
 #' validation. One of \code{c("WMAE","WMSE","MAE","MSE")}, i.e. mean-absolute 
 #' deviations error, mean-squared error, and their weighted counterparts. 
@@ -44,10 +50,10 @@
 #' struggle to converge).
 #' @param max_iter Maximum iterations allowed for the trend filtering 
 #' convex optimization 
-#' (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and Tibshirani 2015}). 
-#' Defaults to \code{max_iter = 600L}. Increase this if the trend 
-#' filtering estimate does not appear to have fully converged to a reasonable 
-#' estimate of the signal.
+#' (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and 
+#' Tibshirani 2016}). Defaults to \code{max_iter = 600L}. Increase this if the 
+#' trend filtering estimate does not appear to have fully converged to a 
+#' reasonable estimate of the signal.
 #' @param obj_tol The tolerance used in the convex optimization stopping 
 #' criterion; when the relative change in the objective function is less than 
 #' this value, the algorithm terminates. Decrease this if the trend 
@@ -61,7 +67,7 @@
 #' evaluated on.}
 #' \item{tf.estimate}{The optimized trend filtering estimate of the signal, 
 #' evaluated on \code{x.eval}.}
-#' \item{validation.method}{"cv"}
+#' \item{validation.method}{\code{paste0(V,"-fold CV")}}
 #' \item{V}{The number of folds the data are split into for the V-fold cross
 #' validation.}
 #' \item{validation.error.type}{Type of error that validation was performed on. 
@@ -108,9 +114,9 @@
 #' struggle to converge).}
 #' \item{max_iter}{Maximum iterations allowed for the trend filtering 
 #' convex optimization 
-#' (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani 2015}). 
-#' Increase this if the trend filtering estimate does not appear to have fully 
-#' converged to a reasonable estimate of the signal.}
+#' (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and 
+#' Tibshirani 2016}). Increase this if the trend filtering estimate does not 
+#' appear to have fully converged to a reasonable estimate of the signal.}
 #' \item{obj_tol}{The tolerance used in the convex optimization stopping 
 #' criterion; when the relative change in the objective function is less than 
 #' this value, the algorithm terminates. Decrease this if the trend filtering 
@@ -131,22 +137,33 @@
 #' @references \enumerate{
 #' \item Hastie, Tibshirani, and Friedman (2009). The Elements of Statistical 
 #' Learning: Data Mining, Inference, and Prediction. 2nd edition. Springer 
-#' Series in Statistics. \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
-#' [Online print #12]}.}
+#' Series in Statistics. 
+#' \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
+#' [Online print #12]}. (See Chapter 7.10 for discussion on cross validation.) \cr
+#' \item{Ramdas and Tibshirani (2016). Fast and Flexible ADMM Algorithms 
+#' for Trend Filtering. \emph{Journal of Computational and Graphical 
+#' Statistics}, 25(3), p. 839-858.
+#' \href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
+#' }
 #' @examples 
 #' #############################################################################
 #' ##                    Quasar Lyman-alpha forest example                    ##
 #' #############################################################################
 #' 
 #' # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-#' # z = 2.953. SDSS spectra are equally spaced in log10 wavelength space.
+#' # z ~ 2.953. SDSS spectra are equally spaced in log10 wavelength space, 
+#' # aside from some instances of masked pixels.
 #' 
 #' data(quasar_spec)
 #' data(plotting_utilities)
 #' 
 #' 
-#' # Run the cross validation for a quadratic trend filtering estimator, i.e. 
-#' # k = 2 (default)
+#' # We are interested in denoising the observed brightness of the quasar 
+#' # (measured as a 'flux' quantity) over the observed wavelength range. Since 
+#' # the logarithmic wavelengths are gridded, we optimize the trend filtering 
+#' # hyperparameter by minimizing the SURE estimate of fixed-input squared 
+#' # prediction error. For smoothness, we use quadratic trend filtering, i.e. 
+#' # the default k=2. 
 #' 
 #' cv.obj <- cv.trendfilter(x = log10.wavelength,
 #'                          y = flux,
@@ -197,7 +214,7 @@ cv.trendfilter <- function(x,
                            k = 2L, 
                            nlambda = 250L,
                            lambda = NULL, 
-                           V = 10L,
+                           V = 5L,
                            validation.error.type = c("WMAE","WMSE","MAE","MSE"),
                            n.eval = 1500L,
                            x.eval = NULL,
@@ -239,7 +256,7 @@ cv.trendfilter <- function(x,
   validation.error.type <- match.arg(validation.error.type)
   
   if ( is.null(lambda) ){
-    lambda <- seq(10, -10, length = nlambda) %>% exp 
+    lambda <- seq(10, -16, length = nlambda) %>% exp 
   }else{
     lambda <- sort(lambda, decreasing = TRUE)
   }
@@ -260,7 +277,7 @@ cv.trendfilter <- function(x,
   }
   
   obj <- structure(list(x.eval = x.eval,
-                        validation.method = "cv",
+                        validation.method = paste0(V,"-fold CV"),
                         V = as.integer(V),
                         validation.error.type = validation.error.type,
                         lambda = lambda, 
@@ -296,6 +313,10 @@ cv.trendfilter <- function(x,
   obj$lambda.min <- obj$lambda[obj$i.min]
   obj$i.1se <- obj %$% which(error <= error[i.min] + se.error[i.min]) %>% min
   obj$lambda.1se <- obj$lambda[obj$i.1se]
+  
+  optimization.controls <- glmgen::trendfilter.control.list(max_iter = max_iter,
+                                                            obj_tol = obj_tol
+                                                            )
 
   out <- obj %$%
     glmgen::trendfilter(x = x,
@@ -304,9 +325,7 @@ cv.trendfilter <- function(x,
                         lambda = lambda,
                         k = k,
                         thinning = thinning,
-                        control = trendfilter.control.list(max_iter = max_iter,
-                                                           obj_tol = obj_tol
-                                                           )
+                        control = optimization.controls
                         )
   
   obj$df <- out$df
@@ -349,15 +368,17 @@ trendfilter.validate <- function(validation.index,
   data.train <- data.folded[-validation.index] %>% bind_rows
   data.validate <- data.folded[[validation.index]]
   
+  optimization.controls <- glmgen::trendfilter.control.list(max_iter = obj$max_iter,
+                                                            obj_tol = obj$obj_tol
+                                                            )
+  
   out <- glmgen::trendfilter(x = data.train$x,
                              y = data.train$y,
                              weights = data.train$weights,
                              k = obj$k,
                              lambda = obj$lambda,
                              thinning = obj$thinning,
-                             control = trendfilter.control.list(max_iter = obj$max_iter,
-                                                                obj_tol = obj$obj_tol
-                                                                )
+                             control = optimization.controls
                              )
   
   tf.validate.preds <- glmgen:::predict.trendfilter(out,

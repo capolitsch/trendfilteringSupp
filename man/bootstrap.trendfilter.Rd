@@ -2,7 +2,8 @@
 % Please edit documentation in R/bootstrap.trendfilter.R
 \name{bootstrap.trendfilter}
 \alias{bootstrap.trendfilter}
-\title{Bootstrap the optimized trend filtering estimator to obtain variability bands}
+\title{Bootstrap the optimized trend filtering estimator to obtain variability bands
+for the denoised estimate}
 \usage{
 bootstrap.trendfilter(
   obj,
@@ -28,15 +29,15 @@ bands. Defaults to \code{alpha = 0.05}.}
 variability bands. Defaults to \code{B = 250}.}
 
 \item{full.ensemble}{If \code{TRUE}, the full trend filtering 
-bootstrap ensemble is returned as an \eqn{n x B} matrix, less any columns
+bootstrap ensemble is returned as an \mjeqn{n x B} matrix, less any columns
 potentially pruned post-hoc (see \code{prune} below). Defaults to 
 \code{full.ensemble = FALSE}.}
 
 \item{prune}{If \code{TRUE}, then the trend filtering bootstrap 
-ensemble is examined for rare instances in which the optimization has stopped 
-at zero knots (most likely erroneously), and removes them from the ensemble. 
-Defaults to \code{TRUE}. Do not change this unless you really know what you 
-are doing.}
+ensemble is examined for rare instances in which the optimization has 
+stopped at zero knots (most likely erroneously), and removes them from the 
+ensemble. Defaults to \code{TRUE}. Do not change this unless you really know 
+what you are doing!}
 
 \item{mc.cores}{Multi-core computing (for speedups): The number of cores to
 utilize. Defaults to the number of cores detected.}
@@ -44,22 +45,23 @@ utilize. Defaults to the number of cores detected.}
 \value{
 An object of class 'bootstrap.trendfilter'. This is a list with the 
 following elements:
-\item{x.eval}{The grid of inputs the trend filtering estimate and variability 
-bands were evaluated on.}
+\item{x.eval}{The grid of inputs the trend filtering estimate and 
+variability bands were evaluated on.}
 \item{tf.estimate}{The trend filtering estimate of the signal, evaluated on 
 \code{x.eval}.}
-\item{bootstrap.lower.perc.intervals}{Vector of lower bounds for the 1-alpha 
-pointwise variability band, evaluated on \code{x.eval}.}
-\item{bootstrap.upper.perc.intervals}{Vector of upper bounds for the 1-alpha 
-pointwise variability band, evaluated on \code{x.eval}.}
+\item{bootstrap.lower.perc.intervals}{Vector of lower bounds for the 
+\code{1-alpha} pointwise variability band, evaluated on \code{x.eval}.}
+\item{bootstrap.upper.perc.intervals}{Vector of upper bounds for the 
+\code{1-alpha} pointwise variability band, evaluated on \code{x.eval}.}
 \item{bootstrap.method}{The string specifying the bootstrap method that was
 used.}
 \item{alpha}{The 'level' of the variability bands, i.e. \code{alpha}
-produces a \eqn{100*(1-\alpha)}\% pointwise variability band.}
+produces a \mjeqn{100\cdot(1-\alpha)}\% pointwise variability band.}
 \item{B}{The number of bootstrap samples used to estimate the pointwise
 variability bands.}
 \item{tf.bootstrap.ensemble}{(Optional) The full trend filtering bootstrap 
-ensemble as an \eqn{n x B} matrix. If \code{full.ensemble = FALSE}, then 
+ensemble as an \mjeqn{n x B} matrix, less any columns potentially pruned 
+post-hoc (if \code{prune = TRUE}). If \code{full.ensemble = FALSE}, then 
 this will return \code{NULL}.}
 \item{prune}{If \code{TRUE}, then the trend filtering bootstrap 
 ensemble is examined for rare instances in which the optimization has 
@@ -82,7 +84,7 @@ estimators fit during validation.}
 \item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
 filtering estimator.}
 \item{i.min}{The index of \code{lambda} that minimizes the validation error.}
-\item{validation.method}{Either "SURE" or "cv".}
+\item{validation.method}{Either "SURE" or "V-fold CV".}
 \item{error}{Vector of hyperparameter validation errors, inherited from
 \code{obj} (either class 'SURE.trendfilter' or 'cv.trendfilter')}
 \item{thinning}{If \code{TRUE}, then the data are 
@@ -90,7 +92,8 @@ preprocessed so that a smaller, better conditioned data set is used for
 fitting.}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
-(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and Tibshirani 2015}). 
+(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and
+Tibshirani 2016}). 
 Increase this if the trend filtering estimate does not appear to 
 have fully converged to a reasonable estimate of the signal.}
 \item{obj_tol}{The tolerance used in the convex optimization stopping 
@@ -100,10 +103,10 @@ filtering estimate does not appear to have fully converged to a reasonable
 estimate of the signal.}
 }
 \description{
-\loadmathjax{} \code{bootstrap.trendfilter} implements any of three possible 
-bootstrap algorithms to obtain pointwise variability bands with a specified 
-certainty to accompany an optimized trend filtering point estimate of a 
-signal.
+\loadmathjax{} \code{bootstrap.trendfilter} implements any of 
+three possible bootstrap algorithms to obtain pointwise variability bands 
+with a specified certainty to accompany an optimized trend filtering point 
+estimate of a signal.
 }
 \details{
 This should be a very detailed description... Refer to 
@@ -127,7 +130,7 @@ Politsch et al. (2020a)} for more details.
 
 # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
 # z ~ 2.953. SDSS spectra are equally spaced in log10 wavelength space, 
-# minus some instances of masked pixels.
+# aside from some instances of masked pixels.
 
 data(quasar_spec)
 data(plotting_utilities)
@@ -138,7 +141,7 @@ data(plotting_utilities)
 # the logarithmic wavelengths are gridded, we optimize the trend filtering 
 # hyperparameter by minimizing the SURE estimate of fixed-input squared 
 # prediction error. For smoothness, we use quadratic trend filtering, i.e. 
-# the default \code{k=2}. 
+# the default k=2. 
 
 SURE.obj <- SURE.trendfilter(x = log10.wavelength, 
                              y = flux, 
@@ -201,26 +204,28 @@ statistical tool for time-domain astronomy and astronomical spectroscopy.
 \emph{Monthly Notices of the Royal Astronomical Society}, 492(3), 
 p. 4005-4018.
 \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{[Link]}} \cr
-
 \item{Politsch et al. (2020b). Trend Filtering – II. Denoising 
 astronomical signals with varying degrees of smoothness. \emph{Monthly 
 Notices of the Royal Astronomical Society}, 492(3), p. 4019-4032.
 \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{[Link]}} \cr
-
+\item{Ramdas and Tibshirani (2016). Fast and Flexible ADMM Algorithms 
+for Trend Filtering. \emph{Journal of Computational and Graphical 
+Statistics}, 25(3), p. 839-858.
+\href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
+\item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
+generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
+\href{https://github.com/glmgen/glmgen}{[Link]}} \cr
 \item{Hastie, Tibshirani, and Friedman (2009). The Elements of Statistical 
 Learning: Data Mining, Inference, and Prediction. 2nd edition. Springer 
 Series in Statistics. \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
-[Online print #12]}}
-
+[Online print #12]}} \cr
 \item{Efron and Tibshirani (1986). Bootstrap Methods for Standard Errors, 
 Confidence Intervals, and Other Measures of Statistical Accuracy. Statistical
 Science, 1(1), p. 54-75.
 \href{https://projecteuclid.org/journals/statistical-science/volume-1/issue-1/Bootstrap-Methods-for-Standard-Errors-Confidence-Intervals-and-Other-Measures/10.1214/ss/1177013815.full}{[Link]}} \cr
-
 \item{Wu (1986). Jackknife, Bootstrap and Other Resampling Methods in 
 Regression Analysis. \emph{The Annals of Statistics}, 14(4), 1261-1295.
 \href{https://projecteuclid.org/journals/annals-of-statistics/volume-14/issue-4/Jackknife-Bootstrap-and-Other-Resampling-Methods-in-Regression-Analysis/10.1214/aos/1176350142.full}{[Link]}} \cr
-
 \item{Efron (1979). Bootstrap Methods: Another Look at the Jackknife.
 \emph{The Annals of Statistics}, 7(1), p. 1-26.
 \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full}{[Link]}} \cr

@@ -27,8 +27,8 @@ control variable, etc.)}
 \item{y}{The vector of observed values of the output variable (a.k.a. the
 response, target, outcome, regressand, dependent variable, etc.).}
 
-\item{weights}{(Must be passed in order to optimize with respect to SURE):
-A vector of weights for the observed outputs. These are defined as 
+\item{weights}{(Currently must be passed in order to optimize with respect 
+to SURE): A vector of weights for the observed outputs. These are defined as 
 \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of standard 
 errors of the uncertainty in the output measurements. \code{weights} should 
 either have length equal to 1 (corresponding to observations with a constant 
@@ -46,10 +46,12 @@ to run the grid search over. If \code{lambda = NULL}, a grid of length
 \code{nlambda} is constructed internally.}
 
 \item{lambda}{Overrides \code{nlambda} if passed. A user-supplied vector of 
-trend filtering hyperparameter values to run the grid search over. Usually, 
-let them be equally-spaced in log-space (see Examples), and good to 
-provide them in descending order. Do not use this argument unless you know
-what you are doing.}
+trend filtering hyperparameter values to run the grid search over. Usually
+good to let them be equally-spaced in log-space. Descending order is 
+encouraged to avoid ambiguity, since they will be resorted internally for
+algorithmic benefits. Regardless, the sorted vector is returned in the 
+function output. Using this argument is discouraged unless you know what you 
+are doing.}
 
 \item{n.eval}{The length of the equally-spaced \code{x} grid to evaluate the 
 optimized trend filtering estimate on.}
@@ -65,10 +67,10 @@ algorithm will struggle to converge).}
 
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
-(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and Tibshirani 2015}). 
-Defaults to \code{max_iter = 600L}. Increase this if the trend 
-filtering estimate does not appear to have fully converged to a reasonable 
-estimate of the signal.}
+(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and
+Tibshirani 2016}). Defaults to \code{max_iter = 600L}. Increase 
+this if the trend filtering estimate does not appear to have fully converged 
+to a reasonable estimate of the signal.}
 
 \item{obj_tol}{The tolerance used in the convex optimization stopping 
 criterion; when the relative change in the objective function is less than 
@@ -108,9 +110,9 @@ evaluated at the observed inputs \code{x}.}
 smaller, better conditioned data set is used for fitting.}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
-(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas & Tibshirani 2015}). 
-Increase this if the trend filtering estimate does not appear to 
-have fully converged to a reasonable estimate of the signal.}
+(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and
+Tibshirani 2016}). Increase this if the trend filtering estimate does not 
+appear to have fully converged to a reasonable estimate of the signal.}
 \item{obj_tol}{The tolerance used in the convex optimization stopping 
 criterion; when the relative change in the objective function is less than 
 this value, the algorithm terminates. Decrease this if the trend 
@@ -120,8 +122,9 @@ estimate of the signal.}
 \description{
 \loadmathjax{} \code{SURE.trendfilter} estimates the fixed-input 
 squared error of a trend filtering estimator (via Stein's unbiased risk 
-estimate) over a grid of hyperparameter values and returns the optimized 
-estimator.
+estimate) over a grid of hyperparameter values and and returns the full error 
+curve and the optimized trend filtering estimate within a larger list of 
+helpful ancillary information.
 }
 \details{
 This should be a very detailed description...
@@ -132,14 +135,19 @@ This should be a very detailed description...
 #############################################################################
 
 # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-# z = 2.953. SDSS spectra are equally spaced in log10 wavelength space.
+# z ~ 2.953. SDSS spectra are equally spaced in log10 wavelength space, 
+# aside from some instances of masked pixels.
 
 data(quasar_spec)
 data(plotting_utilities)
 
 
-# Run the SURE optimization for a quadratic trend filtering estimator, i.e. 
-# k = 2 (default)
+# We are interested in denoising the observed brightness of the quasar 
+# (measured as a 'flux' quantity) over the observed wavelength range. Since 
+# the logarithmic wavelengths are gridded, we optimize the trend filtering 
+# hyperparameter by minimizing the SURE estimate of fixed-input squared 
+# prediction error. For smoothness, we use quadratic trend filtering, i.e. 
+# the default k=2. 
 
 SURE.obj <- SURE.trendfilter(x = log10.wavelength, 
                              y = flux, 
@@ -190,8 +198,13 @@ p. 4005-4018.
 \emph{The Annals of Statistics}, 40(2), p. 1198-1232.
 \href{https://projecteuclid.org/journals/annals-of-statistics/volume-40/issue-2/Degrees-of-freedom-in-lasso-problems/10.1214/12-AOS1003.full}{[Link]}} \cr
 
+\item{Ramdas and Tibshirani (2016). Fast and Flexible ADMM Algorithms 
+for Trend Filtering. \emph{Journal of Computational and Graphical 
+Statistics}, 25(3), p. 839-858.
+\href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
+
 \item{Tibshirani and Wasserman (2015). Stein’s Unbiased Risk Estimate.
-36-702: Statistical Machine Learning course notes (Carnegie Mellon).
+\emph{36-702: Statistical Machine Learning course notes} (Carnegie Mellon).
 \href{http://www.stat.cmu.edu/~larry/=sml/stein.pdf}{[Link]}} \cr
 
 \item{Efron (2014). The Estimation of Prediction Error: Covariance Penalties 
