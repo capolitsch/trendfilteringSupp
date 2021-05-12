@@ -14,8 +14,8 @@
 #' @param B The number of bootstrap samples used to estimate the pointwise
 #' variability bands. Defaults to \code{B = 250}.
 #' @param full.ensemble If \code{TRUE}, the full trend filtering 
-#' bootstrap ensemble is returned as an \mjeqn{n x B} matrix, less any columns
-#' potentially pruned post-hoc (see \code{prune} below). Defaults to 
+#' bootstrap ensemble is returned as an \mjeqn{n \times B}{ascii} matrix, less 
+#' any columns potentially pruned post-hoc (see \code{prune} below). Defaults to 
 #' \code{full.ensemble = FALSE}.
 #' @param prune If \code{TRUE}, then the trend filtering bootstrap 
 #' ensemble is examined for rare instances in which the optimization has 
@@ -37,13 +37,13 @@
 #' \item{bootstrap.method}{The string specifying the bootstrap method that was
 #' used.}
 #' \item{alpha}{The 'level' of the variability bands, i.e. \code{alpha}
-#' produces a \mjeqn{100\cdot(1-\alpha)}\% pointwise variability band.}
+#' produces a \mjeqn{100\cdot(1-\alpha)\%}{ascii} pointwise variability band.}
 #' \item{B}{The number of bootstrap samples used to estimate the pointwise
 #' variability bands.}
 #' \item{tf.bootstrap.ensemble}{(Optional) The full trend filtering bootstrap 
-#' ensemble as an \mjeqn{n x B} matrix, less any columns potentially pruned 
-#' post-hoc (if \code{prune = TRUE}). If \code{full.ensemble = FALSE}, then 
-#' this will return \code{NULL}.}
+#' ensemble as an \mjeqn{n \times B}{ascii} matrix, less any columns potentially 
+#' pruned post-hoc (if \code{prune = TRUE}). If \code{full.ensemble = FALSE}, 
+#' then this will return \code{NULL}.}
 #' \item{prune}{If \code{TRUE}, then the trend filtering bootstrap 
 #' ensemble is examined for rare instances in which the optimization has 
 #' stopped at zero knots (most likely erroneously), and removes them from the 
