@@ -148,7 +148,7 @@ SURE.obj <- SURE.trendfilter(x = log10.wavelength,
 
 
 # Extract the SURE error curve and optimized trend filtering estimate from 
-# the output
+# the SURE.trendfilter output
 
 log.lambda <- log(SURE.obj$lambda)
 error <- SURE.obj$error
@@ -158,10 +158,11 @@ log10.wavelength.eval <- SURE.obj$x.eval
 tf.estimate <- SURE.obj$tf.estimate
 
 
-# Run a parametric bootstrap the optimized trend filtering estimator to 
+# Run a parametric bootstrap on the optimized trend filtering estimator to 
 # obtain uncertainty bands
 
-boot.out <- bootstrap.trendfilter(obj = SURE.obj, bootstrap.method = "parametric")
+boot.out <- bootstrap.trendfilter(obj = SURE.obj, 
+                                  bootstrap.method = "parametric")
 
 
 # Transform the inputs to wavelength space (in Angstroms)
@@ -179,7 +180,8 @@ abline(v = log.lambda.min, lty = 2, col = "blue3")
 text(x = log.lambda.min, y = par("usr")[4], 
      labels = "optimal hyperparameter", pos = 1, col = "blue3")
 
-plot(x = wavelength, y = flux, type = "l", main = "Quasar Lyman-alpha forest", 
+plot(x = wavelength, y = flux, type = "l", 
+     main = "Quasar Lyman-alpha forest", 
      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 polygon(c(wavelength.eval, rev(wavelength.eval)), 
@@ -222,9 +224,9 @@ Series in Statistics. \href{https://web.stanford.edu/~hastie/ElemStatLearn/print
 Confidence Intervals, and Other Measures of Statistical Accuracy. Statistical
 Science, 1(1), p. 54-75.
 \href{https://projecteuclid.org/journals/statistical-science/volume-1/issue-1/Bootstrap-Methods-for-Standard-Errors-Confidence-Intervals-and-Other-Measures/10.1214/ss/1177013815.full}{[Link]}} \cr
-\item{Wu (1986). Jackknife, Bootstrap and Other Resampling Methods in 
-Regression Analysis. \emph{The Annals of Statistics}, 14(4), 1261-1295.
-\href{https://projecteuclid.org/journals/annals-of-statistics/volume-14/issue-4/Jackknife-Bootstrap-and-Other-Resampling-Methods-in-Regression-Analysis/10.1214/aos/1176350142.full}{[Link]}} \cr
+\item{Mammen (1993). Bootstrap and Wild Bootstrap for High Dimensional 
+Linear Models. \emph{The Annals of Statistics}, 21(1), p. 255-285.
+\href{https://projecteuclid.org/journals/annals-of-statistics/volume-21/issue-1/Bootstrap-and-Wild-Bootstrap-for-High-Dimensional-Linear-Models/10.1214/aos/1176349025.full}{[Link]}} \cr
 \item{Efron (1979). Bootstrap Methods: Another Look at the Jackknife.
 \emph{The Annals of Statistics}, 7(1), p. 1-26.
 \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full}{[Link]}} \cr

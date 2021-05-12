@@ -122,9 +122,9 @@
 #' Confidence Intervals, and Other Measures of Statistical Accuracy. Statistical
 #' Science, 1(1), p. 54-75.
 #' \href{https://projecteuclid.org/journals/statistical-science/volume-1/issue-1/Bootstrap-Methods-for-Standard-Errors-Confidence-Intervals-and-Other-Measures/10.1214/ss/1177013815.full}{[Link]}} \cr
-#' \item{Wu (1986). Jackknife, Bootstrap and Other Resampling Methods in 
-#' Regression Analysis. \emph{The Annals of Statistics}, 14(4), 1261-1295.
-#' \href{https://projecteuclid.org/journals/annals-of-statistics/volume-14/issue-4/Jackknife-Bootstrap-and-Other-Resampling-Methods-in-Regression-Analysis/10.1214/aos/1176350142.full}{[Link]}} \cr
+#' \item{Mammen (1993). Bootstrap and Wild Bootstrap for High Dimensional 
+#' Linear Models. \emph{The Annals of Statistics}, 21(1), p. 255-285.
+#' \href{https://projecteuclid.org/journals/annals-of-statistics/volume-21/issue-1/Bootstrap-and-Wild-Bootstrap-for-High-Dimensional-Linear-Models/10.1214/aos/1176349025.full}{[Link]}} \cr
 #' \item{Efron (1979). Bootstrap Methods: Another Look at the Jackknife.
 #' \emph{The Annals of Statistics}, 7(1), p. 1-26.
 #' \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full}{[Link]}} \cr
@@ -155,7 +155,7 @@
 #' 
 #' 
 #' # Extract the SURE error curve and optimized trend filtering estimate from 
-#' # the output
+#' # the SURE.trendfilter output
 #' 
 #' log.lambda <- log(SURE.obj$lambda)
 #' error <- SURE.obj$error
@@ -165,10 +165,11 @@
 #' tf.estimate <- SURE.obj$tf.estimate
 #' 
 #' 
-#' # Run a parametric bootstrap the optimized trend filtering estimator to 
+#' # Run a parametric bootstrap on the optimized trend filtering estimator to 
 #' # obtain uncertainty bands
 #' 
-#' boot.out <- bootstrap.trendfilter(obj = SURE.obj, bootstrap.method = "parametric")
+#' boot.out <- bootstrap.trendfilter(obj = SURE.obj, 
+#'                                   bootstrap.method = "parametric")
 #' 
 #' 
 #' # Transform the inputs to wavelength space (in Angstroms)
@@ -186,7 +187,8 @@
 #' text(x = log.lambda.min, y = par("usr")[4], 
 #'      labels = "optimal hyperparameter", pos = 1, col = "blue3")
 #' 
-#' plot(x = wavelength, y = flux, type = "l", main = "Quasar Lyman-alpha forest", 
+#' plot(x = wavelength, y = flux, type = "l", 
+#'      main = "Quasar Lyman-alpha forest", 
 #'      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 #' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 #' polygon(c(wavelength.eval, rev(wavelength.eval)), 
@@ -245,36 +247,28 @@ bootstrap.trendfilter <- function(obj,
     bootstrap.method == "wild" ~ list(wild.sampler)
   )[[1]]
   
-  if ( mc.cores == 1 ){
-    tf.boot.ensemble <- matrix(unlist(replicate(B,
-                                                tf.estimator(data = sampler(data), 
-                                                             obj = obj,
-                                                             mode = "df"
-                                                             )
-                                                )
-                                      ),
-                             nrow = length(obj$x.eval)
-                             )
-  }else{
-    par.func <- function(b){
-      boot.tf.estimate <- tf.estimator(data = sampler(data), 
-                                       obj = obj,
-                                       mode = "df"
-      )
-      return(boot.tf.estimate)
-    }
-    par.out <- mclapply(1:B, par.func, mc.cores = mc.cores)
-    tf.boot.ensemble <- matrix(unlist(mclapply(1:B, par.func, mc.cores = mc.cores)),
-                               nrow = length(obj$x.eval)
-                               )
+  par.func <- function(b){
+    boot.tf.estimate <- tf.estimator(data = sampler(data), 
+                                     obj = obj,
+                                     mode = "df"
+    )
+    return(boot.tf.estimate)
   }
+  par.out <- mclapply(1:B, par.func, mc.cores = mc.cores)
+  tf.boot.ensemble <- lapply(X = 1:B, 
+                             FUN = function(X) par.out[[X]][["tf.estimate"]]) %>%
+    unlist %>% 
+    matrix(nrow = length(obj$x.eval))
   
-  obj$n.pruned <- B - ncol(tf.boot.ensemble)
+  obj$df.boots <- lapply(X = 1:B, FUN = function(X) par.out[[X]][["df"]]) %>%
+    unlist %>%
+    as.integer
+  obj$n.pruned <- (B - ncol(tf.boot.ensemble)) %>% as.integer
   obj$bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, 
                                               probs = alpha / 2)
   obj$bootstrap.upper.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, 
                                               probs = 1 - alpha / 2)
-  obj <- c(obj, list(bootstrap.method = bootstrap.method, alpha = alpha, B = B) )
+  obj <- c(obj, list(bootstrap.method = bootstrap.method, alpha = alpha, B = B))
   
   if ( full.ensemble ){
     obj$tf.bootstrap.ensemble <- tf.boot.ensemble
@@ -284,9 +278,9 @@ bootstrap.trendfilter <- function(obj,
   
   obj <- obj[c("x.eval","tf.estimate","bootstrap.lower.perc.intervals",
                "bootstrap.upper.perc.intervals","bootstrap.method","alpha","B",
-               "tf.bootstrap.ensemble","prune","n.pruned","x","y","weights", 
-               "fitted.values","residuals","k","lambda","lambda.min","df",
-               "df.min","i.min","validation.method","error","thinning",
+               "df.boots","tf.bootstrap.ensemble","prune","n.pruned","x","y",
+               "weights","fitted.values","residuals","k","lambda","lambda.min",
+               "df","df.min","i.min","validation.method","error","thinning",
                "max_iter","obj_tol")
              ]
   class(obj) <- "bootstrap.trendfilter"
@@ -295,6 +289,7 @@ bootstrap.trendfilter <- function(obj,
 }
 
 
+#' @importFrom dplyr %>%
 tf.estimator <- function(data, 
                          obj,
                          mode = "lambda"
@@ -302,7 +297,8 @@ tf.estimator <- function(data,
   {
   
   optimization.controls <- glmgen::trendfilter.control.list(max_iter = obj$max_iter,
-                                                            obj_tol = obj$obj_tol)
+                                                            obj_tol = obj$obj_tol
+                                                            )
 
   if ( mode == "df" ){
     tf.fit <- glmgen::trendfilter(x = data$x,
@@ -339,31 +335,34 @@ tf.estimator <- function(data,
                                               lambda = lambda.min
                                               ) %>% as.numeric
   
-  return(list(tf.estimate = tf.estimate, df = tf.fit$df[tf.fit$i.min]))
+  return(list(tf.estimate = tf.estimate, df = tf.fit$df %>% as.integer))
 }
 
 #' @importFrom dplyr slice_sample
 nonparametric.resampler <- function(data){
-  resampled.data <- slice_sample(data, n = nrow(data), replace = TRUE)
-  return(resampled.data)
+  slice_sample(data, n = nrow(data), replace = TRUE)
 }
 
 
 #' @importFrom stats rnorm
-#' @importFrom tidyr tibble
+#' @importFrom dplyr %>% mutate n
 parametric.sampler <- function(data){
-  boot.sample <- data$fitted.values + rnorm(nrow(data), sd = 1 / sqrt(data$weights))
-  return(tibble(x = data$x, y = boot.sample, weights = data$weights))
+  data %>% mutate(y = fitted.values + rnorm(n = n(), sd = 1 / sqrt(weights)))
 }
 
 
-#' @importFrom tidyr tibble
+#' @importFrom dplyr %>% mutate n
 wild.sampler <- function(data){
-  wild.boot.residuals <- data$residuals * sample(x = c((1+sqrt(5))/2, 1-sqrt(5)/2), 
-                                                 size = nrow(data), 
-                                                 replace = TRUE, 
-                                                 prob = c((1+sqrt(5))/(2*sqrt(5)), (sqrt(5)-1)/(2*sqrt(5)))
-                                                 )
-  wild.boot.sample <- data$fitted.values + wild.boot.residuals
-  return(tibble(x = data$x, y = wild.boot.sample, weights = data$weights))
+  data %>% mutate(y = fitted.values + residuals *
+                    sample(x = c(
+                      (1 + sqrt(5)) / 2, 
+                      (1 - sqrt(5)) / 2
+                      ), 
+                           size = n(), replace = TRUE,
+                           prob = c(
+                             (1 + sqrt(5)) / (2 * sqrt(5)),
+                             (sqrt(5) - 1) / (2 * sqrt(5))
+                                    )
+                           )
+                  )
 }
