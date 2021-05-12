@@ -232,7 +232,7 @@ SURE.trendfilter <- function(x,
   weights <- y.scale ^ 2 * data$weights
   
   if ( is.null(lambda) ){
-    lambda <- seq(10, -16, length = nlambda) %>% exp 
+    lambda <- seq(16, -10, length = nlambda) %>% exp 
   }else{
     lambda <- sort(lambda, decreasing = TRUE)
   }

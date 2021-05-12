@@ -256,7 +256,7 @@ cv.trendfilter <- function(x,
   validation.error.type <- match.arg(validation.error.type)
   
   if ( is.null(lambda) ){
-    lambda <- seq(10, -16, length = nlambda) %>% exp 
+    lambda <- seq(16, -10, length = nlambda) %>% exp 
   }else{
     lambda <- sort(lambda, decreasing = TRUE)
   }

@@ -11,7 +11,8 @@
 #' @param alpha Specifies the width of the \code{1-alpha} pointwise variability 
 #' bands. Defaults to \code{alpha = 0.05}.
 #' @param B The number of bootstrap samples used to estimate the pointwise
-#' variability bands. Defaults to \code{B = 250}.
+#' variability bands. Defaults to \code{B = 100}. Increase this for more precise
+#' bands (e.g. the final analysis you intend to publish).
 #' @param full.ensemble If \code{TRUE}, the full trend filtering 
 #' bootstrap ensemble is returned as an \mjeqn{n \times B}{ascii} matrix, less 
 #' any columns potentially pruned post-hoc (see \code{prune} below). Defaults to 
@@ -192,7 +193,7 @@
 #' plot(x = wavelength, y = flux, type = "l", 
 #'      main = "Quasar Lyman-alpha forest", 
 #'      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
-#' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 1.75)
+#' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 1.5)
 #' polygon(c(wavelength.eval, rev(wavelength.eval)), 
 #'         c(boot.out$bootstrap.lower.perc.intervals, 
 #'         rev(boot.out$bootstrap.upper.perc.intervals)),
@@ -216,7 +217,7 @@
 bootstrap.trendfilter <- function(obj,
                                   bootstrap.method = c("nonparametric","parametric","wild"),
                                   alpha = 0.05, 
-                                  B = 250L, 
+                                  B = 100L, 
                                   full.ensemble = FALSE,
                                   prune = TRUE,
                                   mc.cores = detectCores()

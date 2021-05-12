@@ -8,7 +8,7 @@ bootstrap.trendfilter(
   obj,
   bootstrap.method = c("nonparametric", "parametric", "wild"),
   alpha = 0.05,
-  B = 250L,
+  B = 100L,
   full.ensemble = FALSE,
   prune = TRUE,
   mc.cores = detectCores()
@@ -25,7 +25,8 @@ below for suggested use. Defaults to \code{"nonparametric"}.}
 bands. Defaults to \code{alpha = 0.05}.}
 
 \item{B}{The number of bootstrap samples used to estimate the pointwise
-variability bands. Defaults to \code{B = 250}.}
+variability bands. Defaults to \code{B = 100}. Increase this for more precise
+bands (e.g. the final analysis you intend to publish).}
 
 \item{full.ensemble}{If \code{TRUE}, the full trend filtering 
 bootstrap ensemble is returned as an \mjeqn{n \times B}{ascii} matrix, less 
@@ -185,7 +186,7 @@ text(x = log.lambda.min, y = par("usr")[4],
 plot(x = wavelength, y = flux, type = "l", 
      main = "Quasar Lyman-alpha forest", 
      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
-lines(wavelength.eval, tf.estimate, col = "orange", lwd = 1.75)
+lines(wavelength.eval, tf.estimate, col = "orange", lwd = 1.5)
 polygon(c(wavelength.eval, rev(wavelength.eval)), 
         c(boot.out$bootstrap.lower.perc.intervals, 
         rev(boot.out$bootstrap.upper.perc.intervals)),
