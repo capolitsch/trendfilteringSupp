@@ -2,8 +2,7 @@
 % Please edit documentation in R/bootstrap.trendfilter.R
 \name{bootstrap.trendfilter}
 \alias{bootstrap.trendfilter}
-\title{Bootstrap the optimized trend filtering estimator to obtain variability bands
-for the denoised estimate}
+\title{Bootstrap the optimized trend filtering estimator to obtain variability bands}
 \usage{
 bootstrap.trendfilter(
   obj,
@@ -183,7 +182,7 @@ text(x = log.lambda.min, y = par("usr")[4],
 plot(x = wavelength, y = flux, type = "l", 
      main = "Quasar Lyman-alpha forest", 
      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
-lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
+lines(wavelength.eval, tf.estimate, col = "orange", lwd = 1.75)
 polygon(c(wavelength.eval, rev(wavelength.eval)), 
         c(boot.out$bootstrap.lower.perc.intervals, 
         rev(boot.out$bootstrap.upper.perc.intervals)),
@@ -196,7 +195,7 @@ legend(x = "topleft", lwd = c(1,2,8), lty = 1, cex = 0.75,
        col = c("black","orange", transparency("orange", 90)), 
        legend = c("Noisy quasar spectrum",
                   "Trend filtering estimate",
-                  "95 percent variability band"))
+                  "95\% variability band"))
 }
 \references{
 \enumerate{
@@ -220,13 +219,13 @@ generalized lasso problems. R package \emph{glmgen}. Version 0.0.3.
 Learning: Data Mining, Inference, and Prediction. 2nd edition. Springer 
 Series in Statistics. \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
 [Online print #12]}} \cr
+\item{Mammen (1993). Bootstrap and Wild Bootstrap for High Dimensional 
+Linear Models. \emph{The Annals of Statistics}, 21(1), p. 255-285.
+\href{https://projecteuclid.org/journals/annals-of-statistics/volume-21/issue-1/Bootstrap-and-Wild-Bootstrap-for-High-Dimensional-Linear-Models/10.1214/aos/1176349025.full}{[Link]}} \cr
 \item{Efron and Tibshirani (1986). Bootstrap Methods for Standard Errors, 
 Confidence Intervals, and Other Measures of Statistical Accuracy. Statistical
 Science, 1(1), p. 54-75.
 \href{https://projecteuclid.org/journals/statistical-science/volume-1/issue-1/Bootstrap-Methods-for-Standard-Errors-Confidence-Intervals-and-Other-Measures/10.1214/ss/1177013815.full}{[Link]}} \cr
-\item{Mammen (1993). Bootstrap and Wild Bootstrap for High Dimensional 
-Linear Models. \emph{The Annals of Statistics}, 21(1), p. 255-285.
-\href{https://projecteuclid.org/journals/annals-of-statistics/volume-21/issue-1/Bootstrap-and-Wild-Bootstrap-for-High-Dimensional-Linear-Models/10.1214/aos/1176349025.full}{[Link]}} \cr
 \item{Efron (1979). Bootstrap Methods: Another Look at the Jackknife.
 \emph{The Annals of Statistics}, 7(1), p. 1-26.
 \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full}{[Link]}} \cr
