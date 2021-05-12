@@ -244,7 +244,7 @@ bootstrap.trendfilter <- function(obj,
                    )
     obj$weights <- rep(1, length(obj$x))
   }else{
-    obj$weights <- y.scale ^ 2 * obj$weights
+    obj$weights <- obj$y.scale ^ 2 * obj$weights
     data <- tibble(x = obj$x, y = obj$y, weights = obj$weights,
                    fitted.values = obj$fitted.values,
                    residuals = obj$residuals
