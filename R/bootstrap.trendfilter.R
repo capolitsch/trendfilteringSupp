@@ -39,13 +39,13 @@
 #' produces a \code{100*(1-alpha)}\% pointwise variability band.}
 #' \item{B}{The number of bootstrap samples used to estimate the pointwise
 #' variability bands.}
-#' \item{df.boots}{An integer vector of the estimated number of effective 
-#' degrees of freedom of each trend filtering bootstrap estimate. These should
-#' all be relatively close to \code{df.min} (below).}
 #' \item{tf.bootstrap.ensemble}{(Optional) The full trend filtering bootstrap 
 #' ensemble as an \mjeqn{n \times B}{ascii} matrix, less any columns potentially 
 #' pruned post-hoc (if \code{prune = TRUE}). If \code{full.ensemble = FALSE}, 
 #' then this will return \code{NULL}.}
+#' \item{df.boots}{An integer vector of the estimated number of effective 
+#' degrees of freedom of each trend filtering bootstrap estimate. These should
+#' all be relatively close to \code{df.min} (below).}
 #' \item{prune}{If \code{TRUE}, then the trend filtering bootstrap 
 #' ensemble is examined for rare instances in which the optimization has 
 #' stopped at zero knots (most likely erroneously), and removes them from the 
@@ -230,10 +230,12 @@ bootstrap.trendfilter <- function(obj,
   if ( !prune ) warning("I hope you know what you are doing!")
   obj$prune <- prune
 
-  x.scale <- mean(diff(obj$x))
-  y.scale <- mean(abs(obj$y)) / 10
-  x <- obj$x / x.scale
-  y <- obj$y / y.scale
+  obj$x.scale <- mean(diff(obj$x))
+  obj$y.scale <- mean(abs(obj$y)) / 10
+  obj$x <- obj$x / obj$x.scale
+  obj$y <- obj$y / obj$y.scale
+  obj$residuals <- obj$residuals / obj$y.scale
+  obj$fitted.values <- obj$fitted.values / obj$y.scale
   
   if ( is.null(obj$weights) ){
     data <- tibble(x = obj$x, y = obj$y, weights = 1,
@@ -242,15 +244,12 @@ bootstrap.trendfilter <- function(obj,
                    )
     obj$weights <- rep(1, length(obj$x))
   }else{
-    weights <- y.scale ^ 2 * obj$weights
-    data <- tibble(x = obj$x, y = obj$y, weights = weights,
+    obj$weights <- y.scale ^ 2 * obj$weights
+    data <- tibble(x = obj$x, y = obj$y, weights = obj$weights,
                    fitted.values = obj$fitted.values,
                    residuals = obj$residuals
                    )
-    rm(weights)
   }
-  
-  rm(x,y)
 
   sampler <- case_when(
     bootstrap.method == "nonparametric" ~ list(nonparametric.resampler),
@@ -269,17 +268,25 @@ bootstrap.trendfilter <- function(obj,
   tf.boot.ensemble <- lapply(X = 1:B, 
                              FUN = function(X) par.out[[X]][["tf.estimate"]]) %>%
     unlist %>% 
-    matrix(nrow = length(obj$x.eval)) * y.scale
+    matrix(nrow = length(obj$x.eval)) 
   
   obj$df.boots <- lapply(X = 1:B, FUN = function(X) par.out[[X]][["df"]]) %>%
     unlist %>%
     as.integer
   obj$n.pruned <- (B - ncol(tf.boot.ensemble)) %>% as.integer
   obj$bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, 
-                                              probs = alpha / 2) * y.scale
+                                              probs = alpha / 2)
   obj$bootstrap.upper.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, 
-                                              probs = 1 - alpha / 2) * y.scale
+                                              probs = 1 - alpha / 2)
   obj <- c(obj, list(bootstrap.method = bootstrap.method, alpha = alpha, B = B))
+  
+  obj$x.eval <- obj$x.eval * obj$x.scale
+  obj$tf.estimate <- obj$tf.estimate * obj$y.scale
+  obj$x <- obj$x * obj$x.scale
+  obj$y <- obj$y * obj$y.scale
+  obj$weights <- obj$weights / obj$y.scale ^ 2
+  obj$fitted.values <- obj$fitted.values * obj$y.scale
+  obj$residuals <- (obj$y - obj$fitted.values) * obj$y.scale
   
   if ( full.ensemble ){
     obj$tf.bootstrap.ensemble <- tf.boot.ensemble
@@ -325,7 +332,7 @@ tf.estimator <- function(data,
     lambda.min <- obj$lambda[i.min]
     df.min <- tf.fit$df[i.min]
     
-    if ( obj$prune & obj$df[i.min] <= 2 ){
+    if ( obj$prune & df.min <= 2 ){
       return(list(tf.estimate = integer(0), df = NA))
     }
     
@@ -344,11 +351,11 @@ tf.estimator <- function(data,
   }
 
   tf.estimate <- glmgen:::predict.trendfilter(object = tf.fit, 
-                                              x.new = obj$x.eval, 
+                                              x.new = obj$x.eval / obj$x.scale, 
                                               lambda = lambda.min
                                               ) %>% as.numeric
   
-  return(list(tf.estimate = tf.estimate, df = df.min))
+  return(list(tf.estimate = tf.estimate * obj$y.scale, df = df.min))
 }
 
 #' @importFrom dplyr slice_sample

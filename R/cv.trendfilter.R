@@ -341,7 +341,7 @@ cv.trendfilter <- function(x,
                                                     lambda = obj$lambda.min,
                                                     x.new = obj$x
                                                     ) %>% as.numeric
-  obj$residuals <- obj$y - obj$fitted.values
+
   obj$x.eval <- obj$x.eval * x.scale
   obj$tf.estimate <- obj$tf.estimate * y.scale
   obj$x <- obj$x * x.scale
