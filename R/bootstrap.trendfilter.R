@@ -82,8 +82,9 @@
 #' this value, the algorithm terminates. Decrease this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.}
-#' @details This should be a very detailed description... Refer to 
-#' Politsch et al. (2020a) for when each method is most appropriate.
+#' @details This should be a very detailed description... See
+#' \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
+#' Politsch et al. (2020a)} for when each method is most appropriate.
 #' @export bootstrap.trendfilter
 #' @details The bootstrap method should generally be chosen according to the 
 #' following criteria: \itemize{
@@ -93,8 +94,6 @@
 #' \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.method = "parametric"}.
 #' \item The inputs are regularly sampled and the noise distribution is 
 #' unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.method = "wild"}.}
-#' See \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
-#' Politsch et al. (2020a)} for more details.
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
 #' @seealso \code{\link{trendfilter}}, \code{\link{SURE.trendfilter}}, 
 #' \code{\link{cv.trendfilter}}, \code{\link{relax.trendfilter}}

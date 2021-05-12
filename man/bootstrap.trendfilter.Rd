@@ -109,8 +109,9 @@ with a specified certainty to accompany an optimized trend filtering point
 estimate of a signal.
 }
 \details{
-This should be a very detailed description... Refer to 
-Politsch et al. (2020a) for when each method is most appropriate.
+This should be a very detailed description... See
+\href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
+Politsch et al. (2020a)} for when each method is most appropriate.
 
 The bootstrap method should generally be chosen according to the 
 following criteria: \itemize{
@@ -120,8 +121,6 @@ following criteria: \itemize{
 \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.method = "parametric"}.
 \item The inputs are regularly sampled and the noise distribution is 
 unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.method = "wild"}.}
-See \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
-Politsch et al. (2020a)} for more details.
 }
 \examples{
 #############################################################################
