@@ -230,6 +230,11 @@ bootstrap.trendfilter <- function(obj,
   if ( !prune ) warning("I hope you know what you are doing!")
   obj$prune <- prune
 
+  x.scale <- mean(diff(obj$x))
+  y.scale <- mean(abs(obj$y)) / 10
+  x <- obj$x / x.scale
+  y <- obj$y / y.scale
+  
   if ( is.null(obj$weights) ){
     data <- tibble(x = obj$x, y = obj$y, weights = 1,
                    fitted.values = obj$fitted.values,
@@ -237,11 +242,15 @@ bootstrap.trendfilter <- function(obj,
                    )
     obj$weights <- rep(1, length(obj$x))
   }else{
-    data <- tibble(x = obj$x, y = obj$y, weights = obj$weights,
+    weights <- y.scale ^ 2 * obj$weights
+    data <- tibble(x = obj$x, y = obj$y, weights = weights,
                    fitted.values = obj$fitted.values,
                    residuals = obj$residuals
                    )
-    }
+    rm(weights)
+  }
+  
+  rm(x,y)
 
   sampler <- case_when(
     bootstrap.method == "nonparametric" ~ list(nonparametric.resampler),
@@ -260,16 +269,16 @@ bootstrap.trendfilter <- function(obj,
   tf.boot.ensemble <- lapply(X = 1:B, 
                              FUN = function(X) par.out[[X]][["tf.estimate"]]) %>%
     unlist %>% 
-    matrix(nrow = length(obj$x.eval))
+    matrix(nrow = length(obj$x.eval)) * y.scale
   
   obj$df.boots <- lapply(X = 1:B, FUN = function(X) par.out[[X]][["df"]]) %>%
     unlist %>%
     as.integer
   obj$n.pruned <- (B - ncol(tf.boot.ensemble)) %>% as.integer
   obj$bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, 
-                                              probs = alpha / 2)
+                                              probs = alpha / 2) * y.scale
   obj$bootstrap.upper.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, 
-                                              probs = 1 - alpha / 2)
+                                              probs = 1 - alpha / 2) * y.scale
   obj <- c(obj, list(bootstrap.method = bootstrap.method, alpha = alpha, B = B))
   
   if ( full.ensemble ){
@@ -314,7 +323,7 @@ tf.estimator <- function(data,
     
     i.min <- which.min( abs(tf.fit$df - obj$df.min) )
     lambda.min <- obj$lambda[i.min]
-    df.min <- obj$df[i.min]
+    df.min <- tf.fit$df[i.min]
     
     if ( obj$prune & obj$df[i.min] <= 2 ){
       return(list(tf.estimate = integer(0), df = NA))
