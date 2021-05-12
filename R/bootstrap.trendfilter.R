@@ -39,6 +39,9 @@
 #' produces a \code{100*(1-alpha)}\% pointwise variability band.}
 #' \item{B}{The number of bootstrap samples used to estimate the pointwise
 #' variability bands.}
+#' \item{df.boots}{An integer vector of the estimated number of effective 
+#' degrees of freedom of each trend filtering bootstrap estimate. These should
+#' all be relatively close to \code{df.min} (below).}
 #' \item{tf.bootstrap.ensemble}{(Optional) The full trend filtering bootstrap 
 #' ensemble as an \mjeqn{n \times B}{ascii} matrix, less any columns potentially 
 #' pruned post-hoc (if \code{prune = TRUE}). If \code{full.ensemble = FALSE}, 
@@ -59,7 +62,7 @@
 #' \item{lambda}{Vector of hyperparameter values tested during validation.}
 #' \item{lambda.min}{Hyperparameter value that minimizes the validation error 
 #' curve.}
-#' \item{df}{Vector of effective degrees of freedom for trend filtering
+#' \item{df}{Integer vector of effective degrees of freedom for trend filtering
 #' estimators fit during validation.}
 #' \item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
 #' filtering estimator.}
@@ -311,6 +314,7 @@ tf.estimator <- function(data,
     
     i.min <- which.min( abs(tf.fit$df - obj$df.min) )
     lambda.min <- obj$lambda[i.min]
+    df.min <- obj$df[i.min]
     
     if ( obj$prune & obj$df[i.min] <= 2 ){
       return(list(tf.estimate = integer(0), df = NA))
@@ -327,6 +331,7 @@ tf.estimator <- function(data,
                                   )
     
     lambda.min <- obj$lambda.min
+    df.min <- tf.fit$df %>% as.integer
   }
 
   tf.estimate <- glmgen:::predict.trendfilter(object = tf.fit, 
@@ -334,7 +339,7 @@ tf.estimator <- function(data,
                                               lambda = lambda.min
                                               ) %>% as.numeric
   
-  return(list(tf.estimate = tf.estimate, df = tf.fit$df %>% as.integer))
+  return(list(tf.estimate = tf.estimate, df = df.min))
 }
 
 #' @importFrom dplyr slice_sample
