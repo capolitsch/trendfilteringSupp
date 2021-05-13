@@ -123,10 +123,10 @@
 #' estimate does not appear to have fully converged to a reasonable estimate of 
 #' the signal.}
 #' @details This should be a very detailed description... \cr \cr
-#' \mjeqn{\text{WMAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
-#' \mjeqn{\text{WMSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
-#' \mjeqn{\text{MAE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
-#' \mjeqn{\text{MSE}(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
+#' \mjeqn{WMAE(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
+#' \mjeqn{WMSE(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
+#' \mjeqn{MAE(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
+#' \mjeqn{MSE(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
 #' where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
 #' estimate with hyperparameter \eqn{\lambda}, evaluated at 
 #' \mjeqn{x_i}{ascii}. 
@@ -295,7 +295,7 @@ cv.trendfilter <- function(x,
   
   rm(x,y,weights,lambda,k,thinning,max_iter,obj_tol,V,data)
 
-  cv.out <- mclapply(1:obj$V, 
+  cv.out <- mclapply(1:(obj$V), 
                      FUN = trendfilter.validate, 
                      data.folded = data.folded, 
                      obj = obj, 
