@@ -4,7 +4,8 @@
 #' three possible bootstrap algorithms to obtain pointwise variability bands 
 #' with a specified certainty to accompany an optimized trend filtering point 
 #' estimate of a signal. 
-#' @param obj An object of class 'SURE.trendfilter' or 'cv.trendfilter'.
+#' @param obj An object of class '\link{SURE.trendfilter}' or 
+#' '\link{cv.trendfilter}'.
 #' @param bootstrap.method A string specifying the bootstrap method to be used. 
 #' One of \code{c("nonparametric","parametric","wild")}. See Details section 
 #' below for suggested use. Defaults to \code{"nonparametric"}.
@@ -13,7 +14,7 @@
 #' @param B The number of bootstrap samples used to estimate the pointwise
 #' variability bands. Defaults to \code{B = 100}. Increase this for more precise
 #' bands (e.g. the final analysis you intend to publish).
-#' @param full.ensemble If \code{TRUE}, the full trend filtering 
+#' @param full.ensemble logical. If \code{TRUE}, the full trend filtering 
 #' bootstrap ensemble is returned as an \mjeqn{n \times B}{ascii} matrix, less 
 #' any columns potentially pruned post-hoc (see \code{prune} below). Defaults to 
 #' \code{full.ensemble = FALSE}.

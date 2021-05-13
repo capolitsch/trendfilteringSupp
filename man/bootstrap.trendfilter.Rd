@@ -15,7 +15,8 @@ bootstrap.trendfilter(
 )
 }
 \arguments{
-\item{obj}{An object of class 'SURE.trendfilter' or 'cv.trendfilter'.}
+\item{obj}{An object of class '\link{SURE.trendfilter}' or 
+'\link{cv.trendfilter}'.}
 
 \item{bootstrap.method}{A string specifying the bootstrap method to be used. 
 One of \code{c("nonparametric","parametric","wild")}. See Details section 
@@ -28,7 +29,7 @@ bands. Defaults to \code{alpha = 0.05}.}
 variability bands. Defaults to \code{B = 100}. Increase this for more precise
 bands (e.g. the final analysis you intend to publish).}
 
-\item{full.ensemble}{If \code{TRUE}, the full trend filtering 
+\item{full.ensemble}{logical. If \code{TRUE}, the full trend filtering 
 bootstrap ensemble is returned as an \mjeqn{n \times B}{ascii} matrix, less 
 any columns potentially pruned post-hoc (see \code{prune} below). Defaults to 
 \code{full.ensemble = FALSE}.}
