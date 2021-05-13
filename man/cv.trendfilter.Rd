@@ -18,7 +18,7 @@ cv.trendfilter(
   thinning = NULL,
   max_iter = 600L,
   obj_tol = 1e-10,
-  mc.cores = min(detectCores(), V)
+  mc.cores = detectCores()
 )
 }
 \arguments{

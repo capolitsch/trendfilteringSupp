@@ -221,7 +221,7 @@ cv.trendfilter <- function(x,
                            thinning = NULL,
                            max_iter = 600L, 
                            obj_tol = 1e-10,
-                           mc.cores = min(detectCores(), V)
+                           mc.cores = detectCores()
                            )
   {
 
@@ -247,6 +247,7 @@ cv.trendfilter <- function(x,
       length(weights) == 0 ~ rep_len(1, length(y))
     )
   }
+  mc.cores <- min(mc.cores, V)
   
   data <- tibble(x, y, weights) %>% 
     arrange(x) %>% 
@@ -293,16 +294,17 @@ cv.trendfilter <- function(x,
                    class = "cv.trendfilter"
                    )
   
-  rm(x,y,weights,lambda,k,thinning,max_iter,obj_tol,V,data)
+  rm(x,y,weights,lambda,k,thinning,max_iter,obj_tol,data)
 
-  cv.out <- mclapply(1:(obj$V), 
-                     FUN = trendfilter.validate, 
-                     data.folded = data.folded, 
-                     obj = obj, 
-                     mc.cores = mc.cores
-                     ) %>%
-    unlist %>%
-    matrix(ncol = obj$V)
+  cv.out <- matrix(unlist(mclapply(1:(obj$V), 
+                                   FUN = trendfilter.validate, 
+                                   data.folded = data.folded, 
+                                   obj = obj, 
+                                   mc.cores = mc.cores
+                                   )
+                          ), 
+                   ncol = obj$V
+                   )
   
   obj <- c(obj, list(error = rowMeans(cv.out),
                      se.error = rowSds(cv.out) / sqrt(obj$V)
@@ -314,8 +316,8 @@ cv.trendfilter <- function(x,
   obj$i.1se <- obj %$% which(error <= error[i.min] + se.error[i.min]) %>% min
   obj$lambda.1se <- obj$lambda[obj$i.1se]
   
-  optimization.controls <- glmgen::trendfilter.control.list(max_iter = max_iter,
-                                                            obj_tol = obj_tol
+  optimization.controls <- glmgen::trendfilter.control.list(max_iter = obj$max_iter,
+                                                            obj_tol = obj$obj_tol
                                                             )
 
   out <- obj %$%
