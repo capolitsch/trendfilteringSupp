@@ -134,12 +134,16 @@
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
 #' @seealso \code{\link{trendfilter}}, \code{\link{SURE.trendfilter}}, 
 #' \code{\link{relax.trendfilter}}, \code{\link{bootstrap.trendfilter}}
-#' @references \enumerate{
+#' @references 
+#' \strong{Cross validation}
+#' \enumerate{
 #' \item Hastie, Tibshirani, and Friedman (2009). The Elements of Statistical 
 #' Learning: Data Mining, Inference, and Prediction. 2nd edition. Springer 
 #' Series in Statistics. 
 #' \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
-#' [Online print #12]}. (See Chapter 7.10 for discussion on cross validation.) \cr
+#' [Online print #12]}. (See Chapter 7.10 for discussion on cross validation.)}
+#' \strong{Trend filtering optimization algorithm}
+#' \enumerate{
 #' \item{Ramdas and Tibshirani (2016). Fast and Flexible ADMM Algorithms 
 #' for Trend Filtering. \emph{Journal of Computational and Graphical 
 #' Statistics}, 25(3), p. 839-858.

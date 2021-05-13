@@ -101,7 +101,9 @@
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
 #' @seealso \code{\link{trendfilter}}, \code{\link{SURE.trendfilter}}, 
 #' \code{\link{cv.trendfilter}}, \code{\link{relax.trendfilter}}
-#' @references \enumerate{
+#' @references 
+#' \strong{Trend filtering and the various bootstraps in practice}
+#' \enumerate{
 #' \item{Politsch et al. (2020a). Trend filtering – I. A modern 
 #' statistical tool for time-domain astronomy and astronomical spectroscopy. 
 #' \emph{Monthly Notices of the Royal Astronomical Society}, 492(3), 
@@ -111,13 +113,9 @@
 #' astronomical signals with varying degrees of smoothness. \emph{Monthly 
 #' Notices of the Royal Astronomical Society}, 492(3), p. 4019-4032.
 #' \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{[Link]}} \cr
-#' \item{Ramdas and Tibshirani (2016). Fast and Flexible ADMM Algorithms 
-#' for Trend Filtering. \emph{Journal of Computational and Graphical 
-#' Statistics}, 25(3), p. 839-858.
-#' \href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
-#' \item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
-#' generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
-#' \href{https://github.com/glmgen/glmgen}{[Link]}} \cr
+#' }
+#' \strong{The Bootstrap (and variations)}
+#' \enumerate{
 #' \item{Hastie, Tibshirani, and Friedman (2009). The Elements of Statistical 
 #' Learning: Data Mining, Inference, and Prediction. 2nd edition. Springer 
 #' Series in Statistics. \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
@@ -132,6 +130,16 @@
 #' \item{Efron (1979). Bootstrap Methods: Another Look at the Jackknife.
 #' \emph{The Annals of Statistics}, 7(1), p. 1-26.
 #' \href{https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full}{[Link]}} \cr
+#' }
+#' \strong{Trend filtering optimization algorithm}
+#' \enumerate{
+#' \item{Ramdas and Tibshirani (2016). Fast and Flexible ADMM Algorithms 
+#' for Trend Filtering. \emph{Journal of Computational and Graphical 
+#' Statistics}, 25(3), p. 839-858.
+#' \href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
+#' \item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
+#' generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
+#' \href{https://github.com/glmgen/glmgen}{[Link]}} \cr
 #' }
 #' @examples 
 #' #############################################################################
