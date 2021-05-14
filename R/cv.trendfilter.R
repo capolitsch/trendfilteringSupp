@@ -268,8 +268,8 @@ cv.trendfilter <- function(x,
   
   data <- tibble(x, y, weights) %>% 
     arrange(x) %>% 
-    drop_na %>%
-    filter( weights != 0 )
+    filter( weights != 0 ) %>%
+    drop_na 
   
   validation.error.type <- match.arg(validation.error.type)
   

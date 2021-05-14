@@ -240,8 +240,8 @@ SURE.trendfilter <- function(x,
   
   data <- tibble(x, y, weights) %>% 
     arrange(x) %>% 
-    drop_na %>%
-    filter( weights != 0 )
+    filter( weights != 0 ) %>%
+    drop_na 
 
   n.obs <- nrow(data)
   x.scale <- mean(diff(data$x))
