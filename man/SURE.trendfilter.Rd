@@ -199,6 +199,12 @@ astronomical signals with varying degrees of smoothness. \emph{Monthly
 Notices of the Royal Astronomical Society}, 492(3), p. 4019-4032.
 \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{[Link]}} \cr
 }
+\strong{Estimating effective degrees of freedom in trend filtering}
+\enumerate{
+\item{Tibshirani and Taylor (2012). Degrees of freedom in lasso problems.
+\emph{The Annals of Statistics}, 40(2), p. 1198-1232.
+\href{https://projecteuclid.org/journals/annals-of-statistics/volume-40/issue-2/Degrees-of-freedom-in-lasso-problems/10.1214/12-AOS1003.full}{[Link]}} \cr
+}
 \strong{Stein's unbiased risk estimate}
 \enumerate{
 \item{Tibshirani and Wasserman (2015). Stein’s Unbiased Risk Estimate.
@@ -212,12 +218,6 @@ and Cross-Validation. \emph{Journal of the American Statistical Association}.
 Distribution. \emph{The Annals of Statistics}. 9(6), p. 1135-1151.
 \href{https://projecteuclid.org/journals/annals-of-statistics/volume-9/issue-6/Estimation-of-the-Mean-of-a-Multivariate-Normal-Distribution/10.1214/aos/1176345632.full}{[Link]}}
 }
-\strong{Estimating effective degrees of freedom in trend filtering}
-\enumerate{
-\item{Tibshirani and Taylor (2012). Degrees of freedom in lasso problems.
-\emph{The Annals of Statistics}, 40(2), p. 1198-1232.
-\href{https://projecteuclid.org/journals/annals-of-statistics/volume-40/issue-2/Degrees-of-freedom-in-lasso-problems/10.1214/12-AOS1003.full}{[Link]}} \cr
-}
 \strong{Trend filtering optimization algorithm}
 \enumerate{
 \item{Ramdas and Tibshirani (2016). Fast and Flexible ADMM Algorithms 
@@ -226,7 +226,7 @@ Statistics}, 25(3), p. 839-858.
 \href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
 \item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
 generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
-\href{https://github.com/glmgen/glmgen}{[Link]}} \cr
+\href{https://github.com/glmgen/glmgen}{[Link]}}
 (Implementation of Ramdas and Tibshirani algorithm) \cr
 }
 }

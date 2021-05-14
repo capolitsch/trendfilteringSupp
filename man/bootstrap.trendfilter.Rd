@@ -239,7 +239,7 @@ Statistics}, 25(3), p. 839-858.
 \href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
 \item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
 generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
-\href{https://github.com/glmgen/glmgen}{[Link]}} \cr
+\href{https://github.com/glmgen/glmgen}{[Link]}}
 (Implementation of Ramdas and Tibshirani algorithm) \cr
 }
 }
