@@ -6,7 +6,7 @@
 \usage{
 bootstrap.trendfilter(
   obj,
-  bootstrap.method = c("nonparametric", "parametric", "wild"),
+  bootstrap.algorithm = c("nonparametric", "parametric", "wild"),
   alpha = 0.05,
   B = 100L,
   full.ensemble = FALSE,
@@ -18,9 +18,9 @@ bootstrap.trendfilter(
 \item{obj}{An object of class '\link{SURE.trendfilter}' or 
 '\link{cv.trendfilter}'.}
 
-\item{bootstrap.method}{A string specifying the bootstrap method to be used. 
-One of \code{c("nonparametric","parametric","wild")}. See Details section 
-below for suggested use. Defaults to \code{"nonparametric"}.}
+\item{bootstrap.algorithm}{A string specifying the bootstrap algorithm to be 
+used. One of \code{c("nonparametric","parametric","wild")}. See Details 
+section below for suggested use. Defaults to \code{"nonparametric"}.}
 
 \item{alpha}{Specifies the width of the \code{1-alpha} pointwise variability 
 bands. Defaults to \code{alpha = 0.05}.}
@@ -34,7 +34,7 @@ bootstrap ensemble is returned as an \mjeqn{n \times B}{ascii} matrix, less
 any columns potentially pruned post-hoc (see \code{prune} below). Defaults to 
 \code{full.ensemble = FALSE}.}
 
-\item{prune}{If \code{TRUE}, then the trend filtering bootstrap 
+\item{prune}{logical. If \code{TRUE}, then the trend filtering bootstrap 
 ensemble is examined for rare instances in which the optimization has 
 stopped at zero knots (most likely erroneously), and removes them from the 
 ensemble. Defaults to \code{TRUE}. Do not change this unless you really know 
@@ -50,24 +50,25 @@ following elements:
 variability bands were evaluated on.}
 \item{tf.estimate}{The trend filtering estimate of the signal, evaluated on 
 \code{x.eval}.}
-\item{bootstrap.lower.perc.intervals}{Vector of lower bounds for the 
+\item{bootstrap.lower.band}{Vector of lower bounds for the 
 \code{1-alpha} pointwise variability band, evaluated on \code{x.eval}.}
-\item{bootstrap.upper.perc.intervals}{Vector of upper bounds for the 
+\item{bootstrap.upper.band}{Vector of upper bounds for the 
 \code{1-alpha} pointwise variability band, evaluated on \code{x.eval}.}
-\item{bootstrap.method}{The string specifying the bootstrap method that was
-used.}
+\item{bootstrap.algorithm}{The string specifying the bootstrap algorithms 
+that was used.}
 \item{alpha}{The 'level' of the variability bands, i.e. \code{alpha}
 produces a \code{100*(1-alpha)}\% pointwise variability band.}
 \item{B}{The number of bootstrap samples used to estimate the pointwise
 variability bands.}
-\item{tf.bootstrap.ensemble}{(Optional) The full trend filtering bootstrap 
-ensemble as an \mjeqn{n \times B}{ascii} matrix, less any columns potentially 
-pruned post-hoc (if \code{prune = TRUE}). If \code{full.ensemble = FALSE}, 
-then this will return \code{NULL}.}
+\item{tf.bootstrap.ensemble}{(Optional) If \code{full.ensemble = TRUE}, the 
+full trend filtering bootstrap ensemble as an \mjeqn{n \times B}{ascii} 
+matrix, less any columns potentially pruned post-hoc 
+(if \code{prune = TRUE}). If \code{full.ensemble = FALSE}, then this will 
+return \code{NULL}.}
 \item{df.boots}{An integer vector of the estimated number of effective 
 degrees of freedom of each trend filtering bootstrap estimate. These should
 all be relatively close to \code{df.min} (below).}
-\item{prune}{If \code{TRUE}, then the trend filtering bootstrap 
+\item{prune}{logical. If \code{TRUE}, then the trend filtering bootstrap 
 ensemble is examined for rare instances in which the optimization has 
 stopped at zero knots (most likely erroneously), and removes them from the 
 ensemble.}
@@ -91,7 +92,7 @@ filtering estimator.}
 \item{validation.method}{Either "SURE" or "V-fold CV".}
 \item{error}{Vector of hyperparameter validation errors, inherited from
 \code{obj} (either class 'SURE.trendfilter' or 'cv.trendfilter')}
-\item{thinning}{If \code{TRUE}, then the data are 
+\item{thinning}{logical. If \code{TRUE}, then the data are 
 preprocessed so that a smaller, better conditioned data set is used for 
 fitting.}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
@@ -113,18 +114,16 @@ with a specified certainty to accompany an optimized trend filtering point
 estimate of a signal.
 }
 \details{
-This should be a very detailed description... See
+This will contain a very detailed description... See
 \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
-Politsch et al. (2020a)} for when each method is most appropriate.
-
-The bootstrap method should generally be chosen according to the 
-following criteria: \itemize{
+Politsch et al. (2020a)} for the full algorithms. The bootstrap algorithm 
+should generally be chosen according to the following criteria: \itemize{
 \item The inputs are irregularly sampled \mjeqn{\Longrightarrow}{ascii} 
-\code{bootstrap.method = "nonparametric"}.
+\code{bootstrap.algorithm = "nonparametric"}.
 \item The inputs are regularly sampled and the noise distribution is known 
-\mjeqn{\Longrightarrow}{ascii} \code{bootstrap.method = "parametric"}.
+\mjeqn{\Longrightarrow}{ascii} \code{bootstrap.algorithm = "parametric"}.
 \item The inputs are regularly sampled and the noise distribution is 
-unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.method = "wild"}.}
+unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.algorithm = "wild"}.}
 }
 \examples{
 #############################################################################
@@ -166,7 +165,7 @@ tf.estimate <- SURE.obj$tf.estimate
 # obtain uncertainty bands
 
 boot.out <- bootstrap.trendfilter(obj = SURE.obj, 
-                                  bootstrap.method = "parametric")
+                                  bootstrap.algorithm = "parametric")
 
 
 # Transform the inputs to wavelength space (in Angstroms)
@@ -189,12 +188,12 @@ plot(x = wavelength, y = flux, type = "l",
      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 lines(wavelength.eval, tf.estimate, col = "orange", lwd = 1.5)
 polygon(c(wavelength.eval, rev(wavelength.eval)), 
-        c(boot.out$bootstrap.lower.perc.intervals, 
-        rev(boot.out$bootstrap.upper.perc.intervals)),
+        c(boot.out$bootstrap.lower.band, 
+        rev(boot.out$bootstrap.upper.band)),
         col = transparency("orange", 90), border = NA)
-lines(wavelength.eval, boot.out$bootstrap.lower.perc.intervals, 
+lines(wavelength.eval, boot.out$bootstrap.lower.band, 
       col = "orange", lwd = 0.5)
-lines(wavelength.eval, boot.out$bootstrap.upper.perc.intervals, 
+lines(wavelength.eval, boot.out$bootstrap.upper.band, 
       col = "orange", lwd = 0.5)
 legend(x = "topleft", lwd = c(1,2,8), lty = 1, cex = 0.75,
        col = c("black","orange", transparency("orange", 90)), 
@@ -241,6 +240,7 @@ Statistics}, 25(3), p. 839-858.
 \item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
 generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
 \href{https://github.com/glmgen/glmgen}{[Link]}} \cr
+(Implementation of Ramdas and Tibshirani algorithm) \cr
 }
 }
 \seealso{

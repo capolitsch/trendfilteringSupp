@@ -41,7 +41,7 @@ the error variance are not available, use \code{cv.trendfilter} instead.}
 although \code{k=3} is discouraged due to algorithmic instability (and is
 visually indistinguishable from \code{k=2} anyway).}
 
-\item{nlambda}{The number of trend filtering hyperparameter values 
+\item{nlambda}{Integer. The number of trend filtering hyperparameter values 
 to run the grid search over. If \code{lambda = NULL}, a grid of length 
 \code{nlambda} is constructed internally.}
 
@@ -53,13 +53,13 @@ algorithmic benefits. Regardless, the sorted vector is returned in the
 function output. Using this argument is discouraged unless you know what you 
 are doing.}
 
-\item{n.eval}{The length of the equally-spaced \code{x} grid to evaluate the 
-optimized trend filtering estimate on.}
+\item{n.eval}{Integer. The length of the equally-spaced \code{x} grid to 
+evaluate the optimized trend filtering estimate on.}
 
 \item{x.eval}{Overrides \code{n.eval} if passed. A user-supplied grid of 
 inputs to evaluate the optimized trend filtering estimate on.}
 
-\item{thinning}{If \code{TRUE}, then the data are preprocessed so 
+\item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
 that a smaller, better conditioned data set is used for fitting. When left
 \code{NULL}, the default, the optimization will automatically detect whether 
 thinning should be applied (i.e., cases in which the numerical fitting 
@@ -106,7 +106,7 @@ standard errors of the uncertainty in the measured outputs.}
 evaluated at the observed inputs \code{x}.}
 \item{residuals}{\code{residuals = y - fitted.values}.}
 \item{k}{The degree of the trend filtering estimator.}
-\item{thinning}{If \code{TRUE}, then the data are preprocessed so that a 
+\item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so that a 
 smaller, better conditioned data set is used for fitting.}
 \item{max_iter}{Maximum iterations allowed for the trend filtering 
 convex optimization 
@@ -127,7 +127,7 @@ curve and the optimized trend filtering estimate within a larger list of
 helpful ancillary information.
 }
 \details{
-This should be a very detailed description...
+This will contain a very detailed description...
 }
 \examples{
 #############################################################################
@@ -187,34 +187,47 @@ legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"),
        legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
 }
 \references{
+\strong{Trend filtering with Stein's unbiased risk estimate}
 \enumerate{
 \item{Politsch et al. (2020a). Trend filtering – I. A modern 
 statistical tool for time-domain astronomy and astronomical spectroscopy. 
 \emph{Monthly Notices of the Royal Astronomical Society}, 492(3), 
 p. 4005-4018.
 \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{[Link]}} \cr
-
-\item{Tibshirani and Taylor (2012). Degrees of freedom in lasso problems.
-\emph{The Annals of Statistics}, 40(2), p. 1198-1232.
-\href{https://projecteuclid.org/journals/annals-of-statistics/volume-40/issue-2/Degrees-of-freedom-in-lasso-problems/10.1214/12-AOS1003.full}{[Link]}} \cr
-
-\item{Ramdas and Tibshirani (2016). Fast and Flexible ADMM Algorithms 
-for Trend Filtering. \emph{Journal of Computational and Graphical 
-Statistics}, 25(3), p. 839-858.
-\href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
-
+\item{Politsch et al. (2020b). Trend Filtering – II. Denoising 
+astronomical signals with varying degrees of smoothness. \emph{Monthly 
+Notices of the Royal Astronomical Society}, 492(3), p. 4019-4032.
+\href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{[Link]}} \cr
+}
+\strong{Stein's unbiased risk estimate}
+\enumerate{
 \item{Tibshirani and Wasserman (2015). Stein’s Unbiased Risk Estimate.
 \emph{36-702: Statistical Machine Learning course notes} (Carnegie Mellon).
 \href{http://www.stat.cmu.edu/~larry/=sml/stein.pdf}{[Link]}} \cr
-
 \item{Efron (2014). The Estimation of Prediction Error: Covariance Penalties 
 and Cross-Validation. \emph{Journal of the American Statistical Association}.
 99(467), p. 619-632.
 \href{https://www.tandfonline.com/doi/abs/10.1198/016214504000000692}{[Link]}} \cr
-
 \item{Stein (1981). Estimation of the Mean of a Multivariate Normal 
 Distribution. \emph{The Annals of Statistics}. 9(6), p. 1135-1151.
 \href{https://projecteuclid.org/journals/annals-of-statistics/volume-9/issue-6/Estimation-of-the-Mean-of-a-Multivariate-Normal-Distribution/10.1214/aos/1176345632.full}{[Link]}}
+}
+\strong{Estimating effective degrees of freedom in trend filtering}
+\enumerate{
+\item{Tibshirani and Taylor (2012). Degrees of freedom in lasso problems.
+\emph{The Annals of Statistics}, 40(2), p. 1198-1232.
+\href{https://projecteuclid.org/journals/annals-of-statistics/volume-40/issue-2/Degrees-of-freedom-in-lasso-problems/10.1214/12-AOS1003.full}{[Link]}} \cr
+}
+\strong{Trend filtering optimization algorithm}
+\enumerate{
+\item{Ramdas and Tibshirani (2016). Fast and Flexible ADMM Algorithms 
+for Trend Filtering. \emph{Journal of Computational and Graphical 
+Statistics}, 25(3), p. 839-858.
+\href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
+\item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
+generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
+\href{https://github.com/glmgen/glmgen}{[Link]}} \cr
+(Implementation of Ramdas and Tibshirani algorithm) \cr
 }
 }
 \seealso{

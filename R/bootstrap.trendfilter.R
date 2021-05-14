@@ -6,9 +6,9 @@
 #' estimate of a signal. 
 #' @param obj An object of class '\link{SURE.trendfilter}' or 
 #' '\link{cv.trendfilter}'.
-#' @param bootstrap.method A string specifying the bootstrap method to be used. 
-#' One of \code{c("nonparametric","parametric","wild")}. See Details section 
-#' below for suggested use. Defaults to \code{"nonparametric"}.
+#' @param bootstrap.algorithm A string specifying the bootstrap algorithm to be 
+#' used. One of \code{c("nonparametric","parametric","wild")}. See Details 
+#' section below for suggested use. Defaults to \code{"nonparametric"}.
 #' @param alpha Specifies the width of the \code{1-alpha} pointwise variability 
 #' bands. Defaults to \code{alpha = 0.05}.
 #' @param B The number of bootstrap samples used to estimate the pointwise
@@ -18,7 +18,7 @@
 #' bootstrap ensemble is returned as an \mjeqn{n \times B}{ascii} matrix, less 
 #' any columns potentially pruned post-hoc (see \code{prune} below). Defaults to 
 #' \code{full.ensemble = FALSE}.
-#' @param prune If \code{TRUE}, then the trend filtering bootstrap 
+#' @param prune logical. If \code{TRUE}, then the trend filtering bootstrap 
 #' ensemble is examined for rare instances in which the optimization has 
 #' stopped at zero knots (most likely erroneously), and removes them from the 
 #' ensemble. Defaults to \code{TRUE}. Do not change this unless you really know 
@@ -31,24 +31,25 @@
 #' variability bands were evaluated on.}
 #' \item{tf.estimate}{The trend filtering estimate of the signal, evaluated on 
 #' \code{x.eval}.}
-#' \item{bootstrap.lower.perc.intervals}{Vector of lower bounds for the 
+#' \item{bootstrap.lower.band}{Vector of lower bounds for the 
 #' \code{1-alpha} pointwise variability band, evaluated on \code{x.eval}.}
-#' \item{bootstrap.upper.perc.intervals}{Vector of upper bounds for the 
+#' \item{bootstrap.upper.band}{Vector of upper bounds for the 
 #' \code{1-alpha} pointwise variability band, evaluated on \code{x.eval}.}
-#' \item{bootstrap.method}{The string specifying the bootstrap method that was
-#' used.}
+#' \item{bootstrap.algorithm}{The string specifying the bootstrap algorithms 
+#' that was used.}
 #' \item{alpha}{The 'level' of the variability bands, i.e. \code{alpha}
 #' produces a \code{100*(1-alpha)}\% pointwise variability band.}
 #' \item{B}{The number of bootstrap samples used to estimate the pointwise
 #' variability bands.}
-#' \item{tf.bootstrap.ensemble}{(Optional) The full trend filtering bootstrap 
-#' ensemble as an \mjeqn{n \times B}{ascii} matrix, less any columns potentially 
-#' pruned post-hoc (if \code{prune = TRUE}). If \code{full.ensemble = FALSE}, 
-#' then this will return \code{NULL}.}
+#' \item{tf.bootstrap.ensemble}{(Optional) If \code{full.ensemble = TRUE}, the 
+#' full trend filtering bootstrap ensemble as an \mjeqn{n \times B}{ascii} 
+#' matrix, less any columns potentially pruned post-hoc 
+#' (if \code{prune = TRUE}). If \code{full.ensemble = FALSE}, then this will 
+#' return \code{NULL}.}
 #' \item{df.boots}{An integer vector of the estimated number of effective 
 #' degrees of freedom of each trend filtering bootstrap estimate. These should
 #' all be relatively close to \code{df.min} (below).}
-#' \item{prune}{If \code{TRUE}, then the trend filtering bootstrap 
+#' \item{prune}{logical. If \code{TRUE}, then the trend filtering bootstrap 
 #' ensemble is examined for rare instances in which the optimization has 
 #' stopped at zero knots (most likely erroneously), and removes them from the 
 #' ensemble.}
@@ -72,7 +73,7 @@
 #' \item{validation.method}{Either "SURE" or "V-fold CV".}
 #' \item{error}{Vector of hyperparameter validation errors, inherited from
 #' \code{obj} (either class 'SURE.trendfilter' or 'cv.trendfilter')}
-#' \item{thinning}{If \code{TRUE}, then the data are 
+#' \item{thinning}{logical. If \code{TRUE}, then the data are 
 #' preprocessed so that a smaller, better conditioned data set is used for 
 #' fitting.}
 #' \item{max_iter}{Maximum iterations allowed for the trend filtering 
@@ -86,18 +87,17 @@
 #' this value, the algorithm terminates. Decrease this if the trend 
 #' filtering estimate does not appear to have fully converged to a reasonable 
 #' estimate of the signal.}
-#' @details This should be a very detailed description... See
+#' @details This will contain a very detailed description... See
 #' \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
-#' Politsch et al. (2020a)} for when each method is most appropriate.
-#' @export bootstrap.trendfilter
-#' @details The bootstrap method should generally be chosen according to the 
-#' following criteria: \itemize{
+#' Politsch et al. (2020a)} for the full algorithms. The bootstrap algorithm 
+#' should generally be chosen according to the following criteria: \itemize{
 #' \item The inputs are irregularly sampled \mjeqn{\Longrightarrow}{ascii} 
-#' \code{bootstrap.method = "nonparametric"}.
+#' \code{bootstrap.algorithm = "nonparametric"}.
 #' \item The inputs are regularly sampled and the noise distribution is known 
-#' \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.method = "parametric"}.
+#' \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.algorithm = "parametric"}.
 #' \item The inputs are regularly sampled and the noise distribution is 
-#' unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.method = "wild"}.}
+#' unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.algorithm = "wild"}.}
+#' @export bootstrap.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
 #' @seealso \code{\link{trendfilter}}, \code{\link{SURE.trendfilter}}, 
 #' \code{\link{cv.trendfilter}}, \code{\link{relax.trendfilter}}
@@ -140,6 +140,7 @@
 #' \item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
 #' generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
 #' \href{https://github.com/glmgen/glmgen}{[Link]}} \cr
+#' (Implementation of Ramdas and Tibshirani algorithm) \cr
 #' }
 #' @examples 
 #' #############################################################################
@@ -181,7 +182,7 @@
 #' # obtain uncertainty bands
 #' 
 #' boot.out <- bootstrap.trendfilter(obj = SURE.obj, 
-#'                                   bootstrap.method = "parametric")
+#'                                   bootstrap.algorithm = "parametric")
 #' 
 #' 
 #' # Transform the inputs to wavelength space (in Angstroms)
@@ -204,12 +205,12 @@
 #'      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 #' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 1.5)
 #' polygon(c(wavelength.eval, rev(wavelength.eval)), 
-#'         c(boot.out$bootstrap.lower.perc.intervals, 
-#'         rev(boot.out$bootstrap.upper.perc.intervals)),
+#'         c(boot.out$bootstrap.lower.band, 
+#'         rev(boot.out$bootstrap.upper.band)),
 #'         col = transparency("orange", 90), border = NA)
-#' lines(wavelength.eval, boot.out$bootstrap.lower.perc.intervals, 
+#' lines(wavelength.eval, boot.out$bootstrap.lower.band, 
 #'       col = "orange", lwd = 0.5)
-#' lines(wavelength.eval, boot.out$bootstrap.upper.perc.intervals, 
+#' lines(wavelength.eval, boot.out$bootstrap.upper.band, 
 #'       col = "orange", lwd = 0.5)
 #' legend(x = "topleft", lwd = c(1,2,8), lty = 1, cex = 0.75,
 #'        col = c("black","orange", transparency("orange", 90)), 
@@ -217,14 +218,13 @@
 #'                   "Trend filtering estimate",
 #'                   "95% variability band"))
 
-#' @importFrom dplyr case_when
+#' @importFrom dplyr case_when mutate slice_sample n
 #' @importFrom tidyr tibble
 #' @importFrom magrittr %>%
 #' @importFrom parallel mclapply detectCores
-#' @importFrom stats quantile
-#' @importFrom glmgen trendfilter.control.list
+#' @importFrom stats quantile rnorm
 bootstrap.trendfilter <- function(obj,
-                                  bootstrap.method = c("nonparametric","parametric","wild"),
+                                  bootstrap.algorithm = c("nonparametric","parametric","wild"),
                                   alpha = 0.05, 
                                   B = 100L, 
                                   full.ensemble = FALSE,
@@ -233,11 +233,16 @@ bootstrap.trendfilter <- function(obj,
                                   )
 {
   
-  bootstrap.method <- match.arg(bootstrap.method)
   stopifnot( class(obj) %in% c("SURE.trendfilter", "cv.trendfilter") )
+  bootstrap.algorithm <- match.arg(bootstrap.algorithm)
   stopifnot( alpha > 0 & alpha < 1 )
-  stopifnot( B > 10 & B == round(B) )
+  stopifnot( B > 20 & B == round(B) )
   if ( !prune ) warning("I hope you know what you are doing!")
+  if ( mc.cores != round(mc.cores) ) stop("mc.cores must be a positive integer.")
+  if ( mc.cores > detectCores() ){
+    warning(paste0("Your machine only has ", detectCores(), " cores. Adjusting mc.cores accordingly."))
+    mc.cores <- detectCores()
+  }
   obj$prune <- prune
 
   obj$x.scale <- mean(diff(obj$x))
@@ -262,9 +267,9 @@ bootstrap.trendfilter <- function(obj,
   }
 
   sampler <- case_when(
-    bootstrap.method == "nonparametric" ~ list(nonparametric.resampler),
-    bootstrap.method == "parametric" ~ list(parametric.sampler),
-    bootstrap.method == "wild" ~ list(wild.sampler)
+    bootstrap.algorithm == "nonparametric" ~ list(nonparametric.resampler),
+    bootstrap.algorithm == "parametric" ~ list(parametric.sampler),
+    bootstrap.algorithm == "wild" ~ list(wild.sampler)
   )[[1]]
   
   par.func <- function(b){
@@ -284,11 +289,11 @@ bootstrap.trendfilter <- function(obj,
     unlist %>%
     as.integer
   obj$n.pruned <- (B - ncol(tf.boot.ensemble)) %>% as.integer
-  obj$bootstrap.lower.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, 
+  obj$bootstrap.lower.band <- apply(tf.boot.ensemble, 1, quantile, 
                                               probs = alpha / 2)
-  obj$bootstrap.upper.perc.intervals <- apply(tf.boot.ensemble, 1, quantile, 
+  obj$bootstrap.upper.band <- apply(tf.boot.ensemble, 1, quantile, 
                                               probs = 1 - alpha / 2)
-  obj <- c(obj, list(bootstrap.method = bootstrap.method, alpha = alpha, B = B))
+  obj <- c(obj, list(bootstrap.algorithm = bootstrap.algorithm, alpha = alpha, B = B))
   
   obj$x.eval <- obj$x.eval * obj$x.scale
   obj$tf.estimate <- obj$tf.estimate * obj$y.scale
@@ -304,8 +309,8 @@ bootstrap.trendfilter <- function(obj,
     obj <- c(obj, list(tf.bootstrap.ensemble = NULL))
   }
   
-  obj <- obj[c("x.eval","tf.estimate","bootstrap.lower.perc.intervals",
-               "bootstrap.upper.perc.intervals","bootstrap.method","alpha","B",
+  obj <- obj[c("x.eval","tf.estimate","bootstrap.lower.band",
+               "bootstrap.upper.band","bootstrap.algorithm","alpha","B",
                "df.boots","tf.bootstrap.ensemble","prune","n.pruned","x","y",
                "weights","fitted.values","residuals","k","lambda","lambda.min",
                "df","df.min","i.min","validation.method","error","thinning",
@@ -317,7 +322,6 @@ bootstrap.trendfilter <- function(obj,
 }
 
 
-#' @importFrom dplyr %>%
 tf.estimator <- function(data, 
                          obj,
                          mode = "lambda"
@@ -368,20 +372,17 @@ tf.estimator <- function(data,
   return(list(tf.estimate = tf.estimate * obj$y.scale, df = df.min))
 }
 
-#' @importFrom dplyr slice_sample
+
 nonparametric.resampler <- function(data){
   slice_sample(data, n = nrow(data), replace = TRUE)
 }
 
 
-#' @importFrom stats rnorm
-#' @importFrom dplyr %>% mutate n
 parametric.sampler <- function(data){
   data %>% mutate(y = fitted.values + rnorm(n = n(), sd = 1 / sqrt(weights)))
 }
 
 
-#' @importFrom dplyr %>% mutate n
 wild.sampler <- function(data){
   data %>% mutate(y = fitted.values + residuals *
                     sample(x = c(

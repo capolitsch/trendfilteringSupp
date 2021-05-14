@@ -70,7 +70,7 @@ optimized trend filtering estimate on.}
 \item{x.eval}{Overrides \code{n.eval} if passed. A user-supplied grid of 
 inputs to evaluate the optimized trend filtering estimate on.}
 
-\item{thinning}{If \code{TRUE}, then the data are preprocessed so 
+\item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
 that a smaller, better conditioned data set is used for fitting. When set to
 \code{NULL}, the default, function will auto detect whether thinning should 
 be applied (i.e., cases in which the numerical fitting algorithm will 
@@ -139,7 +139,7 @@ standard errors of the uncertainty in the measured outputs.}
 the observed inputs \code{x}.}
 \item{residuals}{\code{residuals = y - fitted.values}.}
 \item{k}{The degree of the trend filtering estimator.}
-\item{thinning}{If \code{TRUE}, then the data are preprocessed so 
+\item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
 that a smaller, better conditioned data set is used for fitting. When set to
 \code{NULL}, the default, function will auto detect whether thinning should 
 be applied (i.e., cases in which the numerical fitting algorithm will 
@@ -163,7 +163,7 @@ curve and the optimized trend filtering estimate within a larger list of
 helpful ancillary information.
 }
 \details{
-This should be a very detailed description... \cr \cr
+This will be a very detailed description... \cr \cr
 \mjeqn{WMAE(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
 \mjeqn{WMSE(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
 \mjeqn{MAE(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
@@ -243,6 +243,10 @@ Series in Statistics.
 for Trend Filtering. \emph{Journal of Computational and Graphical 
 Statistics}, 25(3), p. 839-858.
 \href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
+\item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
+generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
+\href{https://github.com/glmgen/glmgen}{[Link]}} \cr
+(Implementation of Ramdas and Tibshirani algorithm) \cr
 }
 }
 \seealso{
