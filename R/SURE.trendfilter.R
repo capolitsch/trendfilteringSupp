@@ -149,7 +149,6 @@
 #' # aside from some instances of masked pixels.
 #' 
 #' data(quasar_spec)
-#' data(plotting_utilities)
 #' 
 #' 
 #' # We are interested in denoising the observed brightness of the quasar 
