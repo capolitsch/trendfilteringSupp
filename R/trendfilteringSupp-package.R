@@ -85,7 +85,15 @@
 #' Learning: Data Mining, Inference, and Prediction. 2nd edition. Springer 
 #' Series in Statistics. 
 #' \href{https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf}{
-#' [Online print #12]}. (See Chapter 7.10 for discussion on cross validation.) \cr
+#' [Online print #12]}. (See Sections 7.10 and 7.12) \cr
+#' \item James, Witten, Hastie, and Tibshirani (2013). An Introduction to 
+#' Statistical Learning : with Applications in R. Springer.
+#' \href{https://www.statlearning.com/}{[Most recent online print]} (See 
+#' Section 5.1). \emph{Less technical than the above reference.}\cr
+#' \item Tibshirani (2013). Model selection and validation 2: Model
+#' assessment, more cross-validation. \emph{36-462: Data Mining course notes} 
+#' (Carnegie Mellon).
+#' \href{https://www.stat.cmu.edu/~ryantibs/datamining/lectures/19-val2.pdf}{[Link]}
 #' }
 NULL
 
