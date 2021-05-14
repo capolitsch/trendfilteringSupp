@@ -259,10 +259,12 @@ cv.trendfilter <- function(x,
   }
   mc.cores <- min(mc.cores, V)
   if ( length(weights) != length(y) ){
-    weights <- case_when(
-      length(weights) == 1 ~ rep_len(weights, length(y)),
-      length(weights) == 0 ~ rep_len(1, length(y))
-    )
+    if ( length(weights) == 0 ){
+      weights <- rep_len(1, length(y))
+    }
+    if ( length(weights) == 1 ){
+      weights <- rep_len(weights, length(y))
+    }
   }
   
   data <- tibble(x, y, weights) %>% 
