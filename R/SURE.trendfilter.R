@@ -1,5 +1,5 @@
-#' Optimize the trend filtering hyperparameter (with respect to Stein's unbiased 
-#' risk estimate)
+#' Optimize the trend filtering hyperparameter (with respect to Stein's 
+#' unbiased risk estimate)
 #'
 #' @description \loadmathjax{} \code{SURE.trendfilter} estimates the fixed-input 
 #' squared error of a trend filtering estimator (via Stein's unbiased risk 
@@ -95,8 +95,7 @@
 #' @details This will contain a very detailed description...
 #' @export SURE.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
-#' @seealso \code{\link{trendfilter}}, \code{\link{cv.trendfilter}},
-#' \code{\link{relax.trendfilter}}, \code{\link{bootstrap.trendfilter}}
+#' @seealso \code{\link{cv.trendfilter}}, \code{\link{bootstrap.trendfilter}}
 #' @references 
 #' \strong{Trend filtering with Stein's unbiased risk estimate}
 #' \enumerate{

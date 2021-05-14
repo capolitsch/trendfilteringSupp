@@ -132,8 +132,7 @@
 #' \mjeqn{x_i}{ascii}. 
 #' @export cv.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
-#' @seealso \code{\link{trendfilter}}, \code{\link{SURE.trendfilter}}, 
-#' \code{\link{relax.trendfilter}}, \code{\link{bootstrap.trendfilter}}
+#' @seealso \code{\link{SURE.trendfilter}}, \code{\link{bootstrap.trendfilter}}
 #' @references 
 #' \strong{Cross validation}
 #' \enumerate{

@@ -99,8 +99,7 @@
 #' unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.algorithm = "wild"}.}
 #' @export bootstrap.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
-#' @seealso \code{\link{trendfilter}}, \code{\link{SURE.trendfilter}}, 
-#' \code{\link{cv.trendfilter}}, \code{\link{relax.trendfilter}}
+#' @seealso \code{\link{SURE.trendfilter}}, \code{\link{cv.trendfilter}}
 #' @references 
 #' \strong{Trend filtering and the various bootstraps in practice}
 #' \enumerate{

@@ -244,8 +244,7 @@ generalized lasso problems. R package \emph{glmgen}. Version 0.0.3.
 }
 }
 \seealso{
-\code{\link{trendfilter}}, \code{\link{SURE.trendfilter}}, 
-\code{\link{cv.trendfilter}}, \code{\link{relax.trendfilter}}
+\code{\link{SURE.trendfilter}}, \code{\link{cv.trendfilter}}
 }
 \author{
 Collin A. Politsch, \email{collinpolitsch@gmail.com}

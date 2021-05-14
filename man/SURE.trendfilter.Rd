@@ -2,8 +2,8 @@
 % Please edit documentation in R/SURE.trendfilter.R
 \name{SURE.trendfilter}
 \alias{SURE.trendfilter}
-\title{Optimize the trend filtering hyperparameter (with respect to Stein's unbiased 
-risk estimate)}
+\title{Optimize the trend filtering hyperparameter (with respect to Stein's 
+unbiased risk estimate)}
 \usage{
 SURE.trendfilter(
   x,
@@ -231,8 +231,7 @@ generalized lasso problems. R package \emph{glmgen}. Version 0.0.3.
 }
 }
 \seealso{
-\code{\link{trendfilter}}, \code{\link{cv.trendfilter}},
-\code{\link{relax.trendfilter}}, \code{\link{bootstrap.trendfilter}}
+\code{\link{cv.trendfilter}}, \code{\link{bootstrap.trendfilter}}
 }
 \author{
 Collin A. Politsch, \email{collinpolitsch@gmail.com}

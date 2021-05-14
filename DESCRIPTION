@@ -1,7 +1,7 @@
 Package: trendfilteringSupp
 Title: Optimal one-dimensional data analysis with trend filtering
-Version: 2.0.0
-Date: 2021-05-10
+Version: 1.1.0
+Date: 2021-05-13
 Author: Collin A. Politsch
 Authors@R: 
     person(given = "Collin A.",

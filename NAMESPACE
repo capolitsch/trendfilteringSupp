@@ -3,8 +3,6 @@
 export(SURE.trendfilter)
 export(bootstrap.trendfilter)
 export(cv.trendfilter)
-export(relax.trendfilter)
-export(trendfilter)
 importFrom(dplyr,arrange)
 importFrom(dplyr,bind_rows)
 importFrom(dplyr,case_when)
