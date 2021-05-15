@@ -248,6 +248,12 @@ SURE.trendfilter <- function(x,
   y <- data$y / y.scale
   weights <- y.scale ^ 2 * data$weights
   
+  if ( is.null(x.eval) ){
+    x.eval <- seq(min(x), max(x), length = n.eval)
+  }else{
+    x.eval <- sort(x.eval) / x.scale
+  }
+  
   if ( is.null(lambda) ){
     lambda <- seq(16, -10, length = nlambda) %>% exp 
   }else{
@@ -270,12 +276,6 @@ SURE.trendfilter <- function(x,
     as.numeric
   i.min <- as.integer(which.min(error))
   lambda.min <- lambda[i.min]
-  
-  if ( is.null(x.eval) ){
-    x.eval <- seq(min(x), max(x), length = n.eval)
-  }else{
-    x.eval <- sort(x.eval) / x.scale
-  }
   
   tf.estimate <- glmgen:::predict.trendfilter(out, lambda = lambda.min, x.new = x.eval) %>% 
     as.numeric

@@ -289,9 +289,9 @@ bootstrap.trendfilter <- function(obj,
     as.integer
   obj$n.pruned <- (B - ncol(tf.boot.ensemble)) %>% as.integer
   obj$bootstrap.lower.band <- apply(tf.boot.ensemble, 1, quantile, 
-                                              probs = alpha / 2)
+                                              probs = alpha / 2) * obj$y.scale
   obj$bootstrap.upper.band <- apply(tf.boot.ensemble, 1, quantile, 
-                                              probs = 1 - alpha / 2)
+                                              probs = 1 - alpha / 2) * obj$y.scale
   obj <- c(obj, list(bootstrap.algorithm = bootstrap.algorithm, alpha = alpha, B = B))
   
   obj$x.eval <- obj$x.eval * obj$x.scale
