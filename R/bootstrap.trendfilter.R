@@ -243,16 +243,13 @@ bootstrap.trendfilter <- function(obj,
     mc.cores <- detectCores()
   }
   obj$prune <- prune
-
-  obj$x.scale <- mean(diff(obj$x))
-  obj$y.scale <- mean(abs(obj$y)) / 10
   obj$x <- obj$x / obj$x.scale
   obj$y <- obj$y / obj$y.scale
   obj$residuals <- obj$residuals / obj$y.scale
   obj$fitted.values <- obj$fitted.values / obj$y.scale
   
   if ( is.null(obj$weights) ){
-    data <- tibble(x = obj$x, y = obj$y, weights = 1,
+    data <- tibble(x = obj$x, y = obj$y, weights = rep(1, length(obj$x)),
                    fitted.values = obj$fitted.values,
                    residuals = obj$residuals
                    )
@@ -289,9 +286,9 @@ bootstrap.trendfilter <- function(obj,
     as.integer
   obj$n.pruned <- (B - ncol(tf.boot.ensemble)) %>% as.integer
   obj$bootstrap.lower.band <- apply(tf.boot.ensemble, 1, quantile, 
-                                              probs = alpha / 2) * obj$y.scale
+                                              probs = alpha / 2) 
   obj$bootstrap.upper.band <- apply(tf.boot.ensemble, 1, quantile, 
-                                              probs = 1 - alpha / 2) * obj$y.scale
+                                              probs = 1 - alpha / 2)
   obj <- c(obj, list(bootstrap.algorithm = bootstrap.algorithm, alpha = alpha, B = B))
   
   obj$x.eval <- obj$x.eval * obj$x.scale

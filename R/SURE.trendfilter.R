@@ -300,7 +300,9 @@ SURE.trendfilter <- function(x,
                         k = as.integer(k),
                         thinning = thinning,
                         max_iter = as.integer(max_iter),
-                        obj_tol = obj_tol
+                        obj_tol = obj_tol,
+                        x.scale = x.scale,
+                        y.scale = y.scale
                         ),
                    class = "SURE.trendfilter"
                    )
