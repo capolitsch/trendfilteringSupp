@@ -10,9 +10,9 @@ SURE.trendfilter(
   y,
   weights,
   k = 2L,
-  nlambda = 250L,
-  n.eval = 1500L,
-  lambda = NULL,
+  ngammas = 250L,
+  gammas = NULL,
+  nx.eval = 1500L,
   x.eval = NULL,
   thinning = NULL,
   optimization.params = trendfilter.control.list(max_iter = 600L, obj_tol = 1e-10)
@@ -26,52 +26,55 @@ control variable, etc.)}
 \item{y}{The vector of observed values of the output variable (a.k.a. the
 response, target, outcome, regressand, dependent variable, etc.).}
 
-\item{weights}{\strong{(Currently mandatory. If reliable estimates of
-the error variance are not available, use \code{cv.trendfilter} instead.)}: 
+\item{weights}{\strong{Currently mandatory. If the uncertainty in the 
+observed outputs is not well understood, use \code{cv.trendfilter} instead.} 
+\cr \cr 
 A vector of weights for the observed outputs. These are defined as 
 \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of standard 
-errors of the uncertainty in the output measurements. \code{weights} should 
+errors of the uncertainty in the observed outputs. \code{weights} should 
 either have length equal to 1 (corresponding to observations with a constant 
 (scalar) variance of \code{sigma = 1/sqrt(weights)}) or length equal to 
-\code{length(y)} (i.e. heteroskedastic outputs).}
+\code{length(y)} (i.e. general heteroskedastic noise).}
 
 \item{k}{The degree of the trend filtering estimator. Defaults to 
 \code{k = 2} (quadratic trend filtering). Must be one of \code{k = 0,1,2,3},
 although \code{k = 3} is discouraged due to algorithmic instability (and is
 visually indistinguishable from \code{k = 2} anyway).}
 
-\item{nlambda}{Integer. The number of trend filtering hyperparameter values 
-to run the grid search over. If \code{lambda = NULL}, a grid of length 
-\code{nlambda} is constructed internally.}
+\item{ngammas}{Integer. The number of trend filtering hyperparameter values 
+to run the grid search over.}
 
-\item{n.eval}{Integer. The length of the equally-spaced \code{x} grid to 
+\item{gammas}{Overrides \code{ngammas} if passed. A user-supplied vector of 
+trend filtering hyperparameter values to run the grid search over. It is
+advisable to let the vector be equally-spaced in log-space and provided in 
+descending order. The function output will contain the sorted hyperparameter
+vector regardless of the input ordering, and all related output objects 
+(e.g. the \code{errors} vector) will correspond to the sorted ordering. 
+Unless you know what you are doing, it is best to leave this \code{NULL}.}
+
+\item{nx.eval}{Integer. The length of the equally-spaced \code{x} grid to 
 evaluate the optimized trend filtering estimate on.}
 
-\item{lambda}{Overrides \code{nlambda} if passed. A user-supplied vector of 
-trend filtering hyperparameter values to run the grid search over. Usually
-good to let them be equally-spaced in log-space. Descending order is 
-encouraged to avoid ambiguity, since they will be resorted internally for
-algorithmic benefits. Regardless, the sorted vector is returned in the 
-function output. Using this argument is discouraged unless you know what you 
-are doing.}
-
-\item{x.eval}{Overrides \code{n.eval} if passed. A user-supplied grid of 
+\item{x.eval}{Overrides \code{nx.eval} if passed. A user-supplied grid of 
 inputs to evaluate the optimized trend filtering estimate on.}
 
 \item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
 that a smaller, better conditioned data set is used for fitting. When left
 \code{NULL}, the default, the optimization will automatically detect whether 
 thinning should be applied (i.e., cases in which the numerical fitting 
-algorithm will struggle to converge).}
+algorithm will struggle to converge). This preprocessing procedure is 
+controlled by the \code{x_tol} argument of 
+\code{\link[glmgen]{trendfilter.control.list}}.}
 
 \item{optimization.params}{a named list of parameters produced by the
-\pkg{glmgen} function \code{\link[glmgen]{trendfilter.control.list}} to pass 
-to the trend filtering convex optimization algorithm
+\pkg{glmgen} function \code{\link[glmgen]{trendfilter.control.list}} that
+contains all parameter choices (user-supplied or defaults) to be passed to 
+the trend filtering ADMM algorithm
 (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and
 Tibshirani 2016}). See the linked function documentation for full details. 
-Unless you really know what you are doing you can likely just utilize most 
-the default parameter choices provided. However, the following three 
-parameters may require some adjustments to ensure your trend filtering
+No technical understanding of the ADMM algorithm is needed and the default
+parameter choices will almost always suffice. However, the following three 
+parameters may require some adjustments to ensure that your trend filtering
 estimate has sufficiently converged:
 \enumerate{ 
 \item{\code{max_iter}}: Maximum iterations allowed for the trend filtering 
@@ -96,22 +99,22 @@ evaluated on.}
 \item{tf.estimate}{The optimized trend filtering estimate of the signal, 
 evaluated on \code{x.eval}.}
 \item{validation.method}{"SURE"}
-\item{lambda}{Vector of hyperparameter values tested during validation
+\item{gammas}{Vector of hyperparameter values tested during validation
 (always returned in descending order).}
-\item{error}{Vector of SURE error estimates corresponding to the *descending* 
-set of lambda values tested during validation.}
-\item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
-\item{df}{Vector of effective degrees of freedom for all trend filtering
+\item{errors}{Vector of SURE error estimates corresponding to the *descending* 
+set of gamma values tested during validation.}
+\item{gamma.min}{Hyperparameter value that minimizes the SURE error curve.}
+\item{edfs}{Vector of effective degrees of freedom for all trend filtering
 estimators fit during validation.}
-\item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
+\item{edf.min}{The effective degrees of freedom of the optimally-tuned trend 
 filtering estimator.}
-\item{i.min}{The index of \code{lambda} (descending order) that minimizes 
+\item{i.min}{The index of \code{gammas} (descending order) that minimizes 
 the SURE error curve.}
 \item{x}{The vector of the observed inputs.}
 \item{y}{The vector of the observed outputs.}
 \item{weights}{A vector of weights for the observed outputs. These are
 defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
-standard errors of the uncertainty in the measured outputs.}
+standard errors of the uncertainty in the observed outputs.}
 \item{fitted.values}{The optimized trend filtering estimate of the signal, 
 evaluated at the observed inputs \code{x}.}
 \item{residuals}{\code{residuals = y - fitted.values}.}
@@ -124,9 +127,9 @@ filtering convex optimization.}
 \description{
 \loadmathjax{} \code{SURE.trendfilter} estimates the fixed-input 
 mean-squared error of a trend filtering estimator (via Stein's unbiased risk 
-estimate) on a grid of hyperparameter values and returns the full error 
-curve and the optimized trend filtering estimate within a larger list of 
-helpful ancillary information.
+estimate) on a grid of values for the hyperparameter \code{gamma}, and 
+returns the full error curve and the optimized trend filtering estimate 
+within a larger list of useful ancillary information.
 }
 \details{
 This will contain a very detailed description...
@@ -144,7 +147,7 @@ data(quasar_spec)
 
 
 # We are interested in denoising the observed brightness of the quasar 
-# (measured as a 'flux' quantity) over the observed wavelength range. Since 
+# (measured as a `flux` quantity) over the observed wavelength range. Since 
 # the logarithmic wavelengths are gridded, we optimize the trend filtering 
 # hyperparameter by minimizing the SURE estimate of fixed-input squared 
 # prediction error. For smoothness, we use quadratic trend filtering, i.e. 
@@ -155,12 +158,12 @@ SURE.obj <- SURE.trendfilter(x = log10.wavelength,
                              weights = weights)
 
 
-# Extract the SURE error curve and optimized trend filtering estimate from 
-# the output
+# Extract the estimated hyperparameter error curve and optimized trend 
+# filtering estimate from the `SURE.trendfilter` output
 
-log.lambda <- log(SURE.obj$lambda)
-error <- SURE.obj$error
-log.lambda.min <- log(SURE.obj$lambda.min)
+log.gammas <- log(SURE.obj$gammas)
+errors <- SURE.obj$errors
+log.gamma.min <- log(SURE.obj$gamma.min)
 
 log10.wavelength.eval <- SURE.obj$x.eval
 tf.estimate <- SURE.obj$tf.estimate
@@ -175,11 +178,11 @@ wavelength.eval <- 10 ^ (log10.wavelength.eval)
 # Plot the results
 
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-plot(x = log.lambda, y = error, main = "SURE error curve", 
-     xlab = "log(lambda)", ylab = "SURE error")
-abline(v = log.lambda.min, lty = 2, col = "blue3")
-text(x = log.lambda.min, y = par("usr")[4], 
-     labels = "optimal hyperparameter", pos = 1, col = "blue3")
+plot(x = log.gammas, y = errors, main = "SURE error curve", 
+     xlab = "log(gamma)", ylab = "SURE error")
+abline(v = log.gamma.min, lty = 2, col = "blue3")
+text(x = log.gamma.min, y = par("usr")[4], 
+     labels = "optimal gamma", pos = 1, col = "blue3")
 
 plot(x = wavelength, y = flux, type = "l", main = "Quasar Lyman-alpha forest", 
      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
