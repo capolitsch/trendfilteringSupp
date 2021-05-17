@@ -46,10 +46,10 @@
 #' \pkg{glmgen} function \code{\link[glmgen]{trendfilter.control.list}} to pass 
 #' to the trend filtering convex optimization algorithm
 #' (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and
-#' Tibshirani 2016}). See \code{help(trendfilter.control.list)} for full 
-#' details. Unless you really know what you are doing you can likely just 
-#' utilize most the default parameter choices provided. However, the following 
-#' three parameters may require some adjustments to ensure your trend filtering
+#' Tibshirani 2016}). See the linked function documentation for full details. 
+#' Unless you really know what you are doing you can likely just utilize most 
+#' the default parameter choices provided. However, the following three 
+#' parameters may require some adjustments to ensure your trend filtering
 #' estimate has sufficiently converged:
 #' \enumerate{ 
 #' \item{\code{max_iter}}: Maximum iterations allowed for the trend filtering 
