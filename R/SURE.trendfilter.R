@@ -218,7 +218,7 @@ SURE.trendfilter <- function(x,
                              x.eval = NULL,
                              thinning = NULL,
                              optimization.params = trendfilter.control.list(max_iter = 600L,
-                                                                            obj_tol = 1e-08)
+                                                                            obj_tol = 1e-10)
                              )
   {
   
@@ -336,7 +336,9 @@ SURE.trendfilter <- function(x,
                         k = as.integer(k),
                         thinning = thinning,
                         optimization.params = optimization.params,
-                        data.scaled = data.scaled
+                        data.scaled = list(x.scale = x.scale, 
+                                           y.scale = y.scale, 
+                                           data = data.scaled)
                         ),
                    class = "SURE.trendfilter"
                    )
