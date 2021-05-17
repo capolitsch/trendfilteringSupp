@@ -77,8 +77,8 @@
 #' \item{validation.method}{"SURE"}
 #' \item{gammas}{Vector of hyperparameter values tested during validation
 #' (always returned in descending order).}
-#' \item{errors}{Vector of SURE error estimates corresponding to the *descending* 
-#' set of gamma values tested during validation.}
+#' \item{errors}{Vector of SURE error estimates corresponding to the 
+#' *descending* set of gamma values tested during validation.}
 #' \item{gamma.min}{Hyperparameter value that minimizes the SURE error curve.}
 #' \item{edfs}{Vector of effective degrees of freedom for all trend filtering
 #' estimators fit during validation.}
