@@ -218,9 +218,7 @@ SURE.trendfilter <- function(x,
                              x.eval = NULL,
                              thinning = NULL,
                              optimization.params = trendfilter.control.list(max_iter = 600L,
-                                                                              obj_tol = 1e-08,
-                                                                              x_tol = 1e-06 * max(IQR(x),
-                                                                                                  diff(range(x))/2))
+                                                                            obj_tol = 1e-08)
                              )
   {
   
@@ -306,9 +304,9 @@ SURE.trendfilter <- function(x,
                              control = optimization.params
                              )
   
-  training.error <- colMeans( (out$beta - data$y) ^ 2 )
-  optimism <- 2 * out$df / nrow(data) * mean(1 / data$weights)
-  error <- as.numeric(training.error + optimism) * y.scale^2
+  training.error <- colMeans( (out$beta - data.scaled$y) ^ 2 ) * y.scale ^ 2
+  optimism <- 2 * out$df / nrow(data.scaled) * mean(1 / data$weights)
+  error <- as.numeric(training.error + optimism)
   
   i.min <- as.integer(which.min(error))
   lambda.min <- lambda[i.min]
@@ -337,7 +335,8 @@ SURE.trendfilter <- function(x,
                         residuals = as.numeric(data$y - fitted.values),
                         k = as.integer(k),
                         thinning = thinning,
-                        optimization.params = optimization.params
+                        optimization.params = optimization.params,
+                        data.scaled = data.scaled
                         ),
                    class = "SURE.trendfilter"
                    )
