@@ -207,7 +207,7 @@
 #' 
 #' data(eclipsing_binary)
 #' 
-#' # head(data)
+#' # head(df)
 #' #
 #' # |      phase|      flux|  std.err|
 #' # |----------:|---------:|--------:|
@@ -218,9 +218,9 @@
 #' # This specific choice of values did not come a priori
 #' gamma.grid <- exp( seq(7, 16, length = 150) )
 #' 
-#' cv.out <- cv.trendfilter(x = data$phase, 
-#'                          y = data$flux, 
-#'                          weights = 1 / data$std.err ^ 2,
+#' cv.out <- cv.trendfilter(x = df$phase, 
+#'                          y = df$flux, 
+#'                          weights = 1 / df$std.err ^ 2,
 #'                          gammas = gamma.grid,
 #'                          validation.error.type = "MAE",
 #'                          thinning = TRUE, 
@@ -239,10 +239,10 @@
 #' abline(v = log(cv.out$gamma.min), lty = 2, col = "blue3")
 #' text(x = log(cv.out$gamma.min), y = par("usr")[4], 
 #'      labels = "optimal gamma", pos = 1, col = "blue3")
-#' plot(data$phase, data$flux, cex = 0.15, xlab = "Phase", ylab = "Flux",
+#' plot(df$phase, df$flux, cex = 0.15, xlab = "Phase", ylab = "Flux",
 #'      main = "Eclipsing binary phase-folded light curve")
-#' segments(x0 = data$phase, x1 = data$phase, 
-#'          y0 = data$flux - data$std.err, y1 = data$flux + data$std.err, 
+#' segments(x0 = df$phase, x1 = df$phase, 
+#'          y0 = df$flux - df$std.err, y1 = df$flux + df$std.err, 
 #'          lwd = 0.25)
 #' lines(cv.out$x.eval, cv.out$tf.estimate, col = "orange", lwd = 2.5)
 
