@@ -122,14 +122,14 @@ evaluated at the observed inputs \code{x}.}
 \item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
 that a smaller, better conditioned data set is used for fitting.}
 \item{optimization.params}{a list of parameters that control the trend
-filtering convex optimization.}
+filtering ADMM optimization.}
 }
 \description{
 \loadmathjax{} \code{SURE.trendfilter} estimates the fixed-input 
 mean-squared error of a trend filtering estimator (via Stein's unbiased risk 
 estimate) on a grid of values for the hyperparameter \code{gamma}, and 
 returns the full error curve and the optimized trend filtering estimate 
-within a larger list of useful ancillary information.
+within a larger list with useful ancillary information.
 }
 \details{
 This will contain a very detailed description...
@@ -139,40 +139,47 @@ This will contain a very detailed description...
 ##                    Quasar Lyman-alpha forest example                    ##
 #############################################################################
 
-# Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-# z ~ 2.953. SDSS spectra are equally spaced in log10 wavelength space, 
-# aside from some instances of masked pixels.
+# A quasar is an extremely luminous galaxy with an active supermassive black 
+# hole at its center. Absorptions in the spectra of quasars at vast 
+# cosmological distances from our galaxy reveal the presence of a gaseous 
+# medium permeating the entirety of intergalactic space -- appropriately 
+# named the 'intergalactic medium'. These absorptions allow astronomers to 
+# study the structure of the Universe using the distribution of these 
+# absorptions in quasar spectra. Particularly important is the 'forest' of 
+# absorptions that arise from the Lyman-alpha spectral line, which traces 
+# the presence of electrically neutral hydrogen in the intergalactic medium.
+#
+# Here, we are interested in denoising the Lyman-alpha forest of a quasar 
+# spectroscopically measured by the Sloan Digital Sky Survey. SDSS spectra 
+# are equally spaced in log10 wavelength space, aside from some instances of 
+# masked pixels.
 
 data(quasar_spec)
 
+# head(data)
+#
+# | log10.wavelength|       flux|   weights|
+# |----------------:|----------:|---------:|
+# |           3.5529|  0.4235348| 0.0417015|
+# |           3.5530| -2.1143005| 0.1247811|
+# |           3.5531| -3.7832341| 0.1284383|
 
-# We are interested in denoising the observed brightness of the quasar 
-# (measured as a `flux` quantity) over the observed wavelength range. Since 
-# the logarithmic wavelengths are gridded, we optimize the trend filtering 
-# hyperparameter by minimizing the SURE estimate of fixed-input squared 
-# prediction error. For smoothness, we use quadratic trend filtering, i.e. 
-# the default k = 2. 
-
-SURE.obj <- SURE.trendfilter(x = log10.wavelength, 
-                             y = flux, 
-                             weights = weights)
+SURE.obj <- SURE.trendfilter(x = data$log10.wavelength, 
+                             y = data$flux, 
+                             weights = data$weights)
 
 
 # Extract the estimated hyperparameter error curve and optimized trend 
-# filtering estimate from the `SURE.trendfilter` output
+# filtering estimate from the `SURE.trendfilter` output, and transform the 
+# input grid to wavelength space (in Angstroms).
 
 log.gammas <- log(SURE.obj$gammas)
 errors <- SURE.obj$errors
 log.gamma.min <- log(SURE.obj$gamma.min)
 
-log10.wavelength.eval <- SURE.obj$x.eval
+wavelength <- 10 ^ (SURE.obj$x)
+wavelength.eval <- 10 ^ (SURE.obj$x.eval)
 tf.estimate <- SURE.obj$tf.estimate
-
-
-# Transform the inputs to wavelength space (in Angstroms)
-
-wavelength <- 10 ^ (log10.wavelength)
-wavelength.eval <- 10 ^ (log10.wavelength.eval)
 
 
 # Plot the results
@@ -184,11 +191,13 @@ abline(v = log.gamma.min, lty = 2, col = "blue3")
 text(x = log.gamma.min, y = par("usr")[4], 
      labels = "optimal gamma", pos = 1, col = "blue3")
 
-plot(x = wavelength, y = flux, type = "l", main = "Quasar Lyman-alpha forest", 
+plot(x = wavelength, y = SURE.obj$y, type = "l", 
+     main = "Quasar Lyman-alpha forest", 
      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
-       legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
+       legend = c("Noisy quasar Lyman-alpha forest", 
+                  "Trend filtering estimate"))
 }
 \references{
 \strong{Trend filtering with Stein's unbiased risk estimate}

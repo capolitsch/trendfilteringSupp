@@ -5,7 +5,7 @@
 #' mean-squared error of a trend filtering estimator (via Stein's unbiased risk 
 #' estimate) on a grid of values for the hyperparameter \code{gamma}, and 
 #' returns the full error curve and the optimized trend filtering estimate 
-#' within a larger list of useful ancillary information.
+#' within a larger list with useful ancillary information.
 #' @param x The vector of observed values of the input variable (a.k.a. the 
 #' predictor, covariate, explanatory variable, regressor, independent variable, 
 #' control variable, etc.)
@@ -98,7 +98,7 @@
 #' \item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
 #' that a smaller, better conditioned data set is used for fitting.}
 #' \item{optimization.params}{a list of parameters that control the trend
-#' filtering convex optimization.}
+#' filtering ADMM optimization.}
 #' @details This will contain a very detailed description...
 #' @export SURE.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
@@ -156,40 +156,47 @@
 #' ##                    Quasar Lyman-alpha forest example                    ##
 #' #############################################################################
 #' 
-#' # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-#' # z ~ 2.953. SDSS spectra are equally spaced in log10 wavelength space, 
-#' # aside from some instances of masked pixels.
+#' # A quasar is an extremely luminous galaxy with an active supermassive black 
+#' # hole at its center. Absorptions in the spectra of quasars at vast 
+#' # cosmological distances from our galaxy reveal the presence of a gaseous 
+#' # medium permeating the entirety of intergalactic space -- appropriately 
+#' # named the 'intergalactic medium'. These absorptions allow astronomers to 
+#' # study the structure of the Universe using the distribution of these 
+#' # absorptions in quasar spectra. Particularly important is the 'forest' of 
+#' # absorptions that arise from the Lyman-alpha spectral line, which traces 
+#' # the presence of electrically neutral hydrogen in the intergalactic medium.
+#' #
+#' # Here, we are interested in denoising the Lyman-alpha forest of a quasar 
+#' # spectroscopically measured by the Sloan Digital Sky Survey. SDSS spectra 
+#' # are equally spaced in log10 wavelength space, aside from some instances of 
+#' # masked pixels.
 #' 
 #' data(quasar_spec)
+#'
+#' # head(data)
+#' #
+#' # | log10.wavelength|       flux|   weights|
+#' # |----------------:|----------:|---------:|
+#' # |           3.5529|  0.4235348| 0.0417015|
+#' # |           3.5530| -2.1143005| 0.1247811|
+#' # |           3.5531| -3.7832341| 0.1284383|
 #' 
-#' 
-#' # We are interested in denoising the observed brightness of the quasar 
-#' # (measured as a `flux` quantity) over the observed wavelength range. Since 
-#' # the logarithmic wavelengths are gridded, we optimize the trend filtering 
-#' # hyperparameter by minimizing the SURE estimate of fixed-input squared 
-#' # prediction error. For smoothness, we use quadratic trend filtering, i.e. 
-#' # the default k = 2. 
-#' 
-#' SURE.obj <- SURE.trendfilter(x = log10.wavelength, 
-#'                              y = flux, 
-#'                              weights = weights)
+#' SURE.obj <- SURE.trendfilter(x = data$log10.wavelength, 
+#'                              y = data$flux, 
+#'                              weights = data$weights)
 #' 
 #' 
 #' # Extract the estimated hyperparameter error curve and optimized trend 
-#' # filtering estimate from the `SURE.trendfilter` output
+#' # filtering estimate from the `SURE.trendfilter` output, and transform the 
+#' # input grid to wavelength space (in Angstroms).
 #' 
 #' log.gammas <- log(SURE.obj$gammas)
 #' errors <- SURE.obj$errors
 #' log.gamma.min <- log(SURE.obj$gamma.min)
 #' 
-#' log10.wavelength.eval <- SURE.obj$x.eval
+#' wavelength <- 10 ^ (SURE.obj$x)
+#' wavelength.eval <- 10 ^ (SURE.obj$x.eval)
 #' tf.estimate <- SURE.obj$tf.estimate
-#' 
-#' 
-#' # Transform the inputs to wavelength space (in Angstroms)
-#' 
-#' wavelength <- 10 ^ (log10.wavelength)
-#' wavelength.eval <- 10 ^ (log10.wavelength.eval)
 #' 
 #' 
 #' # Plot the results
@@ -201,11 +208,13 @@
 #' text(x = log.gamma.min, y = par("usr")[4], 
 #'      labels = "optimal gamma", pos = 1, col = "blue3")
 #' 
-#' plot(x = wavelength, y = flux, type = "l", main = "Quasar Lyman-alpha forest", 
+#' plot(x = wavelength, y = SURE.obj$y, type = "l", 
+#'      main = "Quasar Lyman-alpha forest", 
 #'      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 #' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 #' legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
-#'        legend = c("Noisy quasar Lyman-alpha forest", "Trend filtering estimate"))
+#'        legend = c("Noisy quasar Lyman-alpha forest", 
+#'                   "Trend filtering estimate"))
 
 #' @importFrom tidyr drop_na tibble
 #' @importFrom magrittr %>% %$%
@@ -266,6 +275,7 @@ SURE.trendfilter <- function(x,
       stop("x.eval should all be in range(x).")
     }
   }
+  
   if ( length(weights) == 1 ){
     weights <- rep(weights, length(x))
   }
@@ -286,12 +296,6 @@ SURE.trendfilter <- function(x,
            y = y / y.scale,
            weights = weights * y.scale ^ 2)
   
-  if ( is.null(x.eval) ){
-    x.eval <- data.scaled %$% seq(min(x), max(x), length = nx.eval)
-  }else{
-    x.eval <- sort(x.eval) / x.scale
-  }
-  
   if ( is.null(gammas) ){
     gammas <- seq(16, -10, length = ngammas) %>% exp 
   }else{
@@ -307,26 +311,32 @@ SURE.trendfilter <- function(x,
                              control = optimization.params
                              )
   
-  training.error <- colMeans( (out$beta - data.scaled$y) ^ 2 ) * y.scale ^ 2
-  optimism <- 2 * out$df / nrow(data.scaled) * mean(1 / data$weights)
+  training.error <- colMeans( (out$beta - data.scaled$y) ^ 2 ) 
+  optimism <- 2 * out$df / nrow(data) * mean(1 / data.scaled$weights)
   errors <- as.numeric(training.error + optimism)
   
   i.min <- as.integer(which.min(errors))
   gamma.min <- gammas[i.min]
   
+  if ( is.null(x.eval) ){
+    x.eval <- seq(min(data$x), max(data$x), length = nx.eval)
+  }else{
+    x.eval <- sort(x.eval)
+  }
+  
   tf.estimate <- glmgen:::predict.trendfilter(out, 
                                               lambda = gamma.min, 
-                                              x.new = x.eval) * y.scale
+                                              x.new = x.eval / x.scale) * y.scale
   
   fitted.values <- glmgen:::predict.trendfilter(out, 
                                                 lambda = gamma.min, 
-                                                x.new = data$x) * y.scale
+                                                x.new = data.scaled$x) * y.scale
   
-  obj <- structure(list(x.eval = x.eval * x.scale,
+  obj <- structure(list(x.eval = x.eval,
                         tf.estimate = as.numeric(tf.estimate),
                         validation.method = "SURE",
                         gammas = gammas, 
-                        errors = errors,
+                        errors = errors * y.scale ^ 2,
                         gamma.min = gamma.min,
                         edfs = out$df,
                         edf.min = out$df[i.min],
@@ -339,9 +349,9 @@ SURE.trendfilter <- function(x,
                         k = as.integer(k),
                         thinning = thinning,
                         optimization.params = optimization.params,
-                        data.scaled = list(x.scale = x.scale, 
-                                           y.scale = y.scale, 
-                                           data = data.scaled)
+                        data.scaled = data.scaled,
+                        x.scale = x.scale, 
+                        y.scale = y.scale
                         ),
                    class = "SURE.trendfilter"
                    )

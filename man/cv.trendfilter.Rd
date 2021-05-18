@@ -9,16 +9,15 @@ cv.trendfilter(
   y,
   weights = NULL,
   k = 2L,
-  nlambda = 250L,
-  lambda = NULL,
-  validation.error.type = c("WMAE", "WMSE", "MAE", "MSE"),
   V = 5L,
-  lambda.choice = c("lambda.min", "lambda.1se"),
-  n.eval = 1500L,
+  ngammas = 250L,
+  gammas = NULL,
+  gamma.choice = c("gamma.min", "gamma.1se"),
+  validation.error.type = c("WMAE", "WMSE", "MAE", "MSE"),
+  nx.eval = 1500L,
   x.eval = NULL,
   thinning = NULL,
-  max_iter = 600L,
-  obj_tol = 1e-10,
+  optimization.params = trendfilter.control.list(max_iter = 600L, obj_tol = 1e-10),
   mc.cores = detectCores()
 )
 }
@@ -35,24 +34,39 @@ defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of
 standard errors of the uncertainty in the output measurements. \code{weights} 
 should either have length equal to 1 (corresponding to observations with a 
 constant (scalar) variance of \code{sigma = 1/sqrt(weights)}) or length equal 
-to \code{length(y)} (i.e. heteroskedastic outputs).}
+to \code{length(y)} (i.e. general heteroskedastic noise).}
 
 \item{k}{The degree of the trend filtering estimator. Defaults to 
 \code{k=2} (quadratic trend filtering). Must be one of \code{k = 0,1,2,3},
 although \code{k=3} is discouraged due to algorithmic instability (and is
 visually indistinguishable from \code{k=2} anyway).}
 
-\item{nlambda}{The number of trend filtering hyperparameter values 
-to run the grid search over. If \code{lambda = NULL}, a grid of length 
-\code{nlambda} is constructed internally.}
+\item{V}{The number of folds the data are split into for the V-fold cross
+validation. Defaults to \code{V=5} (recommended).}
 
-\item{lambda}{Overrides \code{nlambda} if passed. A user-supplied vector of 
-trend filtering hyperparameter values to run the grid search over. Usually
-good to let them be equally-spaced in log-space. Descending order is 
-encouraged to avoid ambiguity, since they will be resorted internally for
-algorithmic benefits. Regardless, the sorted vector is returned in the 
-function output. Using this argument is discouraged unless you know what you 
-are doing.}
+\item{ngammas}{Integer. The number of trend filtering hyperparameter values 
+to run the grid search over.}
+
+\item{gammas}{Overrides \code{ngammas} if passed. A user-supplied vector of 
+trend filtering hyperparameter values to run the grid search over. It is
+advisable to let the vector be equally-spaced in log-space and provided in 
+descending order. The function output will contain the sorted hyperparameter
+vector regardless of the input ordering, and all related output objects 
+(e.g. the \code{errors} vector) will correspond to the sorted ordering. 
+Unless you know what you are doing, it is best to leave this \code{NULL}.
+validation.}
+
+\item{gamma.choice}{One of \code{c("gamma.min","gamma.1se")}. The choice
+of hyperparameter that is used for optimized trend filtering estimate. 
+\cr \cr
+\code{gamma.min}: the hyperparameter value that minimizes the cross
+validation error curve. \cr \cr
+\code{gamma.1se}: the largest hyperparameter value with a cross
+validation error within 1 standard error of the minimum cross validation 
+error. This choice therefore favors simpler (i.e. smoother) trend filtering 
+estimates. The motivation here is essentially Occam's razor: the two models
+yield results that are quantitatively very close, so we favor the simpler
+model.}
 
 \item{validation.error.type}{Type of error to optimize during cross
 validation. One of \code{c("WMAE","WMSE","MAE","MSE")}, i.e. mean-absolute 
@@ -62,47 +76,47 @@ unweighted counterparts are equivalent. In short, weighting helps combat
 heteroskedasticity and absolute error decreases sensitivity to outliers.
 Defaults to \code{"WMAE"}.}
 
-\item{V}{The number of folds the data are split into for the V-fold cross
-validation. Defaults to \code{V=5} (recommended).}
+\item{nx.eval}{The length of the equally-spaced input grid to evaluate the 
+evaluate the optimized trend filtering estimate on.}
 
-\item{lambda.choice}{One of \code{c("lambda.min","lambda.1se")}. The choice
-of hyperparameter that is used for optimized trend filtering estimate. \cr \cr
-\code{lambda.min}: the hyperparameter value that minimizes the cross
-validation error curve. \cr \cr
-\code{lambda.1se}: the largest hyperparameter value with a cross
-validation error within 1 standard error of the minimum cross validation 
-error. This choice therefore favors simpler (i.e. smoother) trend filtering 
-estimates. The motivation here is essentially Occam's razor: the two models
-yield results that are quantitatively very close, so we favor the simpler
-model.}
-
-\item{n.eval}{The length of the equally-spaced input grid to evaluate the 
-optimized trend filtering estimate on.}
-
-\item{x.eval}{Overrides \code{n.eval} if passed. A user-supplied grid of 
+\item{x.eval}{Overrides \code{nx.eval} if passed. A user-supplied grid of 
 inputs to evaluate the optimized trend filtering estimate on.}
 
 \item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
-that a smaller, better conditioned data set is used for fitting. When set to
-\code{NULL}, the default, function will auto detect whether thinning should 
-be applied (i.e., cases in which the numerical fitting algorithm will 
-struggle to converge).}
+that a smaller, better conditioned data set is used for fitting. When left
+\code{NULL}, the default, the optimization will automatically detect whether 
+thinning should be applied (i.e., cases in which the numerical fitting 
+algorithm will struggle to converge). This preprocessing procedure is 
+controlled by the \code{x_tol} argument of 
+\code{\link[glmgen]{trendfilter.control.list}}.}
 
-\item{max_iter}{Maximum iterations allowed for the trend filtering 
-convex optimization 
-(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and 
-Tibshirani 2016}). Defaults to \code{max_iter = 600L}. Increase this if the 
-trend filtering estimate does not appear to have fully converged to a 
-reasonable estimate of the signal.}
-
-\item{obj_tol}{The tolerance used in the convex optimization stopping 
+\item{optimization.params}{a named list of parameters produced by the
+\pkg{glmgen} function \code{\link[glmgen]{trendfilter.control.list}} that
+contains all parameter choices (user-supplied or defaults) to be passed to 
+the trend filtering ADMM algorithm
+(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and
+Tibshirani 2016}). See the linked function documentation for full details. 
+No technical understanding of the ADMM algorithm is needed and the default
+parameter choices will almost always suffice. However, the following three 
+parameters may require some adjustments to ensure that your trend filtering
+estimate has sufficiently converged:
+\enumerate{ 
+\item{\code{max_iter}}: Maximum iterations allowed for the trend filtering 
+convex optimization. Defaults to \code{max_iter = 600L}. Increase this if 
+the trend filtering estimate does not appear to have fully converged to a 
+reasonable estimate of the signal.
+\item{\code{obj_tol}}: The tolerance used in the convex optimization stopping 
 criterion; when the relative change in the objective function is less than 
-this value, the algorithm terminates. Decrease this if the trend 
-filtering estimate does not appear to have fully converged to a reasonable 
-estimate of the signal.}
+this value, the algorithm terminates. Decrease this if the trend filtering 
+estimate does not appear to have fully converged to a reasonable estimate of 
+the signal.
+\item{x_tol}: defines uniqueness or sameness of \code{x}'s. If we make bins 
+of size \code{x_tol} and find at least two \code{x}'s which fall into the 
+same bin, then we thin the data.
+}}
 
 \item{mc.cores}{Multi-core computing (for speedups): The number of cores to
-utilize. Defaults to \code{min(detected.cores, V)}.}
+utilize. Defaults to the number of cores detected.}
 }
 \value{
 An object of class 'cv.trendfilter'. This is a list with the 
@@ -116,29 +130,29 @@ evaluated on \code{x.eval}.}
 validation.}
 \item{validation.error.type}{Type of error that validation was performed on. 
 One of \code{c("WMAE","WMSE","MAE","MSE")}.}
-\item{lambda}{Vector of hyperparameter values tested during validation. This
+\item{gammas}{Vector of hyperparameter values tested during validation. This
 vector will always be returned in descending order, regardless of the 
 ordering provided by the user. The indices \code{i.min} and \code{i.1se}
 correspond to this descending ordering.}
-\item{lambda.min}{Hyperparameter value that minimizes the SURE error curve.}
-\item{lambda.1se}{The largest hyperparameter value that is still within one
+\item{gamma.min}{Hyperparameter value that minimizes the SURE error curve.}
+\item{gamma.1se}{The largest hyperparameter value that is still within one
 standard error of the minimum hyperparameter's cross validation error.}
-\item{lambda.choice}{One of \code{c("lambda.min","lambda.1se")}. The choice
+\item{gamma.choice}{One of \code{c("gamma.min","gamma.1se")}. The choice
 of hyperparameter that is used for optimized trend filtering estimate.}
-\item{df}{Vector of effective degrees of freedom for trend filtering
+\item{edfs}{Vector of effective degrees of freedom for trend filtering
 estimators fit during validation.}
-\item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
+\item{edf.min}{The effective degrees of freedom of the optimally-tuned trend 
 filtering estimator.}
-\item{df.1se}{The effective degrees of freedom of the 1-stand-error rule
+\item{edf.1se}{The effective degrees of freedom of the 1-stand-error rule
 trend filtering estimator.}
-\item{i.min}{The index of \code{lambda} that minimizes the cross validation 
+\item{i.min}{The index of \code{gammas} that minimizes the cross validation 
 error.}
-\item{i.1se}{The index of \code{lambda} that gives the largest hyperparameter
+\item{i.1se}{The index of \code{gammas} that gives the largest hyperparameter
 value that has a cross validation error within 1 standard error of the 
 minimum of the cross validation error curves.}
-\item{error}{Vector of cross validation errors for the given hyperparameter 
+\item{errors}{Vector of cross validation errors for the given hyperparameter 
 values.}
-\item{se.error}{The standard errors of the cross validation errors.
+\item{se.errors}{The standard errors of the cross validation errors.
 These are particularly useful for implementing the ``1-standard-error rule''. 
 The 1-SE rule favors a smoother trend filtering estimate by, instead of 
 using the hyperparameter that minimizes the CV error, instead uses the 
@@ -154,36 +168,31 @@ the observed inputs \code{x}.}
 \item{residuals}{\code{residuals = y - fitted.values}.}
 \item{k}{The degree of the trend filtering estimator.}
 \item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
-that a smaller, better conditioned data set is used for fitting. When set to
-\code{NULL}, the default, function will auto detect whether thinning should 
-be applied (i.e., cases in which the numerical fitting algorithm will 
-struggle to converge).}
-\item{max_iter}{Maximum iterations allowed for the trend filtering 
-convex optimization 
-(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and 
-Tibshirani 2016}). Increase this if the trend filtering estimate does not 
-appear to have fully converged to a reasonable estimate of the signal.}
-\item{obj_tol}{The tolerance used in the convex optimization stopping 
-criterion; when the relative change in the objective function is less than 
-this value, the algorithm terminates. Decrease this if the trend filtering 
-estimate does not appear to have fully converged to a reasonable estimate of 
-the signal.}
+that a smaller, better conditioned data set is used for fitting.}
+\item{optimization.params}{a list of parameters that control the trend
+filtering convex optimization.}
+\item{n.iter}{Vector of the number of iterations needed for the ADMM
+algorithm to converge within the given tolerance, for each hyperparameter
+value. If many of these are exactly equal to \code{max_iter}, then their
+solutions have not converged with the tolerance specified by \code{obj_tol}.
+In which case, it is often prudent to increase \code{max_iter}.}
+\item{x.scale, y.scale, data.scaled}{for internal use.}
 }
 \description{
 \loadmathjax{} \code{cv.trendfilter} performs V-fold cross 
 validation to estimate the random-input squared error of a trend filtering 
-estimator over a grid of hyperparameter values and returns the full error 
-curve and the optimized trend filtering estimate within a larger list of 
-helpful ancillary information.
+estimator on a grid of values for the hyperparameter \code{gamma}, and 
+returns the full error curve and the optimized trend filtering estimate 
+within a larger list with useful ancillary information.
 }
 \details{
 This will be a very detailed description... \cr \cr
-\mjeqn{WMAE(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
-\mjeqn{WMSE(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
-\mjeqn{MAE(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|}{ascii} \cr 
-\mjeqn{MSE(\lambda) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \lambda)|^2}{ascii} \cr \cr 
-where \mjeqn{\widehat{f}(x_i; \lambda)}{ascii} is the trend filtering 
-estimate with hyperparameter \eqn{\lambda}, evaluated at 
+\mjeqn{WMAE(\gamma) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \gamma)|\frac{\sqrt{w_i}}{\sum_j\sqrt{w_j}}}{ascii} \cr 
+\mjeqn{WMSE(\gamma) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \gamma)|^2\frac{w_i}{\sum_jw_j}}{ascii} \cr 
+\mjeqn{MAE(\gamma) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \gamma)|}{ascii} \cr 
+\mjeqn{MSE(\gamma) = \frac{1}{n}\sum_{i=1}^{n} |Y_i - \widehat{f}(x_i; \gamma)|^2}{ascii} \cr \cr 
+where \mjeqn{\widehat{f}(x_i; \gamma)}{ascii} is the trend filtering 
+estimate with hyperparameter \eqn{\gamma}, evaluated at 
 \mjeqn{x_i}{ascii}.
 }
 \examples{
@@ -215,25 +224,30 @@ data(eclipsing_binary)
 # | -0.4978067| 0.9295757| 0.010162|
 # | -0.4957892| 0.9438493| 0.010162|
 
+# This specific choice of values did not come a priori
+gamma.grid <- exp( seq(7, 16, length = 150) )
+
 cv.out <- cv.trendfilter(x = data$phase, 
                          y = data$flux, 
                          weights = 1 / data$std.err ^ 2,
+                         gammas = gamma.grid,
                          validation.error.type = "MAE",
                          thinning = TRUE, 
-                         obj_tol = 1e-14, 
-                         max_iter = 1e4)
+                         optimization.params = trendfilter.control.list(max_iter = 5e3,
+                                                                        obj_tol = 1e-6)
+                         )
 
 # Plot the results
 
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-plot(log(cv.out$lambda), cv.out$error, main = "CV error curve", 
-     xlab = "log(lambda)", ylab = "CV error")
-segments(x0 = log(cv.out$lambda), x1 = log(cv.out$lambda), 
-         y0 = cv.out$error - cv.out$se.error, 
-         y1 = cv.out$error + cv.out$se.error)
-abline(v = log(cv.out$lambda.min), lty = 2, col = "blue3")
-text(x = log(cv.out$lambda.min), y = par("usr")[4], 
-     labels = "optimal hyperparameter", pos = 1, col = "blue3")
+plot(log(cv.out$gammas), cv.out$errors, main = "CV error curve", 
+     xlab = "log(gamma)", ylab = "CV error")
+segments(x0 = log(cv.out$gammas), x1 = log(cv.out$gammas), 
+         y0 = cv.out$errors - cv.out$se.errors, 
+         y1 = cv.out$errors + cv.out$se.errors)
+abline(v = log(cv.out$gamma.min), lty = 2, col = "blue3")
+text(x = log(cv.out$gamma.min), y = par("usr")[4], 
+     labels = "optimal gamma", pos = 1, col = "blue3")
 plot(data$phase, data$flux, cex = 0.15, xlab = "Phase", ylab = "Flux",
      main = "Eclipsing binary phase-folded light curve")
 segments(x0 = data$phase, x1 = data$phase, 
@@ -256,14 +270,16 @@ Section 5.1). \emph{Less technical than the above reference.}\cr
 \item Tibshirani (2013). Model selection and validation 2: Model
 assessment, more cross-validation. \emph{36-462: Data Mining course notes} 
 (Carnegie Mellon).
-\href{https://www.stat.cmu.edu/~ryantibs/datamining/lectures/19-val2.pdf}{[Link]}
+\href{https://www.stat.cmu.edu/~ryantibs/datamining/lectures/19-val2.pdf}{
+[Link]}
 }
 \strong{Trend filtering optimization algorithm}
 \enumerate{
 \item{Ramdas and Tibshirani (2016). Fast and Flexible ADMM Algorithms 
 for Trend Filtering. \emph{Journal of Computational and Graphical 
 Statistics}, 25(3), p. 839-858.
-\href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
+\href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{
+[Link]}} \cr
 \item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
 generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
 \href{https://github.com/glmgen/glmgen}{[Link]}} \cr
