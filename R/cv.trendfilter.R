@@ -224,8 +224,8 @@
 #'                          gammas = gamma.grid,
 #'                          validation.error.type = "MAE",
 #'                          thinning = TRUE, 
-#'                          optimization.params = trendfilter.control.list(max_iter = 5e3,
-#'                                                                         obj_tol = 1e-6)
+#'                          optimization.params = glmgen::trendfilter.control.list(max_iter = 5e3,
+#'                                                                                 obj_tol = 1e-6)
 #'                          )
 #' 
 #' # Plot the results
