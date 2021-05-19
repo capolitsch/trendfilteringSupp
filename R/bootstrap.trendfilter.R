@@ -46,9 +46,9 @@
 #' matrix, less any columns potentially pruned post-hoc 
 #' (if \code{prune = TRUE}). If \code{full.ensemble = FALSE}, then this will 
 #' return \code{NULL}.}
-#' \item{df.boots}{An integer vector of the estimated number of effective 
+#' \item{edf.boots}{An integer vector of the estimated number of effective 
 #' degrees of freedom of each trend filtering bootstrap estimate. These should
-#' all be relatively close to \code{df.min} (below).}
+#' all be relatively close to \code{edf.min} (below).}
 #' \item{prune}{logical. If \code{TRUE}, then the trend filtering bootstrap 
 #' ensemble is examined for rare instances in which the optimization has 
 #' stopped at zero knots (most likely erroneously), and removes them from the 
@@ -62,31 +62,27 @@
 #' standard errors of the uncertainty in the output measurements.}
 #' \item{residuals}{\code{residuals = y - fitted.values}.}
 #' \item{k}{The degree of the trend filtering estimator.}
-#' \item{lambda}{Vector of hyperparameter values tested during validation.}
-#' \item{lambda.min}{Hyperparameter value that minimizes the validation error 
+#' \item{gammas}{Vector of hyperparameter values tested during validation.}
+#' \item{gammas.min}{Hyperparameter value that minimizes the validation error 
 #' curve.}
-#' \item{df}{Integer vector of effective degrees of freedom for trend filtering
+#' \item{edf}{Integer vector of effective degrees of freedom for trend filtering
 #' estimators fit during validation.}
-#' \item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
+#' \item{edf.min}{The effective degrees of freedom of the optimally-tuned trend 
 #' filtering estimator.}
-#' \item{i.min}{The index of \code{lambda} that minimizes the validation error.}
+#' \item{i.min}{The index of \code{gammas} that minimizes the validation error.}
 #' \item{validation.method}{Either "SURE" or "V-fold CV".}
 #' \item{error}{Vector of hyperparameter validation errors, inherited from
 #' \code{obj} (either class 'SURE.trendfilter' or 'cv.trendfilter')}
-#' \item{thinning}{logical. If \code{TRUE}, then the data are 
-#' preprocessed so that a smaller, better conditioned data set is used for 
-#' fitting.}
-#' \item{max_iter}{Maximum iterations allowed for the trend filtering 
-#' convex optimization 
-#' (\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and
-#' Tibshirani 2016}). 
-#' Increase this if the trend filtering estimate does not appear to 
-#' have fully converged to a reasonable estimate of the signal.}
-#' \item{obj_tol}{The tolerance used in the convex optimization stopping 
-#' criterion; when the relative change in the objective function is less than 
-#' this value, the algorithm terminates. Decrease this if the trend 
-#' filtering estimate does not appear to have fully converged to a reasonable 
-#' estimate of the signal.}
+#' \item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
+#' that a smaller, better conditioned data set is used for fitting.}
+#' \item{optimization.params}{a list of parameters that control the trend
+#' filtering convex optimization.}
+#' \item{n.iter}{Vector of the number of iterations needed for the ADMM
+#' algorithm to converge within the given tolerance, for each hyperparameter
+#' value. If many of these are exactly equal to \code{max_iter}, then their
+#' solutions have not converged with the tolerance specified by \code{obj_tol}.
+#' In which case, it is often prudent to increase \code{max_iter}.}
+#' \item{x.scale, y.scale, data.scaled}{for internal use.}
 #' @details This will contain a very detailed description... See
 #' \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
 #' Politsch et al. (2020a)} for the full algorithms. The bootstrap algorithm 
@@ -99,8 +95,7 @@
 #' unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.algorithm = "wild"}.}
 #' @export bootstrap.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
-#' @seealso \code{\link{trendfilter}}, \code{\link{SURE.trendfilter}}, 
-#' \code{\link{cv.trendfilter}}, \code{\link{relax.trendfilter}}
+#' @seealso \code{\link{SURE.trendfilter}}, \code{\link{cv.trendfilter}}
 #' @references 
 #' \strong{Trend filtering and the various bootstraps in practice}
 #' \enumerate{
@@ -139,71 +134,76 @@
 #' \href{https://amstat.tandfonline.com/doi/abs/10.1080/10618600.2015.1054033#.XfJpNpNKju0}{[Link]}} \cr
 #' \item{Arnold, Sadhanala, and Tibshirani (2014). Fast algorithms for 
 #' generalized lasso problems. R package \emph{glmgen}. Version 0.0.3. 
-#' \href{https://github.com/glmgen/glmgen}{[Link]}} \cr
+#' \href{https://github.com/glmgen/glmgen}{[Link]}}
 #' (Implementation of Ramdas and Tibshirani algorithm) \cr
 #' }
 #' @examples 
 #' #############################################################################
 #' ##                    Quasar Lyman-alpha forest example                    ##
 #' #############################################################################
+#' # A quasar is an extremely luminous galaxy with an active supermassive black 
+#' # hole at its center. Absorptions in the spectra of quasars at vast 
+#' # cosmological distances from our galaxy reveal the presence of a gaseous 
+#' # medium permeating the entirety of intergalactic space -- appropriately 
+#' # named the 'intergalactic medium'. These absorptions allow astronomers to 
+#' # study the structure of the Universe using the distribution of these 
+#' # absorptions in quasar spectra. Particularly important is the 'forest' of 
+#' # absorptions that arise from the Lyman-alpha spectral line, which traces 
+#' # the presence of electrically neutral hydrogen in the intergalactic medium.
+#' #
+#' # Here, we are interested in denoising the Lyman-alpha forest of a quasar 
+#' # spectroscopically measured by the Sloan Digital Sky Survey. SDSS spectra 
+#' # are equally spaced in log10 wavelength space, aside from some instances of 
+#' # masked pixels.
 #' 
-#' # Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-#' # z ~ 2.953. SDSS spectra are equally spaced in log10 wavelength space, 
-#' # aside from some instances of masked pixels.
+#' data("quasar_spec")
+#' data("plotting_utilities")
+#'
+#' # head(data)
+#' #
+#' # | log10.wavelength|       flux|   weights|
+#' # |----------------:|----------:|---------:|
+#' # |           3.5529|  0.4235348| 0.0417015|
+#' # |           3.5530| -2.1143005| 0.1247811|
+#' # |           3.5531| -3.7832341| 0.1284383|
 #' 
-#' data(quasar_spec)
-#' data(plotting_utilities)
-#' 
-#' 
-#' # We are interested in denoising the observed brightness of the quasar 
-#' # (measured as a 'flux' quantity) over the observed wavelength range. Since 
-#' # the logarithmic wavelengths are gridded, we optimize the trend filtering 
-#' # hyperparameter by minimizing the SURE estimate of fixed-input squared 
-#' # prediction error. For smoothness, we use quadratic trend filtering, i.e. 
-#' # the default k=2. 
-#' 
-#' SURE.obj <- SURE.trendfilter(x = log10.wavelength, 
-#'                              y = flux, 
-#'                              weights = weights)
+#' SURE.out <- SURE.trendfilter(x = data$log10.wavelength, 
+#'                              y = data$flux, 
+#'                              weights = data$weights)
 #' 
 #' 
-#' # Extract the SURE error curve and optimized trend filtering estimate from 
-#' # the SURE.trendfilter output
+#' # Extract the estimated hyperparameter error curve and optimized trend 
+#' # filtering estimate from the `SURE.trendfilter` output, and transform the 
+#' # input grid to wavelength space (in Angstroms).
 #' 
-#' log.lambda <- log(SURE.obj$lambda)
-#' error <- SURE.obj$error
-#' log.lambda.min <- log(SURE.obj$lambda.min)
+#' log.gammas <- log(SURE.out$gammas)
+#' errors <- SURE.out$errors
+#' log.gamma.min <- log(SURE.out$gamma.min)
 #' 
-#' log10.wavelength.eval <- SURE.obj$x.eval
-#' tf.estimate <- SURE.obj$tf.estimate
-#' 
+#' wavelength <- 10 ^ (SURE.out$x)
+#' wavelength.eval <- 10 ^ (SURE.out$x.eval)
+#' tf.estimate <- SURE.out$tf.estimate
+#'
 #' 
 #' # Run a parametric bootstrap on the optimized trend filtering estimator to 
 #' # obtain uncertainty bands
 #' 
-#' boot.out <- bootstrap.trendfilter(obj = SURE.obj, 
+#' boot.out <- bootstrap.trendfilter(obj = SURE.out, 
 #'                                   bootstrap.algorithm = "parametric")
-#' 
-#' 
-#' # Transform the inputs to wavelength space (in Angstroms)
-#' 
-#' wavelength <- 10 ^ (log10.wavelength)
-#' wavelength.eval <- 10 ^ (log10.wavelength.eval)
 #' 
 #' 
 #' # Plot the results
 #'
 #' par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-#' plot(x = log.lambda, y = error, main = "SURE error curve", 
-#'      xlab = "log(lambda)", ylab = "SURE error")
-#' abline(v = log.lambda.min, lty = 2, col = "blue3")
-#' text(x = log.lambda.min, y = par("usr")[4], 
-#'      labels = "optimal hyperparameter", pos = 1, col = "blue3")
+#' plot(x = log.gammas, y = errors, main = "SURE error curve", 
+#'      xlab = "log(gamma)", ylab = "SURE error")
+#' abline(v = log.gamma.min, lty = 2, col = "blue3")
+#' text(x = log.gamma.min, y = par("usr")[4], 
+#'      labels = "optimal gamma", pos = 1, col = "blue3")
 #' 
-#' plot(x = wavelength, y = flux, type = "l", 
+#' plot(x = wavelength, y = SURE.out$y, type = "l", 
 #'      main = "Quasar Lyman-alpha forest", 
 #'      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
-#' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 1.5)
 #' polygon(c(wavelength.eval, rev(wavelength.eval)), 
 #'         c(boot.out$bootstrap.lower.band, 
 #'         rev(boot.out$bootstrap.upper.band)),
@@ -212,6 +212,7 @@
 #'       col = "orange", lwd = 0.5)
 #' lines(wavelength.eval, boot.out$bootstrap.upper.band, 
 #'       col = "orange", lwd = 0.5)
+#' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 #' legend(x = "topleft", lwd = c(1,2,8), lty = 1, cex = 0.75,
 #'        col = c("black","orange", transparency("orange", 90)), 
 #'        legend = c("Noisy quasar spectrum",
@@ -243,28 +244,6 @@ bootstrap.trendfilter <- function(obj,
     warning(paste0("Your machine only has ", detectCores(), " cores. Adjusting mc.cores accordingly."))
     mc.cores <- detectCores()
   }
-  obj$prune <- prune
-
-  obj$x.scale <- mean(diff(obj$x))
-  obj$y.scale <- mean(abs(obj$y)) / 10
-  obj$x <- obj$x / obj$x.scale
-  obj$y <- obj$y / obj$y.scale
-  obj$residuals <- obj$residuals / obj$y.scale
-  obj$fitted.values <- obj$fitted.values / obj$y.scale
-  
-  if ( is.null(obj$weights) ){
-    data <- tibble(x = obj$x, y = obj$y, weights = 1,
-                   fitted.values = obj$fitted.values,
-                   residuals = obj$residuals
-                   )
-    obj$weights <- rep(1, length(obj$x))
-  }else{
-    obj$weights <- obj$y.scale ^ 2 * obj$weights
-    data <- tibble(x = obj$x, y = obj$y, weights = obj$weights,
-                   fitted.values = obj$fitted.values,
-                   residuals = obj$residuals
-                   )
-  }
 
   sampler <- case_when(
     bootstrap.algorithm == "nonparametric" ~ list(nonparametric.resampler),
@@ -272,10 +251,13 @@ bootstrap.trendfilter <- function(obj,
     bootstrap.algorithm == "wild" ~ list(wild.sampler)
   )[[1]]
   
+  obj$prune <- prune
+  data.scaled <- obj$data.scaled
+  
   par.func <- function(b){
-    boot.tf.estimate <- tf.estimator(data = sampler(data), 
+    boot.tf.estimate <- tf.estimator(data = sampler(data.scaled), 
                                      obj = obj,
-                                     mode = "df"
+                                     mode = "edf"
     )
     return(boot.tf.estimate)
   }
@@ -285,23 +267,16 @@ bootstrap.trendfilter <- function(obj,
     unlist %>% 
     matrix(nrow = length(obj$x.eval)) 
   
-  obj$df.boots <- lapply(X = 1:B, FUN = function(X) par.out[[X]][["df"]]) %>%
+  obj$edf.boots <- lapply(X = 1:B, FUN = function(X) par.out[[X]][["edf"]]) %>%
     unlist %>%
     as.integer
   obj$n.pruned <- (B - ncol(tf.boot.ensemble)) %>% as.integer
   obj$bootstrap.lower.band <- apply(tf.boot.ensemble, 1, quantile, 
-                                              probs = alpha / 2)
+                                              probs = alpha / 2) 
   obj$bootstrap.upper.band <- apply(tf.boot.ensemble, 1, quantile, 
                                               probs = 1 - alpha / 2)
   obj <- c(obj, list(bootstrap.algorithm = bootstrap.algorithm, alpha = alpha, B = B))
   
-  obj$x.eval <- obj$x.eval * obj$x.scale
-  obj$tf.estimate <- obj$tf.estimate * obj$y.scale
-  obj$x <- obj$x * obj$x.scale
-  obj$y <- obj$y * obj$y.scale
-  obj$weights <- obj$weights / obj$y.scale ^ 2
-  obj$fitted.values <- obj$fitted.values * obj$y.scale
-  obj$residuals <- (obj$y - obj$fitted.values) * obj$y.scale
   
   if ( full.ensemble ){
     obj$tf.bootstrap.ensemble <- tf.boot.ensemble
@@ -311,10 +286,10 @@ bootstrap.trendfilter <- function(obj,
   
   obj <- obj[c("x.eval","tf.estimate","bootstrap.lower.band",
                "bootstrap.upper.band","bootstrap.algorithm","alpha","B",
-               "df.boots","tf.bootstrap.ensemble","prune","n.pruned","x","y",
-               "weights","fitted.values","residuals","k","lambda","lambda.min",
-               "df","df.min","i.min","validation.method","error","thinning",
-               "max_iter","obj_tol")
+               "edf.boots","tf.bootstrap.ensemble","prune","n.pruned","x","y",
+               "weights","fitted.values","residuals","k","gammas","gamma.min",
+               "edfs","edf.min","i.min","validation.method","errors","thinning",
+               "optimization.params","n.iter","x.scale","y.scale","data.scaled")
              ]
   class(obj) <- "bootstrap.trendfilter"
   
@@ -324,52 +299,49 @@ bootstrap.trendfilter <- function(obj,
 
 tf.estimator <- function(data, 
                          obj,
-                         mode = "lambda"
+                         mode = "gamma"
                          )
   {
-  
-  optimization.controls <- glmgen::trendfilter.control.list(max_iter = obj$max_iter,
-                                                            obj_tol = obj$obj_tol
-                                                            )
 
-  if ( mode == "df" ){
+  if ( mode == "edf" ){
     tf.fit <- glmgen::trendfilter(x = data$x,
                                   y = data$y,
                                   weights = data$weights,
                                   k = obj$k,
-                                  lambda = obj$lambda,
+                                  lambda = obj$gammas,
                                   thinning = obj$thinning,
-                                  control = optimization.controls
+                                  control = obj$optimization.params
                                   )
     
-    i.min <- which.min( abs(tf.fit$df - obj$df.min) )
-    lambda.min <- obj$lambda[i.min]
-    df.min <- tf.fit$df[i.min]
+    i.min <- which.min( abs(tf.fit$df - obj$edf.min) )
+    gamma.min <- obj$gammas[i.min]
+    edf.min <- tf.fit$df[i.min]
     
-    if ( obj$prune & df.min <= 2 ){
+    if ( obj$prune && edf.min <= 2 ){
       return(list(tf.estimate = integer(0), df = NA))
     }
     
-  }else{
+  }
+  if ( mode == "gamma" ){
     tf.fit <- glmgen::trendfilter(x = data$x,
                                   y = data$y,
                                   weights = data$weights,
                                   k = obj$k,
-                                  lambda = obj$lambda.min,
+                                  lambda = obj$gamma.min,
                                   thinning = obj$thinning,
-                                  control = optimization.controls
+                                  control = obj$optimization.params
                                   )
     
-    lambda.min <- obj$lambda.min
-    df.min <- tf.fit$df %>% as.integer
+    gamma.min <- obj$gamma.min
+    edf.min <- tf.fit$df
   }
 
   tf.estimate <- glmgen:::predict.trendfilter(object = tf.fit, 
                                               x.new = obj$x.eval / obj$x.scale, 
-                                              lambda = lambda.min
+                                              lambda = gamma.min
                                               ) %>% as.numeric
   
-  return(list(tf.estimate = tf.estimate * obj$y.scale, df = df.min))
+  return(list(tf.estimate = tf.estimate * obj$y.scale, edf = edf.min))
 }
 
 

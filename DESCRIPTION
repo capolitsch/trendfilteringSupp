@@ -1,29 +1,37 @@
 Package: trendfilteringSupp
+Type: Package
 Title: Optimal one-dimensional data analysis with trend filtering
-Version: 2.0.0
-Date: 2021-05-10
-Author: Collin A. Politsch
+Version: 1.1.1
+URL: https://github.com/capolitsch/trendfilteringSupp
+Date: 2021-05-19
+Author: Collin A. Politsch [aut,cre]
+Maintainer: Collin A. Politsch <collinpolitsch@gmail.com>
 Authors@R: 
     person(given = "Collin A.",
            family = "Politsch",
            role = c("aut", "cre"),
            email = "collinpolitsch@gmail.com")
 Description: This package serves as a software supplement to 
-             Politsch et al. (2020a) and Politsch et al. (2020b). We build on 
-             the glmgen package by providing additional useful statistical tools 
-             for carrying out data analysis with trend filtering 
-             (Tibshirani 2014). It contains user-friendly functionality for 
-             optimizing a trend filtering estimator by cross validation or 
-             minimizing Stein's unbiased risk estimate, as well as various 
-             bootstrap algorithms for producing variability bands to quantify 
-             the uncertainty in the estimator.
+             Politsch et al. (2020a) and Politsch et al. (2020b). We provide a 
+             variety of statistical tools for one-dimensional data analyses 
+             with trend filtering (Tibshirani 2014). This package contains 
+             user-friendly functionality for optimizing a trend filtering 
+             estimator by cross validation or minimizing Stein's unbiased risk 
+             estimate, as well as various bootstrap algorithms for producing 
+             variability bands to quantify the uncertainty in the trend 
+             filtering estimate.
 License: MIT
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-Depends: R (>= 3.5.0), mathjaxr (>= 1.4)
-Imports: glmgen (>= 0.0.3), dplyr (>= 1.0.5), tidyr (>= 1.1.3),
-  matrixStats (>= 0.58.0), magrittr (>= 2.0.1)
+Depends: 
+  R (>= 3.5.0), 
+  mathjaxr (>= 1.4)
+Imports: 
+  glmgen (>= 0.0.3), 
+  dplyr (>= 1.0.5), 
+  tidyr (>= 1.1.3),
+  matrixStats (>= 0.58.0), 
+  magrittr (>= 2.0.1)
 Remotes: statsmaths/glmgen/R_pkg/glmgen@master
 RdMacros: mathjaxr
-Maintainer: Collin A. Politsch <collinpolitsch@gmail.com>
