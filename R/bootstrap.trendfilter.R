@@ -312,7 +312,7 @@ tf.estimator <- function(data,
                                   y = data$y,
                                   weights = data$weights,
                                   k = obj$k,
-                                  gammas = obj$gammas,
+                                  lambda = obj$gammas,
                                   thinning = obj$thinning,
                                   control = optimization.controls
                                   )
