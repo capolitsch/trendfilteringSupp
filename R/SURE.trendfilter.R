@@ -330,7 +330,7 @@ SURE.trendfilter <- function(x,
     x.eval <- sort(x.eval)
   }
   
-  obj$optimization.params$obj_tol <- obj$optimization.params$obj_tol * 1e-2
+  optimization.params$obj_tol <- optimization.params$obj_tol * 1e-2
   
   out <- glmgen::trendfilter(x = data.scaled$x,
                              y = data.scaled$y,
