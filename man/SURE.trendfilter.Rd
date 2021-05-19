@@ -224,7 +224,7 @@ legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"),
 \enumerate{
 \item{Politsch et al. (2020a). Trend filtering – I. A modern 
 statistical tool for time-domain astronomy and astronomical spectroscopy. 
-\emph{Monthly Notices of the Royal Astronomical Society}, 492(3), 
+\emph{Monthly Notices of the Royal Astronomical Society}, 492(3),
 p. 4005-4018.
 \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
 \strong{[Link]}}} \cr
