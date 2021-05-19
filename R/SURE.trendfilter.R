@@ -11,6 +11,10 @@
 #' control variable, etc.)
 #' @param y The vector of observed values of the output variable (a.k.a. the
 #' response, target, outcome, regressand, dependent variable, etc.).
+#' @param y.num The numerator of the output variable.
+#' @param y.den The denominator of the output variable.
+#' @param var.y.num The variance of the observations of the response numerator.
+#' @param var.y.den The variance of the observations of the response denominator.
 #' @param weights \strong{Currently mandatory. If the uncertainty in the 
 #' observed outputs is not well understood, use \code{cv.trendfilter} instead.} 
 #' \cr \cr 
@@ -88,6 +92,10 @@
 #' the SURE error curve.}
 #' \item{x}{The vector of the observed inputs.}
 #' \item{y}{The vector of the observed outputs.}
+#' \item{y.num} The numerator of the output variable.
+#' \item{y.den} The denominator of the output variable.
+#' \item{var.y.num} The variance of the observations of the response numerator.
+#' \item{var.y.den} The variance of the observations of the response denominator.
 #' \item{weights}{A vector of weights for the observed outputs. These are
 #' defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
 #' standard errors of the uncertainty in the observed outputs.}
@@ -226,8 +234,11 @@
 #' @importFrom dplyr arrange filter
 #' @importFrom glmgen trendfilter.control.list
 SURE.trendfilter <- function(x,
-                             y,
-                             weights,
+                             y.num,
+                             y.den,
+                             var.y.num,
+                             var.y.den,
+                             weights = weights,
                              k = 2L,
                              ngammas = 250L,
                              gammas = NULL,
@@ -240,16 +251,17 @@ SURE.trendfilter <- function(x,
   {
   
   if ( missing(x) || is.null(x) ) stop("x must be passed.")
-  if ( missing(y) || is.null(y) ) stop("y must be passed.")
-  if ( length(x) != length(y) ) stop("x and y must have the same length.")
+  if ( missing(y.num) || is.null(y.num) ) stop("y.num must be passed.")
+  if ( missing(y.den) || is.null(y.den) ) stop("y.den must be passed.")
+  if ( length(x) != length(y.num) ) stop("x and y.num must have the same length.")
   if ( missing(weights) || !is.numeric(weights) ){
     stop(paste0("Currently, the user must pass weights to compute SURE.\n", 
     "If (reliable) estimates are not available, use cv.trendfilter."))
   }
-  if ( !(length(weights) %in% c(1,length(y))) ){
-    stop("weights must either be have length 1 or length(y).")
+  if ( !(length(weights) %in% c(1,length(y.num))) ){
+    stop("weights must either be have length 1 or length(y.num).")
   }
-  if ( length(y) < k + 2 ){
+  if ( length(y.num) < k + 2 ){
     stop("y must have length >= k+2 for kth order trend filtering.")
   }
   if ( k < 0 || k != round(k) ){
@@ -285,21 +297,22 @@ SURE.trendfilter <- function(x,
     weights <- rep(weights, length(x))
   }
   
-  data <- tibble(x, y, weights) %>% 
+  data <- tibble(x, y = y.num / y.den, y.num, y.den, var.y.num, var.y.den, weights) %>% 
     arrange(x) %>% 
     filter( weights != 0 ) %>%
     drop_na 
   
-  rm(x,y,weights)
+  rm(x, y, y.num, y.den, var.y.num, var.y.den, weights)
   
   x.scale <- median(diff(data$x))
-  y.scale <- median(abs(data$y)) / 10
+  y.scale <- median(abs(data$y.num / data$y.den)) / 10
   optimization.params$x_tol <- optimization.params$x_tol / x.scale
   
   data.scaled <- data %>%
     mutate(x = x / x.scale,
            y = y / y.scale,
-           weights = weights * y.scale ^ 2)
+           weights = weights * y.scale ^ 2) %>%
+    select(x,y,weights)
   
   if ( is.null(gammas) ){
     gammas <- seq(16, -10, length = ngammas) %>% exp 
@@ -367,6 +380,10 @@ SURE.trendfilter <- function(x,
                         errors = errors * y.scale ^ 2,
                         x = data$x,
                         y = data$y,
+                        y.num = data$y.num, 
+                        y.den = data$y.den,
+                        var.y.num = data$var.y.num, 
+                        var.y.den = data$vary.den,
                         weights = data$weights,
                         fitted.values = data.scaled$fitted.values * y.scale,
                         residuals = data.scaled$residuals * y.scale,

@@ -7,8 +7,11 @@ unbiased risk estimate)}
 \usage{
 SURE.trendfilter(
   x,
-  y,
-  weights,
+  y.num,
+  y.den,
+  var.y.num,
+  var.y.den,
+  weights = weights,
   k = 2L,
   ngammas = 250L,
   gammas = NULL,
@@ -23,8 +26,13 @@ SURE.trendfilter(
 predictor, covariate, explanatory variable, regressor, independent variable, 
 control variable, etc.)}
 
-\item{y}{The vector of observed values of the output variable (a.k.a. the
-response, target, outcome, regressand, dependent variable, etc.).}
+\item{y.num}{The numerator of the output variable.}
+
+\item{y.den}{The denominator of the output variable.}
+
+\item{var.y.num}{The variance of the observations of the response numerator.}
+
+\item{var.y.den}{The variance of the observations of the response denominator.}
 
 \item{weights}{\strong{Currently mandatory. If the uncertainty in the 
 observed outputs is not well understood, use \code{cv.trendfilter} instead.} 
@@ -90,6 +98,9 @@ the signal.
 of size \code{x_tol} and find at least two \code{x}'s which fall into the 
 same bin, then we thin the data.
 }}
+
+\item{y}{The vector of observed values of the output variable (a.k.a. the
+response, target, outcome, regressand, dependent variable, etc.).}
 }
 \value{
 An object of class 'SURE.trendfilter'. This is a list with the 
@@ -112,6 +123,10 @@ filtering estimator.}
 the SURE error curve.}
 \item{x}{The vector of the observed inputs.}
 \item{y}{The vector of the observed outputs.}
+\item{y.num} The numerator of the output variable.
+\item{y.den} The denominator of the output variable.
+\item{var.y.num} The variance of the observations of the response numerator.
+\item{var.y.den} The variance of the observations of the response denominator.
 \item{weights}{A vector of weights for the observed outputs. These are
 defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
 standard errors of the uncertainty in the observed outputs.}
