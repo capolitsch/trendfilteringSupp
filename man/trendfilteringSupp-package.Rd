@@ -8,16 +8,10 @@
 This package serves as a software supplement to 
 \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
 Politsch et al. (2020a)} and \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
-Politsch et al. (2020b)}. We build on 
-the \href{https://github.com/glmgen/glmgen}{\emph{glmgen} R package} by 
-providing additional useful statistical tools for carrying out data analysis 
-with trend filtering 
+Politsch et al. (2020b)}. We provide a variety of statistical tools for 
+one-dimensional data analyses with trend filtering
 \href{https://projecteuclid.org/journals/annals-of-statistics/volume-42/issue-1/Adaptive-piecewise-polynomial-estimation-via-trend-filtering/10.1214/13-AOS1189.full}{
-(Tibshirani 2014)}. This package contains user-friendly functionality for 
-optimizing a trend filtering estimator by cross validation or 
-minimizing Stein's unbiased risk estimate, as well as various 
-bootstrap algorithms for producing variability bands to quantify 
-the uncertainty in the trend filtering estimate.
+(Tibshirani 2014)}. This package contains user-friendly functionality for optimizing a trend
 }
 \references{
 \cr

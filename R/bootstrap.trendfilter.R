@@ -156,7 +156,8 @@
 #' # are equally spaced in log10 wavelength space, aside from some instances of 
 #' # masked pixels.
 #' 
-#' data(quasar_spec)
+#' data("quasar_spec")
+#' data("plotting_utilities")
 #'
 #' # head(data)
 #' #
