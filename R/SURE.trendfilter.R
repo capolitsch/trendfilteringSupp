@@ -161,7 +161,6 @@
 #' #############################################################################
 #' ##                    Quasar Lyman-alpha forest example                    ##
 #' #############################################################################
-#' 
 #' # A quasar is an extremely luminous galaxy with an active supermassive black 
 #' # hole at its center. Absorptions in the spectra of quasars at vast 
 #' # cosmological distances from our galaxy reveal the presence of a gaseous 
@@ -341,6 +340,8 @@ SURE.trendfilter <- function(x,
                              control = optimization.params
   )
   
+  edfs <- out$df
+  
   optimization.params$obj_tol <- optimization.params$obj_tol * 1e2
   
   tf.estimate <- glmgen:::predict.trendfilter(out, 
@@ -360,8 +361,8 @@ SURE.trendfilter <- function(x,
                         validation.method = "SURE",
                         gammas = gammas, 
                         gamma.min = gamma.min,
-                        edfs = out$df,
-                        edf.min = out$df[i.min],
+                        edfs = edfs,
+                        edf.min = out$df,
                         i.min = i.min,
                         errors = errors * y.scale ^ 2,
                         x = data$x,

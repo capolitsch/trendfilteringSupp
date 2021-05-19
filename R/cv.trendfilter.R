@@ -190,7 +190,6 @@
 #' #######################################################################
 #' ###  Phase-folded light curve of an eclipsing binary star system   ####
 #' #######################################################################
-#' 
 #' # A binary star system is a pair of closely-separated stars that move
 #' # in an orbit around a common center of mass. When a binary star system 
 #' # is oriented in such a way that the stars eclipse one another from our 

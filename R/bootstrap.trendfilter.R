@@ -141,7 +141,6 @@
 #' #############################################################################
 #' ##                    Quasar Lyman-alpha forest example                    ##
 #' #############################################################################
-#' 
 #' # A quasar is an extremely luminous galaxy with an active supermassive black 
 #' # hole at its center. Absorptions in the spectra of quasars at vast 
 #' # cosmological distances from our galaxy reveal the presence of a gaseous 
@@ -302,10 +301,6 @@ tf.estimator <- function(data,
                          mode = "gamma"
                          )
   {
-  
-  optimization.controls <- glmgen::trendfilter.control.list(max_iter = obj$max_iter,
-                                                            obj_tol = obj$obj_tol
-                                                            )
 
   if ( mode == "edf" ){
     tf.fit <- glmgen::trendfilter(x = data$x,
@@ -314,25 +309,26 @@ tf.estimator <- function(data,
                                   k = obj$k,
                                   lambda = obj$gammas,
                                   thinning = obj$thinning,
-                                  control = optimization.controls
+                                  control = obj$optimization.params
                                   )
     
     i.min <- which.min( abs(tf.fit$df - obj$edf.min) )
     gammas.min <- obj$gammas[i.min]
     edf.min <- tf.fit$df[i.min]
     
-    if ( obj$prune & df.min <= 2 ){
+    if ( obj$prune && edf.min <= 2 ){
       return(list(tf.estimate = integer(0), df = NA))
     }
     
-  }else{
+  }
+  if ( mode == "gamma" ){
     tf.fit <- glmgen::trendfilter(x = data$x,
                                   y = data$y,
                                   weights = data$weights,
                                   k = obj$k,
                                   lambda = obj$gamma.min,
                                   thinning = obj$thinning,
-                                  control = optimization.controls
+                                  control = obj$optimization.params
                                   )
     
     gamma.min <- obj$gamma.min
