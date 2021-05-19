@@ -122,7 +122,13 @@ evaluated at the observed inputs \code{x}.}
 \item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
 that a smaller, better conditioned data set is used for fitting.}
 \item{optimization.params}{a list of parameters that control the trend
-filtering ADMM optimization.}
+filtering convex optimization.}
+\item{n.iter}{Vector of the number of iterations needed for the ADMM
+algorithm to converge within the given tolerance, for each hyperparameter
+value. If many of these are exactly equal to \code{max_iter}, then their
+solutions have not converged with the tolerance specified by \code{obj_tol}.
+In which case, it is often prudent to increase \code{max_iter}.}
+\item{x.scale, y.scale, data.scaled}{for internal use.}
 }
 \description{
 \loadmathjax{} \code{SURE.trendfilter} estimates the fixed-input 

@@ -98,7 +98,13 @@
 #' \item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
 #' that a smaller, better conditioned data set is used for fitting.}
 #' \item{optimization.params}{a list of parameters that control the trend
-#' filtering ADMM optimization.}
+#' filtering convex optimization.}
+#' \item{n.iter}{Vector of the number of iterations needed for the ADMM
+#' algorithm to converge within the given tolerance, for each hyperparameter
+#' value. If many of these are exactly equal to \code{max_iter}, then their
+#' solutions have not converged with the tolerance specified by \code{obj_tol}.
+#' In which case, it is often prudent to increase \code{max_iter}.}
+#' \item{x.scale, y.scale, data.scaled}{for internal use.}
 #' @details This will contain a very detailed description...
 #' @export SURE.trendfilter
 #' @author Collin A. Politsch, \email{collinpolitsch@@gmail.com}
@@ -324,28 +330,43 @@ SURE.trendfilter <- function(x,
     x.eval <- sort(x.eval)
   }
   
+  obj$optimization.params$obj_tol <- obj$optimization.params$obj_tol * 1e-2
+  
+  out <- glmgen::trendfilter(x = data.scaled$x,
+                             y = data.scaled$y,
+                             weights = data.scaled$weights,
+                             lambda = gamma.min,
+                             k = k,
+                             thinning = thinning,
+                             control = optimization.params
+  )
+  
   tf.estimate <- glmgen:::predict.trendfilter(out, 
                                               lambda = gamma.min, 
-                                              x.new = x.eval / x.scale) * y.scale
+                                              x.new = x.eval / x.scale) %>%
+    as.numeric
   
-  fitted.values <- glmgen:::predict.trendfilter(out, 
+  data.scaled$fitted.values <- glmgen:::predict.trendfilter(out, 
                                                 lambda = gamma.min, 
-                                                x.new = data.scaled$x) * y.scale
+                                                x.new = data.scaled$x) %>% 
+    as.numeric
+  
+  data.scaled <- data.scaled %>% mutate(residuals = y - fitted.values)
   
   obj <- structure(list(x.eval = x.eval,
-                        tf.estimate = as.numeric(tf.estimate),
+                        tf.estimate = tf.estimate * y.scale,
                         validation.method = "SURE",
                         gammas = gammas, 
-                        errors = errors * y.scale ^ 2,
                         gamma.min = gamma.min,
                         edfs = out$df,
                         edf.min = out$df[i.min],
                         i.min = i.min,
+                        errors = errors * y.scale ^ 2,
                         x = data$x,
                         y = data$y,
                         weights = data$weights,
-                        fitted.values = as.numeric(fitted.values),
-                        residuals = as.numeric(data$y - fitted.values),
+                        fitted.values = data.scaled$fitted.values * y.scale,
+                        residuals = data.scaled$residuals * y.scale,
                         k = as.integer(k),
                         thinning = thinning,
                         optimization.params = optimization.params,

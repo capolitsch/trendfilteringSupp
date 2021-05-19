@@ -436,18 +436,19 @@ cv.trendfilter <- function(x,
                         control = optimization.params 
     )
   
-  obj$tf.estimate <- glmgen:::predict.trendfilter(out,
-                                                  lambda = gamma.pred,
-                                                  x.new = obj$x.eval / obj$x.scale
-                                                  ) * obj$y.scale %>%
+  obj$data.scaled$fitted.values <- glmgen:::predict.trendfilter(out,
+                                                                lambda = gamma.pred,
+                                                                x.new = obj$data.scaled$x) %>% 
     as.numeric
   
-  obj$fitted.values <- glmgen:::predict.trendfilter(out,
-                                                    lambda = gamma.pred,
-                                                    x.new = obj$data.scaled$x
-                                                    ) * obj$y.scale %>%
+  obj$data.scaled$residuals <- obj$data.scaled$y - obj$data.scaled$fitted.values
+  
+  
+  obj$tf.estimate <- glmgen:::predict.trendfilter(out,
+                                                  lambda = gamma.pred,
+                                                  x.new = obj$x.eval / obj$x.scale) * obj$y.scale %>%
     as.numeric
-
+  obj$fitted.values <- as.numeric( obj$data.scaled$fitted.values * obj$y.scale )
   obj$residuals <- (obj$y - obj$fitted.values)
 
   obj <- obj[c("x.eval","tf.estimate","validation.method","V",

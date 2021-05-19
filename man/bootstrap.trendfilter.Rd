@@ -65,9 +65,9 @@ full trend filtering bootstrap ensemble as an \mjeqn{n \times B}{ascii}
 matrix, less any columns potentially pruned post-hoc 
 (if \code{prune = TRUE}). If \code{full.ensemble = FALSE}, then this will 
 return \code{NULL}.}
-\item{df.boots}{An integer vector of the estimated number of effective 
+\item{edf.boots}{An integer vector of the estimated number of effective 
 degrees of freedom of each trend filtering bootstrap estimate. These should
-all be relatively close to \code{df.min} (below).}
+all be relatively close to \code{edf.min} (below).}
 \item{prune}{logical. If \code{TRUE}, then the trend filtering bootstrap 
 ensemble is examined for rare instances in which the optimization has 
 stopped at zero knots (most likely erroneously), and removes them from the 
@@ -81,31 +81,27 @@ defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of
 standard errors of the uncertainty in the output measurements.}
 \item{residuals}{\code{residuals = y - fitted.values}.}
 \item{k}{The degree of the trend filtering estimator.}
-\item{lambda}{Vector of hyperparameter values tested during validation.}
-\item{lambda.min}{Hyperparameter value that minimizes the validation error 
+\item{gammas}{Vector of hyperparameter values tested during validation.}
+\item{gammas.min}{Hyperparameter value that minimizes the validation error 
 curve.}
-\item{df}{Integer vector of effective degrees of freedom for trend filtering
+\item{edf}{Integer vector of effective degrees of freedom for trend filtering
 estimators fit during validation.}
-\item{df.min}{The effective degrees of freedom of the optimally-tuned trend 
+\item{edf.min}{The effective degrees of freedom of the optimally-tuned trend 
 filtering estimator.}
-\item{i.min}{The index of \code{lambda} that minimizes the validation error.}
+\item{i.min}{The index of \code{gammas} that minimizes the validation error.}
 \item{validation.method}{Either "SURE" or "V-fold CV".}
 \item{error}{Vector of hyperparameter validation errors, inherited from
 \code{obj} (either class 'SURE.trendfilter' or 'cv.trendfilter')}
-\item{thinning}{logical. If \code{TRUE}, then the data are 
-preprocessed so that a smaller, better conditioned data set is used for 
-fitting.}
-\item{max_iter}{Maximum iterations allowed for the trend filtering 
-convex optimization 
-(\href{http://www.stat.cmu.edu/~ryantibs/papers/fasttf.pdf}{Ramdas and
-Tibshirani 2016}). 
-Increase this if the trend filtering estimate does not appear to 
-have fully converged to a reasonable estimate of the signal.}
-\item{obj_tol}{The tolerance used in the convex optimization stopping 
-criterion; when the relative change in the objective function is less than 
-this value, the algorithm terminates. Decrease this if the trend 
-filtering estimate does not appear to have fully converged to a reasonable 
-estimate of the signal.}
+\item{thinning}{logical. If \code{TRUE}, then the data are preprocessed so 
+that a smaller, better conditioned data set is used for fitting.}
+\item{optimization.params}{a list of parameters that control the trend
+filtering convex optimization.}
+\item{n.iter}{Vector of the number of iterations needed for the ADMM
+algorithm to converge within the given tolerance, for each hyperparameter
+value. If many of these are exactly equal to \code{max_iter}, then their
+solutions have not converged with the tolerance specified by \code{obj_tol}.
+In which case, it is often prudent to increase \code{max_iter}.}
+\item{x.scale, y.scale, data.scaled}{for internal use.}
 }
 \description{
 \loadmathjax{} \code{bootstrap.trendfilter} implements any of 
@@ -130,34 +126,46 @@ unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.algorithm = "wild"}.}
 ##                    Quasar Lyman-alpha forest example                    ##
 #############################################################################
 
-# Load Lyman-alpha forest spectral observations of an SDSS quasar at redshift 
-# z ~ 2.953. SDSS spectra are equally spaced in log10 wavelength space, 
-# aside from some instances of masked pixels.
+# A quasar is an extremely luminous galaxy with an active supermassive black 
+# hole at its center. Absorptions in the spectra of quasars at vast 
+# cosmological distances from our galaxy reveal the presence of a gaseous 
+# medium permeating the entirety of intergalactic space -- appropriately 
+# named the 'intergalactic medium'. These absorptions allow astronomers to 
+# study the structure of the Universe using the distribution of these 
+# absorptions in quasar spectra. Particularly important is the 'forest' of 
+# absorptions that arise from the Lyman-alpha spectral line, which traces 
+# the presence of electrically neutral hydrogen in the intergalactic medium.
+#
+# Here, we are interested in denoising the Lyman-alpha forest of a quasar 
+# spectroscopically measured by the Sloan Digital Sky Survey. SDSS spectra 
+# are equally spaced in log10 wavelength space, aside from some instances of 
+# masked pixels.
 
 data(quasar_spec)
-data(plotting_utilities)
+
+# head(data)
+#
+# | log10.wavelength|       flux|   weights|
+# |----------------:|----------:|---------:|
+# |           3.5529|  0.4235348| 0.0417015|
+# |           3.5530| -2.1143005| 0.1247811|
+# |           3.5531| -3.7832341| 0.1284383|
+
+SURE.obj <- SURE.trendfilter(x = data$log10.wavelength, 
+                             y = data$flux, 
+                             weights = data$weights)
 
 
-# We are interested in denoising the observed brightness of the quasar 
-# (measured as a 'flux' quantity) over the observed wavelength range. Since 
-# the logarithmic wavelengths are gridded, we optimize the trend filtering 
-# hyperparameter by minimizing the SURE estimate of fixed-input squared 
-# prediction error. For smoothness, we use quadratic trend filtering, i.e. 
-# the default k=2. 
+# Extract the estimated hyperparameter error curve and optimized trend 
+# filtering estimate from the `SURE.trendfilter` output, and transform the 
+# input grid to wavelength space (in Angstroms).
 
-SURE.obj <- SURE.trendfilter(x = log10.wavelength, 
-                             y = flux, 
-                             weights = weights)
+log.gammas <- log(SURE.obj$gammas)
+errors <- SURE.obj$errors
+log.gamma.min <- log(SURE.obj$gamma.min)
 
-
-# Extract the SURE error curve and optimized trend filtering estimate from 
-# the SURE.trendfilter output
-
-log.lambda <- log(SURE.obj$lambda)
-error <- SURE.obj$error
-log.lambda.min <- log(SURE.obj$lambda.min)
-
-log10.wavelength.eval <- SURE.obj$x.eval
+wavelength <- 10 ^ (SURE.obj$x)
+wavelength.eval <- 10 ^ (SURE.obj$x.eval)
 tf.estimate <- SURE.obj$tf.estimate
 
 
@@ -168,25 +176,18 @@ boot.out <- bootstrap.trendfilter(obj = SURE.obj,
                                   bootstrap.algorithm = "parametric")
 
 
-# Transform the inputs to wavelength space (in Angstroms)
-
-wavelength <- 10 ^ (log10.wavelength)
-wavelength.eval <- 10 ^ (log10.wavelength.eval)
-
-
 # Plot the results
 
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-plot(x = log.lambda, y = error, main = "SURE error curve", 
-     xlab = "log(lambda)", ylab = "SURE error")
-abline(v = log.lambda.min, lty = 2, col = "blue3")
-text(x = log.lambda.min, y = par("usr")[4], 
-     labels = "optimal hyperparameter", pos = 1, col = "blue3")
+plot(x = log.gammas, y = errors, main = "SURE error curve", 
+     xlab = "log(gamma)", ylab = "SURE error")
+abline(v = log.gamma.min, lty = 2, col = "blue3")
+text(x = log.gamma.min, y = par("usr")[4], 
+     labels = "optimal gamma", pos = 1, col = "blue3")
 
-plot(x = wavelength, y = flux, type = "l", 
+plot(x = wavelength, y = SURE.obj$y, type = "l", 
      main = "Quasar Lyman-alpha forest", 
      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
-lines(wavelength.eval, tf.estimate, col = "orange", lwd = 1.5)
 polygon(c(wavelength.eval, rev(wavelength.eval)), 
         c(boot.out$bootstrap.lower.band, 
         rev(boot.out$bootstrap.upper.band)),
@@ -195,6 +196,7 @@ lines(wavelength.eval, boot.out$bootstrap.lower.band,
       col = "orange", lwd = 0.5)
 lines(wavelength.eval, boot.out$bootstrap.upper.band, 
       col = "orange", lwd = 0.5)
+lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 legend(x = "topleft", lwd = c(1,2,8), lty = 1, cex = 0.75,
        col = c("black","orange", transparency("orange", 90)), 
        legend = c("Noisy quasar spectrum",
