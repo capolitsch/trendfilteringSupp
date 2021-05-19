@@ -320,6 +320,7 @@ SURE.trendfilter <- function(x,
   optimism <- 2 * out$df / nrow(data) * mean(1 / data.scaled$weights)
   errors <- as.numeric(training.error + optimism)
   edfs <- out$df
+  n.iter <- out$iter
   
   i.min <- as.integer(which.min(errors))
   gamma.min <- gammas[i.min]
@@ -372,7 +373,7 @@ SURE.trendfilter <- function(x,
                         k = as.integer(k),
                         thinning = thinning,
                         optimization.params = optimization.params,
-                        n.iter = out$iter,
+                        n.iter = n.iter,
                         x.scale = x.scale, 
                         y.scale = y.scale,
                         data.scaled = data.scaled

@@ -101,6 +101,9 @@ algorithm to converge within the given tolerance, for each hyperparameter
 value. If many of these are exactly equal to \code{max_iter}, then their
 solutions have not converged with the tolerance specified by \code{obj_tol}.
 In which case, it is often prudent to increase \code{max_iter}.}
+\item{n.iter.boots}{Vector of the number of iterations needed for the ADMM
+algorithm to converge within the given tolerance, for each bootstrap
+trend filtering estimate.}
 \item{x.scale, y.scale, data.scaled}{for internal use.}
 }
 \description{
