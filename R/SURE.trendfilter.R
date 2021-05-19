@@ -341,7 +341,6 @@ SURE.trendfilter <- function(x,
   )
   
   edfs <- out$df
-  
   optimization.params$obj_tol <- optimization.params$obj_tol * 1e2
   
   tf.estimate <- glmgen:::predict.trendfilter(out, 
@@ -373,9 +372,10 @@ SURE.trendfilter <- function(x,
                         k = as.integer(k),
                         thinning = thinning,
                         optimization.params = optimization.params,
-                        data.scaled = data.scaled,
+                        n.iter = out$iter,
                         x.scale = x.scale, 
-                        y.scale = y.scale
+                        y.scale = y.scale,
+                        data.scaled = data.scaled
                         ),
                    class = "SURE.trendfilter"
                    )
