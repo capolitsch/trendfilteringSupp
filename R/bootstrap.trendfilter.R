@@ -313,7 +313,7 @@ tf.estimator <- function(data,
                                   )
     
     i.min <- which.min( abs(tf.fit$df - obj$edf.min) )
-    gammas.min <- obj$gammas[i.min]
+    gamma.min <- obj$gammas[i.min]
     edf.min <- tf.fit$df[i.min]
     
     if ( obj$prune && edf.min <= 2 ){
