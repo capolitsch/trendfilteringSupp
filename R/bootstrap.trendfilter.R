@@ -82,6 +82,9 @@
 #' value. If many of these are exactly equal to \code{max_iter}, then their
 #' solutions have not converged with the tolerance specified by \code{obj_tol}.
 #' In which case, it is often prudent to increase \code{max_iter}.}
+#' \item{n.iter.boots}{Vector of the number of iterations needed for the ADMM
+#' algorithm to converge within the given tolerance, for each bootstrap
+#' trend filtering estimate.}
 #' \item{x.scale, y.scale, data.scaled}{for internal use.}
 #' @details This will contain a very detailed description... See
 #' \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
@@ -270,6 +273,9 @@ bootstrap.trendfilter <- function(obj,
   obj$edf.boots <- lapply(X = 1:B, FUN = function(X) par.out[[X]][["edf"]]) %>%
     unlist %>%
     as.integer
+  obj$n.iter.boots <- lapply(X = 1:B, FUN = function(X) par.out[[X]][["n.iter"]]) %>%
+    unlist %>%
+    as.integer
   obj$n.pruned <- (B - ncol(tf.boot.ensemble)) %>% as.integer
   obj$bootstrap.lower.band <- apply(tf.boot.ensemble, 1, quantile, 
                                               probs = alpha / 2) 
@@ -289,7 +295,8 @@ bootstrap.trendfilter <- function(obj,
                "edf.boots","tf.bootstrap.ensemble","prune","n.pruned","x","y",
                "weights","fitted.values","residuals","k","gammas","gamma.min",
                "edfs","edf.min","i.min","validation.method","errors","thinning",
-               "optimization.params","n.iter","x.scale","y.scale","data.scaled")
+               "optimization.params","n.iter","n.iter.boots","x.scale","y.scale",
+               "data.scaled")
              ]
   class(obj) <- "bootstrap.trendfilter"
   
@@ -316,9 +323,10 @@ tf.estimator <- function(data,
     i.min <- which.min( abs(tf.fit$df - obj$edf.min) )
     gamma.min <- obj$gammas[i.min]
     edf.min <- tf.fit$df[i.min]
+    n.iter <- tf.fit$iter[i.min]
     
     if ( obj$prune && edf.min <= 2 ){
-      return(list(tf.estimate = integer(0), df = NA))
+      return(list(tf.estimate = integer(0), df = NA, n.iter = NA))
     }
     
   }
@@ -334,6 +342,7 @@ tf.estimator <- function(data,
     
     gamma.min <- obj$gamma.min
     edf.min <- tf.fit$df
+    n.iter <- as.integer(tf.fit$iter)
   }
 
   tf.estimate <- glmgen:::predict.trendfilter(object = tf.fit, 
@@ -341,7 +350,7 @@ tf.estimator <- function(data,
                                               lambda = gamma.min
                                               ) %>% as.numeric
   
-  return(list(tf.estimate = tf.estimate * obj$y.scale, edf = edf.min))
+  return(list(tf.estimate = tf.estimate * obj$y.scale, edf = edf.min, n.iter = n.iter))
 }
 
 
