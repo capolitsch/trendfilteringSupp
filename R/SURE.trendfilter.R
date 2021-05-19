@@ -341,6 +341,8 @@ SURE.trendfilter <- function(x,
                              control = optimization.params
   )
   
+  optimization.params$obj_tol <- optimization.params$obj_tol * 1e2
+  
   tf.estimate <- glmgen:::predict.trendfilter(out, 
                                               lambda = gamma.min, 
                                               x.new = x.eval / x.scale) %>%
