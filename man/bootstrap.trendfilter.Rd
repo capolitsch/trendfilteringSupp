@@ -125,7 +125,6 @@ unknown \mjeqn{\Longrightarrow}{ascii} \code{bootstrap.algorithm = "wild"}.}
 #############################################################################
 ##                    Quasar Lyman-alpha forest example                    ##
 #############################################################################
-
 # A quasar is an extremely luminous galaxy with an active supermassive black 
 # hole at its center. Absorptions in the spectra of quasars at vast 
 # cosmological distances from our galaxy reveal the presence of a gaseous 
@@ -151,7 +150,7 @@ data(quasar_spec)
 # |           3.5530| -2.1143005| 0.1247811|
 # |           3.5531| -3.7832341| 0.1284383|
 
-SURE.obj <- SURE.trendfilter(x = data$log10.wavelength, 
+SURE.out <- SURE.trendfilter(x = data$log10.wavelength, 
                              y = data$flux, 
                              weights = data$weights)
 
@@ -160,19 +159,19 @@ SURE.obj <- SURE.trendfilter(x = data$log10.wavelength,
 # filtering estimate from the `SURE.trendfilter` output, and transform the 
 # input grid to wavelength space (in Angstroms).
 
-log.gammas <- log(SURE.obj$gammas)
-errors <- SURE.obj$errors
-log.gamma.min <- log(SURE.obj$gamma.min)
+log.gammas <- log(SURE.out$gammas)
+errors <- SURE.out$errors
+log.gamma.min <- log(SURE.out$gamma.min)
 
-wavelength <- 10 ^ (SURE.obj$x)
-wavelength.eval <- 10 ^ (SURE.obj$x.eval)
-tf.estimate <- SURE.obj$tf.estimate
+wavelength <- 10 ^ (SURE.out$x)
+wavelength.eval <- 10 ^ (SURE.out$x.eval)
+tf.estimate <- SURE.out$tf.estimate
 
 
 # Run a parametric bootstrap on the optimized trend filtering estimator to 
 # obtain uncertainty bands
 
-boot.out <- bootstrap.trendfilter(obj = SURE.obj, 
+boot.out <- bootstrap.trendfilter(obj = SURE.out, 
                                   bootstrap.algorithm = "parametric")
 
 
@@ -185,7 +184,7 @@ abline(v = log.gamma.min, lty = 2, col = "blue3")
 text(x = log.gamma.min, y = par("usr")[4], 
      labels = "optimal gamma", pos = 1, col = "blue3")
 
-plot(x = wavelength, y = SURE.obj$y, type = "l", 
+plot(x = wavelength, y = SURE.out$y, type = "l", 
      main = "Quasar Lyman-alpha forest", 
      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 polygon(c(wavelength.eval, rev(wavelength.eval)), 

@@ -186,7 +186,7 @@
 #' # |           3.5530| -2.1143005| 0.1247811|
 #' # |           3.5531| -3.7832341| 0.1284383|
 #' 
-#' SURE.obj <- SURE.trendfilter(x = data$log10.wavelength, 
+#' SURE.out <- SURE.trendfilter(x = data$log10.wavelength, 
 #'                              y = data$flux, 
 #'                              weights = data$weights)
 #' 
@@ -195,13 +195,13 @@
 #' # filtering estimate from the `SURE.trendfilter` output, and transform the 
 #' # input grid to wavelength space (in Angstroms).
 #' 
-#' log.gammas <- log(SURE.obj$gammas)
-#' errors <- SURE.obj$errors
-#' log.gamma.min <- log(SURE.obj$gamma.min)
+#' log.gammas <- log(SURE.out$gammas)
+#' errors <- SURE.out$errors
+#' log.gamma.min <- log(SURE.out$gamma.min)
 #' 
-#' wavelength <- 10 ^ (SURE.obj$x)
-#' wavelength.eval <- 10 ^ (SURE.obj$x.eval)
-#' tf.estimate <- SURE.obj$tf.estimate
+#' wavelength <- 10 ^ (SURE.out$x)
+#' wavelength.eval <- 10 ^ (SURE.out$x.eval)
+#' tf.estimate <- SURE.out$tf.estimate
 #' 
 #' 
 #' # Plot the results
@@ -213,7 +213,7 @@
 #' text(x = log.gamma.min, y = par("usr")[4], 
 #'      labels = "optimal gamma", pos = 1, col = "blue3")
 #' 
-#' plot(x = wavelength, y = SURE.obj$y, type = "l", 
+#' plot(x = wavelength, y = SURE.out$y, type = "l", 
 #'      main = "Quasar Lyman-alpha forest", 
 #'      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 #' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)

@@ -199,7 +199,6 @@ estimate with hyperparameter \eqn{\gamma}, evaluated at
 #######################################################################
 ###  Phase-folded light curve of an eclipsing binary star system   ####
 #######################################################################
-
 # A binary star system is a pair of closely-separated stars that move
 # in an orbit around a common center of mass. When a binary star system 
 # is oriented in such a way that the stars eclipse one another from our 
@@ -224,7 +223,8 @@ data(eclipsing_binary)
 # | -0.4978067| 0.9295757| 0.010162|
 # | -0.4957892| 0.9438493| 0.010162|
 
-# This specific choice of values did not come a priori
+# I did not think up this specific choice of grid a priori
+# It required some empirical honing
 gamma.grid <- exp( seq(7, 16, length = 150) )
 
 cv.out <- cv.trendfilter(x = df$phase, 

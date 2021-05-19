@@ -214,7 +214,8 @@
 #' # | -0.4978067| 0.9295757| 0.010162|
 #' # | -0.4957892| 0.9438493| 0.010162|
 #' 
-#' # This specific choice of values did not come a priori
+#' # I did not think up this specific choice of grid a priori
+#' # It required some empirical honing
 #' gamma.grid <- exp( seq(7, 16, length = 150) )
 #' 
 #' cv.out <- cv.trendfilter(x = df$phase, 
