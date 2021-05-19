@@ -319,6 +319,7 @@ SURE.trendfilter <- function(x,
   training.error <- colMeans( (out$beta - data.scaled$y) ^ 2 ) 
   optimism <- 2 * out$df / nrow(data) * mean(1 / data.scaled$weights)
   errors <- as.numeric(training.error + optimism)
+  edfs <- out$df
   
   i.min <- as.integer(which.min(errors))
   gamma.min <- gammas[i.min]
@@ -340,7 +341,6 @@ SURE.trendfilter <- function(x,
                              control = optimization.params
   )
   
-  edfs <- out$df
   optimization.params$obj_tol <- optimization.params$obj_tol * 1e2
   
   tf.estimate <- glmgen:::predict.trendfilter(out, 
