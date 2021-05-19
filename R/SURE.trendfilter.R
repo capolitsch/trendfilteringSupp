@@ -122,7 +122,7 @@
 #' \enumerate{
 #' \item{Politsch et al. (2020a). Trend filtering – I. A modern 
 #' statistical tool for time-domain astronomy and astronomical spectroscopy. 
-#' \emph{Monthly Notices of the Royal Astronomical Society}, 492(3), 
+#' \emph{Monthly Notices of the Royal Astronomical Society}, 492(3),
 #' p. 4005-4018.
 #' \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
 #' \strong{[Link]}}} \cr
@@ -302,7 +302,7 @@ SURE.trendfilter <- function(x,
     filter( weights != 0 ) %>%
     drop_na 
   
-  rm(x, y, y.num, y.den, var.y.num, var.y.den, weights)
+  rm(x,y.num,y.den,var.y.num,var.y.den,weights)
   
   x.scale <- median(diff(data$x))
   y.scale <- median(abs(data$y.num / data$y.den)) / 10
@@ -383,7 +383,7 @@ SURE.trendfilter <- function(x,
                         y.num = data$y.num, 
                         y.den = data$y.den,
                         var.y.num = data$var.y.num, 
-                        var.y.den = data$vary.den,
+                        var.y.den = data$var.y.den,
                         weights = data$weights,
                         fitted.values = data.scaled$fitted.values * y.scale,
                         residuals = data.scaled$residuals * y.scale,
