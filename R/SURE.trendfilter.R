@@ -234,10 +234,11 @@ SURE.trendfilter <- function(x,
   }
   
   if ( missing(y0) ){
-    data <- tibble(x = x, y = y, weights = weights, y0 = NA, y1 = NA, var.y0 = NA, var.y1 = NA) %>% 
+    data <- tibble(x = x, y = y, weights = weights) %>% 
       arrange(x) %>% 
       filter( weights != 0 ) %>%
-      drop_na   
+      drop_na %>%
+      mutate(y0 = NA, y1 = NA, var.y0 = NA, var.y1 = NA)
     
     rm(x,y,weights,y0,y1,var.y0,var.y1)
   }else{
