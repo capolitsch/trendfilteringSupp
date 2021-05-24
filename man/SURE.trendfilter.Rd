@@ -7,11 +7,12 @@ unbiased risk estimate)}
 \usage{
 SURE.trendfilter(
   x,
-  y.num,
-  y.den,
-  var.y.num,
-  var.y.den,
-  weights = weights,
+  y,
+  weights,
+  y0,
+  y1,
+  var.y0,
+  var.y1,
   k = 2L,
   ngammas = 250L,
   gammas = NULL,
@@ -26,13 +27,8 @@ SURE.trendfilter(
 predictor, covariate, explanatory variable, regressor, independent variable, 
 control variable, etc.)}
 
-\item{y.num}{The numerator of the output variable.}
-
-\item{y.den}{The denominator of the output variable.}
-
-\item{var.y.num}{The variance of the observations of the response numerator.}
-
-\item{var.y.den}{The variance of the observations of the response denominator.}
+\item{y}{The vector of observed values of the output variable (a.k.a. the
+response, target, outcome, regressand, dependent variable, etc.).}
 
 \item{weights}{\strong{Currently mandatory. If the uncertainty in the 
 observed outputs is not well understood, use \code{cv.trendfilter} instead.} 
@@ -43,6 +39,14 @@ errors of the uncertainty in the observed outputs. \code{weights} should
 either have length equal to 1 (corresponding to observations with a constant 
 (scalar) variance of \code{sigma = 1/sqrt(weights)}) or length equal to 
 \code{length(y)} (i.e. general heteroskedastic noise).}
+
+\item{y0}{(Optional) The numerator of the output variable.}
+
+\item{y1}{(Optional) The denominator of the output variable.}
+
+\item{var.y0}{(Optional) The variance of the response numerator.}
+
+\item{var.y1}{(Optional) The variance of response denominator.}
 
 \item{k}{The degree of the trend filtering estimator. Defaults to 
 \code{k = 2} (quadratic trend filtering). Must be one of \code{k = 0,1,2,3},
@@ -98,9 +102,6 @@ the signal.
 of size \code{x_tol} and find at least two \code{x}'s which fall into the 
 same bin, then we thin the data.
 }}
-
-\item{y}{The vector of observed values of the output variable (a.k.a. the
-response, target, outcome, regressand, dependent variable, etc.).}
 }
 \value{
 An object of class 'SURE.trendfilter'. This is a list with the 
@@ -123,10 +124,10 @@ filtering estimator.}
 the SURE error curve.}
 \item{x}{The vector of the observed inputs.}
 \item{y}{The vector of the observed outputs.}
-\item{y.num} The numerator of the output variable.
-\item{y.den} The denominator of the output variable.
-\item{var.y.num} The variance of the observations of the response numerator.
-\item{var.y.den} The variance of the observations of the response denominator.
+\item{y0}{The numerator of the output variable.}
+\item{y1}{The denominator of the output variable.}
+\item{var.y0}{The variance of the observations of the response numerator.}
+\item{var.y1}{The variance of the observations of the response denominator.}
 \item{weights}{A vector of weights for the observed outputs. These are
 defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
 standard errors of the uncertainty in the observed outputs.}
@@ -155,84 +156,19 @@ within a larger list with useful ancillary information.
 \details{
 This will contain a very detailed description...
 }
-\examples{
-#############################################################################
-##                    Quasar Lyman-alpha forest example                    ##
-#############################################################################
-# A quasar is an extremely luminous galaxy with an active supermassive black 
-# hole at its center. Absorptions in the spectra of quasars at vast 
-# cosmological distances from our galaxy reveal the presence of a gaseous 
-# medium permeating the entirety of intergalactic space -- appropriately 
-# named the 'intergalactic medium'. These absorptions allow astronomers to 
-# study the structure of the Universe using the distribution of these 
-# absorptions in quasar spectra. Particularly important is the 'forest' of 
-# absorptions that arise from the Lyman-alpha spectral line, which traces 
-# the presence of electrically neutral hydrogen in the intergalactic medium.
-#
-# Here, we are interested in denoising the Lyman-alpha forest of a quasar 
-# spectroscopically measured by the Sloan Digital Sky Survey. SDSS spectra 
-# are equally spaced in log10 wavelength space, aside from some instances of 
-# masked pixels.
-
-data(quasar_spec)
-
-# head(data)
-#
-# | log10.wavelength|       flux|   weights|
-# |----------------:|----------:|---------:|
-# |           3.5529|  0.4235348| 0.0417015|
-# |           3.5530| -2.1143005| 0.1247811|
-# |           3.5531| -3.7832341| 0.1284383|
-
-SURE.out <- SURE.trendfilter(x = data$log10.wavelength, 
-                             y = data$flux, 
-                             weights = data$weights)
-
-
-# Extract the estimated hyperparameter error curve and optimized trend 
-# filtering estimate from the `SURE.trendfilter` output, and transform the 
-# input grid to wavelength space (in Angstroms).
-
-log.gammas <- log(SURE.out$gammas)
-errors <- SURE.out$errors
-log.gamma.min <- log(SURE.out$gamma.min)
-
-wavelength <- 10 ^ (SURE.out$x)
-wavelength.eval <- 10 ^ (SURE.out$x.eval)
-tf.estimate <- SURE.out$tf.estimate
-
-
-# Plot the results
-
-par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-plot(x = log.gammas, y = errors, main = "SURE error curve", 
-     xlab = "log(gamma)", ylab = "SURE error")
-abline(v = log.gamma.min, lty = 2, col = "blue3")
-text(x = log.gamma.min, y = par("usr")[4], 
-     labels = "optimal gamma", pos = 1, col = "blue3")
-
-plot(x = wavelength, y = SURE.out$y, type = "l", 
-     main = "Quasar Lyman-alpha forest", 
-     xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
-lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
-legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
-       legend = c("Noisy quasar Lyman-alpha forest", 
-                  "Trend filtering estimate"))
-}
 \references{
 \strong{Trend filtering with Stein's unbiased risk estimate}
 \enumerate{
 \item{Politsch et al. (2020a). Trend filtering – I. A modern 
 statistical tool for time-domain astronomy and astronomical spectroscopy. 
-\emph{Monthly Notices of the Royal Astronomical Society}, 492(3),
-p. 4005-4018.
-\href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
-\strong{[Link]}}} \cr
+\emph{Monthly Notices of the Royal Astronomical Society}, 492(3), 
+p. 4005-4018. 
+\href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{\strong{[Link]}}}
 \item{Politsch et al. (2020b). Trend Filtering – II. Denoising 
 astronomical signals with varying degrees of smoothness. \emph{Monthly 
 Notices of the Royal Astronomical Society}, 492(3), p. 4019-4032.
 \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
-\strong{[Link]}}} \cr
+\strong{[Link]}}}
 }
 \strong{Estimating effective degrees of freedom in trend filtering}
 \enumerate{

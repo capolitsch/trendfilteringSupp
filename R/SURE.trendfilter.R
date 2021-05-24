@@ -11,10 +11,10 @@
 #' control variable, etc.)
 #' @param y The vector of observed values of the output variable (a.k.a. the
 #' response, target, outcome, regressand, dependent variable, etc.).
-#' @param y.num The numerator of the output variable.
-#' @param y.den The denominator of the output variable.
-#' @param var.y.num The variance of the observations of the response numerator.
-#' @param var.y.den The variance of the observations of the response denominator.
+#' @param y0 (Optional) The numerator of the output variable.
+#' @param y1 (Optional) The denominator of the output variable.
+#' @param var.y0 (Optional) The variance of the response numerator.
+#' @param var.y1 (Optional) The variance of response denominator.
 #' @param weights \strong{Currently mandatory. If the uncertainty in the 
 #' observed outputs is not well understood, use \code{cv.trendfilter} instead.} 
 #' \cr \cr 
@@ -92,10 +92,10 @@
 #' the SURE error curve.}
 #' \item{x}{The vector of the observed inputs.}
 #' \item{y}{The vector of the observed outputs.}
-#' \item{y.num} The numerator of the output variable.
-#' \item{y.den} The denominator of the output variable.
-#' \item{var.y.num} The variance of the observations of the response numerator.
-#' \item{var.y.den} The variance of the observations of the response denominator.
+#' \item{y0}{The numerator of the output variable.}
+#' \item{y1}{The denominator of the output variable.}
+#' \item{var.y0}{The variance of the observations of the response numerator.}
+#' \item{var.y1}{The variance of the observations of the response denominator.}
 #' \item{weights}{A vector of weights for the observed outputs. These are
 #' defined as \code{weights = 1 / sigma^2}, where \code{sigma} is a vector of 
 #' standard errors of the uncertainty in the observed outputs.}
@@ -122,15 +122,14 @@
 #' \enumerate{
 #' \item{Politsch et al. (2020a). Trend filtering – I. A modern 
 #' statistical tool for time-domain astronomy and astronomical spectroscopy. 
-#' \emph{Monthly Notices of the Royal Astronomical Society}, 492(3),
-#' p. 4005-4018.
-#' \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{
-#' \strong{[Link]}}} \cr
+#' \emph{Monthly Notices of the Royal Astronomical Society}, 492(3), 
+#' p. 4005-4018. 
+#' \href{https://academic.oup.com/mnras/article/492/3/4005/5704413}{\strong{[Link]}}}
 #' \item{Politsch et al. (2020b). Trend Filtering – II. Denoising 
 #' astronomical signals with varying degrees of smoothness. \emph{Monthly 
 #' Notices of the Royal Astronomical Society}, 492(3), p. 4019-4032.
 #' \href{https://academic.oup.com/mnras/article/492/3/4019/5704414}{
-#' \strong{[Link]}}} \cr
+#' \strong{[Link]}}}
 #' }
 #' \strong{Estimating effective degrees of freedom in trend filtering}
 #' \enumerate{
@@ -165,80 +164,19 @@
 #' \href{https://github.com/glmgen/glmgen}{\strong{[Link]}}}
 #' (Implementation of Ramdas and Tibshirani algorithm) \cr
 #' }
-#' @examples 
-#' #############################################################################
-#' ##                    Quasar Lyman-alpha forest example                    ##
-#' #############################################################################
-#' # A quasar is an extremely luminous galaxy with an active supermassive black 
-#' # hole at its center. Absorptions in the spectra of quasars at vast 
-#' # cosmological distances from our galaxy reveal the presence of a gaseous 
-#' # medium permeating the entirety of intergalactic space -- appropriately 
-#' # named the 'intergalactic medium'. These absorptions allow astronomers to 
-#' # study the structure of the Universe using the distribution of these 
-#' # absorptions in quasar spectra. Particularly important is the 'forest' of 
-#' # absorptions that arise from the Lyman-alpha spectral line, which traces 
-#' # the presence of electrically neutral hydrogen in the intergalactic medium.
-#' #
-#' # Here, we are interested in denoising the Lyman-alpha forest of a quasar 
-#' # spectroscopically measured by the Sloan Digital Sky Survey. SDSS spectra 
-#' # are equally spaced in log10 wavelength space, aside from some instances of 
-#' # masked pixels.
-#' 
-#' data(quasar_spec)
-#'
-#' # head(data)
-#' #
-#' # | log10.wavelength|       flux|   weights|
-#' # |----------------:|----------:|---------:|
-#' # |           3.5529|  0.4235348| 0.0417015|
-#' # |           3.5530| -2.1143005| 0.1247811|
-#' # |           3.5531| -3.7832341| 0.1284383|
-#' 
-#' SURE.out <- SURE.trendfilter(x = data$log10.wavelength, 
-#'                              y = data$flux, 
-#'                              weights = data$weights)
-#' 
-#' 
-#' # Extract the estimated hyperparameter error curve and optimized trend 
-#' # filtering estimate from the `SURE.trendfilter` output, and transform the 
-#' # input grid to wavelength space (in Angstroms).
-#' 
-#' log.gammas <- log(SURE.out$gammas)
-#' errors <- SURE.out$errors
-#' log.gamma.min <- log(SURE.out$gamma.min)
-#' 
-#' wavelength <- 10 ^ (SURE.out$x)
-#' wavelength.eval <- 10 ^ (SURE.out$x.eval)
-#' tf.estimate <- SURE.out$tf.estimate
-#' 
-#' 
-#' # Plot the results
-#'
-#' par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
-#' plot(x = log.gammas, y = errors, main = "SURE error curve", 
-#'      xlab = "log(gamma)", ylab = "SURE error")
-#' abline(v = log.gamma.min, lty = 2, col = "blue3")
-#' text(x = log.gamma.min, y = par("usr")[4], 
-#'      labels = "optimal gamma", pos = 1, col = "blue3")
-#' 
-#' plot(x = wavelength, y = SURE.out$y, type = "l", 
-#'      main = "Quasar Lyman-alpha forest", 
-#'      xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
-#' lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
-#' legend(x = "topleft", lwd = c(1,2), lty = 1, col = c("black","orange"), 
-#'        legend = c("Noisy quasar Lyman-alpha forest", 
-#'                   "Trend filtering estimate"))
+
 
 #' @importFrom tidyr drop_na tibble
 #' @importFrom magrittr %>% %$%
 #' @importFrom dplyr arrange filter
 #' @importFrom glmgen trendfilter.control.list
 SURE.trendfilter <- function(x,
-                             y.num,
-                             y.den,
-                             var.y.num,
-                             var.y.den,
-                             weights = weights,
+                             y,
+                             weights,
+                             y0,
+                             y1,
+                             var.y0,
+                             var.y1,
                              k = 2L,
                              ngammas = 250L,
                              gammas = NULL,
@@ -251,17 +189,16 @@ SURE.trendfilter <- function(x,
   {
   
   if ( missing(x) || is.null(x) ) stop("x must be passed.")
-  if ( missing(y.num) || is.null(y.num) ) stop("y.num must be passed.")
-  if ( missing(y.den) || is.null(y.den) ) stop("y.den must be passed.")
-  if ( length(x) != length(y.num) ) stop("x and y.num must have the same length.")
+  if ( missing(y) || is.null(y) ) stop("y must be passed.")
+  if ( length(x) != length(y) ) stop("x and y must have the same length.")
   if ( missing(weights) || !is.numeric(weights) ){
     stop(paste0("Currently, the user must pass weights to compute SURE.\n", 
-    "If (reliable) estimates are not available, use cv.trendfilter."))
+                "If (reliable) estimates are not available, use cv.trendfilter."))
   }
-  if ( !(length(weights) %in% c(1,length(y.num))) ){
-    stop("weights must either be have length 1 or length(y.num).")
+  if ( !(length(weights) %in% c(1,length(y))) ){
+    stop("weights must either be have length 1 or length(y).")
   }
-  if ( length(y.num) < k + 2 ){
+  if ( length(y) < k + 2 ){
     stop("y must have length >= k+2 for kth order trend filtering.")
   }
   if ( k < 0 || k != round(k) ){
@@ -292,20 +229,28 @@ SURE.trendfilter <- function(x,
       stop("x.eval should all be in range(x).")
     }
   }
-  
   if ( length(weights) == 1 ){
     weights <- rep(weights, length(x))
   }
   
-  data <- tibble(x, y = y.num / y.den, y.num, y.den, var.y.num, var.y.den, weights) %>% 
-    arrange(x) %>% 
-    filter( weights != 0 ) %>%
-    drop_na 
-  
-  rm(x,y.num,y.den,var.y.num,var.y.den,weights)
+  if ( is.missing(y0) ){
+    data <- tibble(x = x, y = y, weights = weights, y0 = NA, y1 = NA, var.y0 = NA, var.y1 = NA) %>% 
+      arrange(x) %>% 
+      filter( weights != 0 ) %>%
+      drop_na   
+    
+    rm(x,y,weights,y0,y1,var.y0,var.y1)
+  }else{
+    data <- tibble(x, y, weights, y0, y1, var.y0, var.y1) %>% 
+      arrange(x) %>% 
+      filter( weights != 0 ) %>%
+      drop_na   
+    
+    rm(x,y,weights)
+  }
   
   x.scale <- median(diff(data$x))
-  y.scale <- median(abs(data$y.num / data$y.den)) / 10
+  y.scale <- median(abs(data$y)) / 10
   optimization.params$x_tol <- optimization.params$x_tol / x.scale
   
   data.scaled <- data %>%
@@ -380,10 +325,10 @@ SURE.trendfilter <- function(x,
                         errors = errors * y.scale ^ 2,
                         x = data$x,
                         y = data$y,
-                        y.num = data$y.num, 
-                        y.den = data$y.den,
-                        var.y.num = data$var.y.num, 
-                        var.y.den = data$var.y.den,
+                        y0 = ifelse(missing(y0), NULL, data$y0),
+                        y1 = ifelse(missing(y0), NULL, data$y0),
+                        var.y0 = ifelse(missing(y0), NULL, data$y0), 
+                        var.y1 = ifelse(missing(y0), NULL, data$y0),
                         weights = data$weights,
                         fitted.values = data.scaled$fitted.values * y.scale,
                         residuals = data.scaled$residuals * y.scale,
