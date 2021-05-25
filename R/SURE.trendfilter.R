@@ -314,6 +314,18 @@ SURE.trendfilter <- function(x,
   
   data.scaled <- data.scaled %>% mutate(residuals = y - fitted.values)
 
+  if ( "y0" %in% data ){
+    y0 <- NULL
+    y1 <- NULL
+    var.y0 <- NULL
+    var.y1 <- NULL
+  }else{
+    y0 <- data$y0
+    y1 <- data$y1
+    var.y0 <- data$var.y0
+    var.y1 <- data$var.y1
+  }
+  
   obj <- structure(list(x.eval = x.eval,
                         tf.estimate = tf.estimate * y.scale,
                         validation.method = "SURE",
@@ -325,10 +337,10 @@ SURE.trendfilter <- function(x,
                         errors = errors * y.scale ^ 2,
                         x = data$x,
                         y = data$y,
-                        y0 = ifelse(!( y0 %in% data ), data$y0, NULL),
-                        y1 = ifelse(!( y1 %in% data ), data$y1, NULL),
-                        var.y0 = ifelse(!( var.y0 %in% data ), data$var.y0, NULL), 
-                        var.y1 = ifelse(!( var.y1 %in% data ), data$var.y1, NULL), 
+                        y0 = y0,
+                        y1 = y1,
+                        var.y0 = var.y0, 
+                        var.y1 = var.y1, 
                         weights = data$weights,
                         fitted.values = data.scaled$fitted.values * y.scale,
                         residuals = data.scaled$residuals * y.scale,
