@@ -237,17 +237,16 @@ SURE.trendfilter <- function(x,
     data <- tibble(x = x, y = y, weights = weights) %>% 
       arrange(x) %>% 
       filter( weights != 0 ) %>%
-      drop_na %>%
-      mutate(y0 = NA, y1 = NA, var.y0 = NA, var.y1 = NA)
+      drop_na
     
-    rm(x,y,weights,y0,y1,var.y0,var.y1)
+    rm(x,y,weights)
   }else{
     data <- tibble(x, y, weights, y0, y1, var.y0, var.y1) %>% 
       arrange(x) %>% 
       filter( weights != 0 ) %>%
       drop_na   
     
-    rm(x,y,weights)
+    rm(x,y,weights,y0,y1,var.y0,var.y1)
   }
   
   x.scale <- median(diff(data$x))
@@ -314,7 +313,7 @@ SURE.trendfilter <- function(x,
     as.numeric
   
   data.scaled <- data.scaled %>% mutate(residuals = y - fitted.values)
-  
+
   obj <- structure(list(x.eval = x.eval,
                         tf.estimate = tf.estimate * y.scale,
                         validation.method = "SURE",
@@ -326,10 +325,10 @@ SURE.trendfilter <- function(x,
                         errors = errors * y.scale ^ 2,
                         x = data$x,
                         y = data$y,
-                        y0 = ifelse(missing(y0), NULL, data$y0),
-                        y1 = ifelse(missing(y0), NULL, data$y0),
-                        var.y0 = ifelse(missing(y0), NULL, data$y0), 
-                        var.y1 = ifelse(missing(y0), NULL, data$y0),
+                        y0 = ifelse(!( y0 %in% data ), data$y0, NULL),
+                        y1 = ifelse(!( y1 %in% data ), data$y1, NULL),
+                        var.y0 = ifelse(!( var.y0 %in% data ), data$var.y0, NULL), 
+                        var.y1 = ifelse(!( var.y1 %in% data ), data$var.y1, NULL), 
                         weights = data$weights,
                         fitted.values = data.scaled$fitted.values * y.scale,
                         residuals = data.scaled$residuals * y.scale,
