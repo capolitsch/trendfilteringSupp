@@ -9,10 +9,10 @@ library(trendfilteringSupp)
 ?bootstrap.trendfilter
 ```
 
-This package serves as a software supplement to [Politsch et al. (2020a)](https://academic.oup.com/mnras/article/492/3/4005/5704413) 
-and [Politsch et al. (2020b)](https://academic.oup.com/mnras/article/492/3/4019/5704414).
+This package serves as a software supplement to [C. A. Politsch et al. (2020a)](https://academic.oup.com/mnras/article/492/3/4005/5704413) 
+and [C. A. Politsch et al. (2020b)](https://academic.oup.com/mnras/article/492/3/4019/5704414).
 We provide a variety of statistical tools for one-dimensional data analyses 
-with trend filtering [(Tibshirani 2014)](https://projecteuclid.org/euclid.aos/1395234979). 
+with trend filtering [(R. J. Tibshirani 2014)](https://projecteuclid.org/euclid.aos/1395234979). 
 This package contains user-friendly functionality for optimizing a trend 
 filtering estimator by cross validation or Stein's unbiased risk estimate and 
 various bootstrap algorithms for producing variability bands to quantify the 
@@ -21,10 +21,10 @@ uncertainty in the optimized trend filtering estimate.
 
 ## Key references:
 
-Politsch et al. (2020a). Trend Filtering – I. A modern statistical tool for time-domain astronomy and Astronomical Spectroscopy. 
+C. A. Politsch et al. (2020a). Trend Filtering – I. A modern statistical tool for time-domain astronomy and Astronomical Spectroscopy. 
 *Monthly Notices of the Royal Astronomical Society*, 492(3), p. 4005-4018. [[Link](https://academic.oup.com/mnras/article/492/3/4005/5704413)]
 
-Politsch et al. (2020b). Trend Filtering – II. Denoising astronomical signals with varying degrees of smoothness. 
+C. A. Politsch et al. (2020b). Trend Filtering – II. Denoising astronomical signals with varying degrees of smoothness. 
 *Monthly Notices of the Royal Astronomical Society*, 492(3), p. 4019-4032. [[Link](https://academic.oup.com/mnras/article/492/3/4019/5704414)]
 
 R. J. Tibshirani (2014). Adaptive piecewise polynomial estimation via trend filtering. 
