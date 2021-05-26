@@ -41,9 +41,9 @@ version 0.0.3. [[Link](https://github.com/glmgen/glmgen)]
 ## Quasar Lyman-alpha forest example 
 
 ```
-#############################################################################
-##                    Quasar Lyman-alpha forest example                    ##
-#############################################################################
+############################################################################
+##                    Quasar Lyman-alpha forest example                   ##
+############################################################################
 # A quasar is an extremely luminous galaxy with an active supermassive black 
 # hole at its center. Absorptions in the spectra of quasars at vast 
 # cosmological distances from our galaxy reveal the presence of a gaseous 
