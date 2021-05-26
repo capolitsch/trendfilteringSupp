@@ -71,8 +71,8 @@ data("plotting_utilities")
 # |           3.5531| -3.7832341| 0.1284383|
 
 SURE.out <- SURE.trendfilter(x = data$log10.wavelength, 
-                            y = data$flux, 
-                            weights = data$weights)
+                             y = data$flux, 
+                             weights = data$weights)
 
 
 # Extract the estimated hyperparameter error curve and optimized trend 
@@ -91,32 +91,32 @@ tf.estimate <- SURE.out$tf.estimate
 # obtain uncertainty bands
 
 boot.out <- bootstrap.trendfilter(obj = SURE.out, 
-                                 bootstrap.algorithm = "parametric")
+                                  bootstrap.algorithm = "parametric")
 
 
 # Plot the results
 par(mfrow = c(2,1), mar = c(5,4,2.5,1) + 0.1)
 plot(x = log.gammas, y = errors, main = "SURE error curve", 
-    xlab = "log(gamma)", ylab = "SURE error")
+     xlab = "log(gamma)", ylab = "SURE error")
 abline(v = log.gamma.min, lty = 2, col = "blue3")
 text(x = log.gamma.min, y = par("usr")[4], 
-    labels = "optimal gamma", pos = 1, col = "blue3")
+     labels = "optimal gamma", pos = 1, col = "blue3")
 
 plot(x = wavelength, y = SURE.out$y, type = "l", 
-    main = "Quasar Lyman-alpha forest", 
-    xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
+     main = "Quasar Lyman-alpha forest", 
+     xlab = "Observed wavelength (Angstroms)", ylab = "Flux")
 polygon(c(wavelength.eval, rev(wavelength.eval)), 
-       c(boot.out$bootstrap.lower.band, 
-       rev(boot.out$bootstrap.upper.band)),
-       col = transparency("orange", 90), border = NA)
+        c(boot.out$bootstrap.lower.band, 
+        rev(boot.out$bootstrap.upper.band)),
+        col = transparency("orange", 90), border = NA)
 lines(wavelength.eval, boot.out$bootstrap.lower.band, 
-     col = "orange", lwd = 0.5)
+      col = "orange", lwd = 0.5)
 lines(wavelength.eval, boot.out$bootstrap.upper.band, 
-     col = "orange", lwd = 0.5)
+      col = "orange", lwd = 0.5)
 lines(wavelength.eval, tf.estimate, col = "orange", lwd = 2.5)
 legend(x = "topleft", lwd = c(1,2,8), lty = 1, cex = 0.75,
-      col = c("black","orange", transparency("orange", 90)), 
-      legend = c("Noisy quasar spectrum",
-                 "Trend filtering estimate",
-                 "95% variability band"))
+       col = c("black","orange", transparency("orange", 90)), 
+       legend = c("Noisy quasar spectrum",
+                  "Trend filtering estimate",
+                  "95% variability band"))
 ```
