@@ -9,10 +9,10 @@ library(trendfilteringSupp)
 ?bootstrap.trendfilter
 ```
 
-This package serves as a software supplement to [C. A. Politsch et al. (2020a)](https://academic.oup.com/mnras/article/492/3/4005/5704413) 
-and [C. A. Politsch et al. (2020b)](https://academic.oup.com/mnras/article/492/3/4019/5704414).
+This package serves as a software supplement to [Politsch et al. (2020a)](https://academic.oup.com/mnras/article/492/3/4005/5704413) 
+and [Politsch et al. (2020b)](https://academic.oup.com/mnras/article/492/3/4019/5704414).
 We provide a variety of statistical tools for one-dimensional data analyses 
-with trend filtering [(R. J. Tibshirani 2014)](https://projecteuclid.org/euclid.aos/1395234979). 
+with trend filtering [(Tibshirani 2014)](https://projecteuclid.org/euclid.aos/1395234979). 
 This package contains user-friendly functionality for optimizing a trend 
 filtering estimator by cross validation or Stein's unbiased risk estimate and 
 various bootstrap algorithms for producing variability bands to quantify the 
