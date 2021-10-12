@@ -1,4 +1,4 @@
-# Optimal one-dimensional data analysis with trend filtering
+# Installation
 
 ```r
 devtools::install_github("capolitsch/trendfilteringSupp")
