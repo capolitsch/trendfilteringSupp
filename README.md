@@ -1,8 +1,6 @@
 # Installation
 
-```r
-devtools::install_github("capolitsch/trendfilteringSupp")
-```
+**This package is now deprecated. Please use the [trendfiltering](https://github.com/capolitsch/trendfiltering) R package.**
 
 This package serves as a software supplement to [Politsch et al. (2020a)](https://academic.oup.com/mnras/article/492/3/4005/5704413) 
 and [Politsch et al. (2020b)](https://academic.oup.com/mnras/article/492/3/4019/5704414).
@@ -14,7 +12,7 @@ various bootstrap algorithms for producing variability bands to quantify the
 uncertainty in the optimized trend filtering estimate.
 
 
-## Key references:
+# Key references:
 
 C. A. Politsch et al. (2020a). Trend Filtering – I. A modern statistical tool for time-domain astronomy and Astronomical Spectroscopy. 
 *Monthly Notices of the Royal Astronomical Society*, 492(3), p. 4005-4018. [[Link](https://academic.oup.com/mnras/article/492/3/4005/5704413)]
