@@ -1,6 +1,6 @@
 # Installation
 
-**This package is now deprecated. Please use the [trendfiltering](https://github.com/capolitsch/trendfiltering) R package.**
+**This package is now deprecated. Please use the [trendfiltering](https://github.com/capolitsch/trendfiltering) R package instead.**
 
 # Key references:
 
